@@ -1,29 +1,28 @@
 ﻿using Application.Interfaces;
+using Domain.Models;
 using MailKit.Net.Smtp;
 using MimeKit;
 
 namespace Application.Services {
+    
     internal class MailKitService : IEmailService {
         
-        public void SendEmail(string userName, string userEmail, string? token = null) {
+        public void SendEmail(EmailMessage messageData) {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Eduardo Lozano", "eduardoellozi2022@noreply.com"));
-            message.To.Add(new MailboxAddress(userName, userEmail));
-            message.Subject = "Condolife account verification";
-            var verificationLink = $"https://localhost:7031/api/User/verify-email?verificationToken={token}";
-            message.Body = new TextPart("plain") {
-                Text = $@"Olá {userName}, precisamos verificar a sua conta. Para isso, basta apenas clicar no link a seguir: {verificationLink}"
+            message.From.Add(new MailboxAddress(messageData.FromName, messageData.FromEmail));
+            message.To.Add(new MailboxAddress(messageData.ToName, messageData.ToEmail));
+            message.Subject = messageData.Subject;
+            message.Body = new TextPart("html") {
+                Text = messageData.Body
             };
 
-            using (var client = new SmtpClient()) {
-                client.Connect("smtp.gmail.com", 465, true);
+            using var client = new SmtpClient();
+            client.Connect("smtp.gmail.com", 465, true);
 
-                // Note: only needed if the SMTP server requires authentication
-                client.Authenticate("condolifemail@gmail.com", "ipxeydqdbydkamjn");
+            client.Authenticate(messageData.FromEmail, "ipxeydqdbydkamjn");
 
-                client.Send(message);
-                client.Disconnect(true);
-            }
+            client.Send(message);
+            client.Disconnect(true);
         }
     }
 }

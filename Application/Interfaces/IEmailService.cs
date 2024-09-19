@@ -1,5 +1,7 @@
-﻿namespace Application.Interfaces {
+﻿using Domain.Models;
+
+namespace Application.Interfaces {
     public interface IEmailService {
-        public void SendEmail(string userName, string userEmail, string? token = null);
+        public void SendEmail(EmailMessage messageData);
     }
 }
