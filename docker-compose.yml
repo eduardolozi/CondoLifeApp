@@ -1,0 +1,10 @@
+version: '3.1'
+services:
+  mssql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "1"
+      SA_PASSWORD: "numsey#2021"
+      MSSQL_PID: Express
+    ports:
+      - "1433:1433"
