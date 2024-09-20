@@ -1,29 +1,24 @@
 ﻿using Application.Interfaces;
 using Domain.Models;
 using Infraestructure;
-using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services {
     public class UserService {
         private readonly CondoLifeContext _dbContext;
         private readonly IEmailService _emailService;
-        private readonly PasswordHasher _passworHasher;
+        private readonly PasswordHasher<User> _passworHasher;
 
         public UserService(CondoLifeContext dbContext, IEmailService emailService)
         {
             _dbContext = dbContext;
             _emailService = emailService;
-            _passworHasher = new PasswordHasher();
+            _passworHasher = new PasswordHasher<User>();
         }
 
         public void Insert(User user) {
-            user.PasswordHash = _passworHasher.HashPassword(user.PasswordHash);
+            user.PasswordHash = _passworHasher.HashPassword(user, user.PasswordHash);
 
             _dbContext.Users.Add(user);
             _dbContext.SaveChanges();
@@ -49,7 +44,7 @@ namespace Application.Services {
                 FromName = "Eduardo Lozano",
                 ToEmail = user.Email,
                 ToName = user.Name,
-                Subject = "Condolife account verification",
+                Subject = "Verificação de conta - Condolife",
                 Body = $@"<p>Olá {user.Name}, precisamos verificar a sua conta. Para isso, basta apenas clicar no link a seguir: <a href={verificationLink}>Verificar email</a></p>",
             };
             _emailService.SendEmail(message);

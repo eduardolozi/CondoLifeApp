@@ -17,8 +17,10 @@ namespace Application.Services {
             };
 
             using var client = new SmtpClient();
+            //env
             client.Connect("smtp.gmail.com", 465, true);
 
+            //env
             client.Authenticate(messageData.FromEmail, "ipxeydqdbydkamjn");
 
             client.Send(message);
