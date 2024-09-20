@@ -19,7 +19,6 @@ namespace API.Controllers {
             return Ok(loginResult);
         }
 
-        [Authorize]
         [HttpPost("refresh-login")]
         public ActionResult RefreshLogin([FromBody] RefreshRequestDTO refreshRequest) {
             try {
