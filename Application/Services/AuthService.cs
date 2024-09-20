@@ -4,34 +4,37 @@ using Domain.Models;
 using Infraestructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace Application.Services {
-    public class AuthenticationService : IAuthenticationService {
+    public class AuthService : IAuthService {
         private readonly CondoLifeContext _dbContext;
         private readonly PasswordHasher<User> _passwordHasher;
 
-        public AuthenticationService(CondoLifeContext dbContext)
+        public AuthService(CondoLifeContext dbContext)
         {
             _dbContext = dbContext;
             _passwordHasher = new PasswordHasher<User>();
         }
 
         public LoginResponseDTO? Login(UserLoginDTO userLogin) {
-            var user = _dbContext.Users.FirstOrDefault(x => x.Email.Equals(userLogin.Email, StringComparison.CurrentCultureIgnoreCase)) 
-                ?? throw new Exception("Email incorreto.");
+            var user = _dbContext.Users.FirstOrDefault(x => x.Email.Equals(userLogin.Email, StringComparison.CurrentCultureIgnoreCase));
+            if(user is null) return new LoginResponseDTO { IsSuccess = false, ErrorMessage = "Email incorreto" };
 
             var verifyPasswordResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, userLogin.Password);
             if(verifyPasswordResult == PasswordVerificationResult.Success) {
                 return new LoginResponseDTO {
+                    IsSuccess = true,
                     AccessToken = CreateAccessToken(user),
-                    RefreshToken = CreateRefreshToken(user.Id)
+                    RefreshToken = CreateRefreshToken(user.Id).Token
                 };
             }
-            throw new Exception("Senha incorreta.");
+
+            return new LoginResponseDTO { IsSuccess = false, ErrorMessage = "Senha incorreta" };
         }
 
         public string CreateAccessToken(User user) {
@@ -40,6 +43,7 @@ namespace Application.Services {
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.RsaSha256);
 
             var claims = new List<Claim> {
+                new ("Id", user.Id.ToString()),
                 new (ClaimTypes.Name, user.Name),
                 new (ClaimTypes.Email, user.Email),
             };
@@ -85,8 +89,32 @@ namespace Application.Services {
             }
         }
 
-        public string RefreshAccessToken(string expiredToken, string refreshToken) {
-            
+        public LoginResponseDTO RefreshAccessToken(RefreshRequestDTO refreshRequest) {
+            var refreshTokenInDb = _dbContext.RefreshTokens.FirstOrDefault(x => x.Token == refreshRequest.RefreshToken)
+                ?? throw new Exception("Refresh Token não foi encontrado");
+            var isRefreshTokenExpired = refreshTokenInDb.ExpiresAt < DateTime.UtcNow;
+
+            if (!isRefreshTokenExpired) {
+                var principal = GetClaimsPrincipalFromExpiredAccessToken(refreshRequest.AccessToken);
+
+                var idClaim = principal.Claims.FirstOrDefault(x => x.Type == "Id")
+                    ?? throw new Exception("A claim Id não possui nenhum valor");
+                var id = int.Parse(idClaim.Value); 
+
+                var user = _dbContext.Users.FirstOrDefault(x => x.Id == id)
+                    ?? throw new Exception("O usuário não foi encontrado");
+
+                return new LoginResponseDTO {
+                    IsSuccess = true,
+                    AccessToken = CreateAccessToken(user),
+                    RefreshToken = refreshRequest.RefreshToken,
+                };
+            }
+
+            return new LoginResponseDTO {
+                IsSuccess = false,
+                ErrorMessage = "Sessão expirada"
+            };
         }
     }
 }
