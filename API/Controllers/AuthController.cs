@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers {
@@ -12,13 +13,14 @@ namespace API.Controllers {
             _authenticationService = authenticationService;
         }
 
-        [HttpGet("login")]
+        [HttpPost("login")]
         public OkObjectResult Login(UserLoginDTO userLogin) {
             var loginResult = _authenticationService.Login(userLogin);
             return Ok(loginResult);
         }
 
-        [HttpGet("refresh-login")]
+        [Authorize]
+        [HttpPost("refresh-login")]
         public ActionResult RefreshLogin([FromBody] RefreshRequestDTO refreshRequest) {
             try {
                 var refreshResult = _authenticationService.RefreshAccessToken(refreshRequest);

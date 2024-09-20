@@ -17,8 +17,12 @@ namespace Application.Services {
             _passworHasher = new PasswordHasher<User>();
         }
 
+        public List<User> GetAll() { 
+            return [.. _dbContext.Users];
+        }
+
         public void Insert(User user) {
-            user.PasswordHash = _passworHasher.HashPassword(user, user.PasswordHash);
+            user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
 
             _dbContext.Users.Add(user);
             _dbContext.SaveChanges();

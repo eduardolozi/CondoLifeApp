@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Application.Services {
@@ -22,7 +23,7 @@ namespace Application.Services {
         }
 
         public LoginResponseDTO? Login(UserLoginDTO userLogin) {
-            var user = _dbContext.Users.FirstOrDefault(x => x.Email.Equals(userLogin.Email, StringComparison.CurrentCultureIgnoreCase));
+            var user = _dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == userLogin.Email.ToLower());
             if(user is null) return new LoginResponseDTO { IsSuccess = false, ErrorMessage = "Email incorreto" };
 
             var verifyPasswordResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, userLogin.Password);
@@ -39,8 +40,10 @@ namespace Application.Services {
 
         public string CreateAccessToken(User user) {
             //env
-            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKwOcnAOqwp/1szNR84m3km7RI8A2XNDNIvs7ucneU+kOLiKv5yJ3LWqhlXH/6ZmPDE17l8sqoeBX21jb8KdebfxECi8I9m1j2sHWzHVejA7iNQJ6wcZOlhuswKa1+tdwQ/i9GMIQfI7PjXCwdMNDScZYkAYcChviXNWR4Mx3u7DAgMBAAECgYEAiQjUomU8WxdomCNjblDMuIK7Xv45MrEzF8L0oAxzdTgBqRFw/RdcPyB677Vj6z7/793ZZdooU9Z5j6Ej8SgFOWmmoS6HWq2tNSZEPROY4um9/XkqkrFUdMTZCHUWLGbubeIYDVF16DZ25+v+C7+/yjXtJrUjBJUzuIO6/wOfwqECQQDdzAt1t0r/v0RI19kg++iXR79mqGwr3ReCD+SowqrltLW7gOTirVkG5525wqCkTFddb2U8fiPZOsuZ/U0qwmKRAkEAxpbGiw9SbIpceHrYZ3upys8W2VE7KFcRjOM95Jexv2FMiCD/QpMiNG+OThx2m3LEMz+uRV5u5Vs/F0kQjKq+EwJAPwyv/Uibk1QFz0c8u/mgRtDoggBCr71r31cxQyADgMT8HE8pwZ5Rfnr9BT9kdxAUjcUK3EVnX2stUZsGAq+7YQJAH9/deD56VU+T7gaRq3Ju202H9lOScjQfbgSfT4yFjBk65nKdZfslt1LcfW8WHnc6RJuJBjtVA1008DDbBij1nwJAHy3fmdZ/qnN2scRlo+VztSrtSnUpdbeLVZpPqGn8uEUxezMGmgsjZi0zYUf4HBPfdeUescUn4SncEOhlTIVc/Q=="));
-            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.RsaSha256);
+            var rsa = RSA.Create();
+            rsa.ImportPkcs8PrivateKey(Convert.FromBase64String("MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAKwOcnAOqwp/1szNR84m3km7RI8A2XNDNIvs7ucneU+kOLiKv5yJ3LWqhlXH/6ZmPDE17l8sqoeBX21jb8KdebfxECi8I9m1j2sHWzHVejA7iNQJ6wcZOlhuswKa1+tdwQ/i9GMIQfI7PjXCwdMNDScZYkAYcChviXNWR4Mx3u7DAgMBAAECgYEAiQjUomU8WxdomCNjblDMuIK7Xv45MrEzF8L0oAxzdTgBqRFw/RdcPyB677Vj6z7/793ZZdooU9Z5j6Ej8SgFOWmmoS6HWq2tNSZEPROY4um9/XkqkrFUdMTZCHUWLGbubeIYDVF16DZ25+v+C7+/yjXtJrUjBJUzuIO6/wOfwqECQQDdzAt1t0r/v0RI19kg++iXR79mqGwr3ReCD+SowqrltLW7gOTirVkG5525wqCkTFddb2U8fiPZOsuZ/U0qwmKRAkEAxpbGiw9SbIpceHrYZ3upys8W2VE7KFcRjOM95Jexv2FMiCD/QpMiNG+OThx2m3LEMz+uRV5u5Vs/F0kQjKq+EwJAPwyv/Uibk1QFz0c8u/mgRtDoggBCr71r31cxQyADgMT8HE8pwZ5Rfnr9BT9kdxAUjcUK3EVnX2stUZsGAq+7YQJAH9/deD56VU+T7gaRq3Ju202H9lOScjQfbgSfT4yFjBk65nKdZfslt1LcfW8WHnc6RJuJBjtVA1008DDbBij1nwJAHy3fmdZ/qnN2scRlo+VztSrtSnUpdbeLVZpPqGn8uEUxezMGmgsjZi0zYUf4HBPfdeUescUn4SncEOhlTIVc/Q=="), out _);
+            var rsaKey = new RsaSecurityKey(rsa);
+            var signinCredentials = new SigningCredentials(rsaKey, SecurityAlgorithms.RsaSha256);
 
             var claims = new List<Claim> {
                 new ("Id", user.Id.ToString()),

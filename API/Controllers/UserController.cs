@@ -12,6 +12,12 @@ namespace API.Controllers {
             _userService = userService;
         }
 
+        [HttpGet]
+        public OkObjectResult GetAll() {
+            var users = _userService.GetAll();
+            return Ok(users);
+        }
+
         [HttpPost]
         public ActionResult Create([FromBody] User user) {
             _userService.Insert(user);
