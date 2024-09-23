@@ -3,20 +3,20 @@ using Application.Interfaces;
 using Domain.Exceptions;
 using Domain.Models;
 using Infraestructure;
-using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services {
     public class UserService {
         private readonly CondoLifeContext _dbContext;
         private readonly IEmailService _emailService;
+        private readonly VerificationTokenService _verificationTokenService;
         private readonly PasswordHasher<User> _passworHasher;
 
-        public UserService(CondoLifeContext dbContext, IEmailService emailService)
+        public UserService(CondoLifeContext dbContext, IEmailService emailService, VerificationTokenService verificationTokenService)
         {
             _dbContext = dbContext;
             _emailService = emailService;
+            _verificationTokenService = verificationTokenService;
             _passworHasher = new PasswordHasher<User>();
         }
 
@@ -35,7 +35,7 @@ namespace Application.Services {
             _dbContext.Users.Add(user);
             _dbContext.SaveChanges();
 
-            var verificationToken = CreateVerificationToken(user);
+            var verificationToken = _verificationTokenService.CreateVerificationToken(user);
 
             await SendVerificationEmail(user, verificationToken);
         }
@@ -53,32 +53,11 @@ namespace Application.Services {
             await _emailService.SendEmail(message);
         }
 
-        private VerificationToken CreateVerificationToken(User user) {
-            var verificationToken = new VerificationToken {
-                Value = Guid.NewGuid().ToString(),
-                CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(5),
-                UserId = user.Id,
-                User = user
-            };
-
-            _dbContext.VerificationTokens.Add(verificationToken);
-            _dbContext.SaveChanges();
-
-            return verificationToken;
-        }
-
         public void VerifyEmail(string verificationToken) {
-            var token = _dbContext.VerificationTokens.Include(x => x.User).FirstOrDefault(x => x.Value == verificationToken)
+            var token = _verificationTokenService.GetVerificationTokenWithUser(verificationToken)
                 ?? throw new ResourceNotFoundException("Token não encontrado.");
 
-            if (token.ExpiresAt < DateTime.UtcNow) {
-                throw new BadRequestException("O token de verificação é inválido.");
-            }
-            if (token.User.IsEmailVerified) {
-                throw new ConflictException("O email já foi verificado.");
-            }
-            token.User.IsEmailVerified = true;
+            _verificationTokenService.HandleVerificationEmail(token);
             _dbContext.SaveChanges();
         }
 
@@ -86,7 +65,7 @@ namespace Application.Services {
             var user = _dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == changePassword.Email!.ToLower())
                 ?? throw new ResourceNotFoundException("Email inválido");
 
-            var verificationToken = CreateVerificationToken(user);
+            var verificationToken = _verificationTokenService.CreateVerificationToken(user);
             var verificationLink = $"https://localhost:7031/api/User/confirm-password-change?verificationToken={verificationToken.Value}";
 
             var message = new EmailMessage {
@@ -101,16 +80,10 @@ namespace Application.Services {
         }
 
         public void ConfirmPasswordChange(string verificationToken) {
-            var token = _dbContext.VerificationTokens.Include(x => x.User).FirstOrDefault(x => x.Value == verificationToken)
+            var token = _verificationTokenService.GetVerificationTokenWithUser(verificationToken)
                 ?? throw new ResourceNotFoundException("Token não encontrado.");
 
-            if (token.ExpiresAt < DateTime.UtcNow) {
-                throw new BadRequestException("O token de verificação é inválido.");
-            }
-            if(token.User.IsChangePasswordConfirmed) {
-                throw new ConflictException("O link de mudança de senha já foi acessado.");
-            }
-            token.User.IsChangePasswordConfirmed = true;
+            _verificationTokenService.HandlePasswordChange(token);
             _dbContext.SaveChanges();
         }
 
