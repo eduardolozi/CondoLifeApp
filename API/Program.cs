@@ -1,3 +1,4 @@
+using API.Handlers;
 using Application;
 using Infraestructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,6 +17,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddInfraServices();
 builder.Services.AddApplicationServices();
+builder.Services.AddExceptionHandler<ExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 //env
 var rsa = RSA.Create();
@@ -51,6 +54,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseExceptionHandler();
 
 app.MapControllers();
 

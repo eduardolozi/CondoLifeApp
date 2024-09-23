@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Domain.Exceptions;
 using Domain.Models;
 using Infraestructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -81,12 +82,12 @@ namespace Application.Services {
             var jwtHandler = new JwtSecurityTokenHandler();
             try {
                 var jwtToken = jwtHandler.ReadToken(accessToken) as JwtSecurityToken
-                    ?? throw new Exception("Access Token vazio");
+                    ?? throw new BadRequestException("Access Token vazio");
 
                 return new ClaimsPrincipal(new ClaimsIdentity(jwtToken.Claims, JwtBearerDefaults.AuthenticationScheme));
             }
-            catch (Exception) {
-                throw new Exception("Erro ao obter claims principal do Access Token");
+            catch (Exception ex) {
+                throw new BadRequestException("Erro ao obter claims principal do Access Token", ex);
             }
         }
 
@@ -99,11 +100,11 @@ namespace Application.Services {
                 var principal = GetClaimsPrincipalFromExpiredAccessToken(refreshRequest.AccessToken);
 
                 var idClaim = principal.Claims.FirstOrDefault(x => x.Type == "Id")
-                    ?? throw new Exception("A claim Id não possui nenhum valor");
+                    ?? throw new BadRequestException("A claim Id não possui nenhum valor");
                 var id = int.Parse(idClaim.Value); 
 
                 var user = _dbContext.Users.FirstOrDefault(x => x.Id == id)
-                    ?? throw new Exception("O usuário não foi encontrado");
+                    ?? throw new BadRequestException("O usuário não foi encontrado");
 
                 return new LoginResponseDTO {
                     IsSuccess = true,

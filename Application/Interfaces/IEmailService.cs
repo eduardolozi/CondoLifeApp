@@ -2,6 +2,6 @@
 
 namespace Application.Interfaces {
     public interface IEmailService {
-        public void SendEmail(EmailMessage messageData);
+        public Task SendEmail(EmailMessage messageData);
     }
 }

@@ -18,6 +18,9 @@ namespace Domain.Models {
         [JsonIgnore]
         public bool IsEmailVerified { get; set; } = false;
         
+        [JsonIgnore]
+        public bool IsChangePasswordConfirmed { get; set; } = false;
+        
         public required string Apartment { get; set; }
         
         public string? Block {  get; set; }
