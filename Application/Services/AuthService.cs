@@ -4,12 +4,10 @@ using Domain.Models;
 using Infraestructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Application.Services {
     public class AuthService : IAuthService {
@@ -26,7 +24,7 @@ namespace Application.Services {
             var user = _dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == userLogin.Email.ToLower());
             if(user is null) return new LoginResponseDTO { IsSuccess = false, ErrorMessage = "Email incorreto" };
 
-            var verifyPasswordResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, userLogin.Password);
+            var verifyPasswordResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash!, userLogin.Password);
             if(verifyPasswordResult == PasswordVerificationResult.Success) {
                 return new LoginResponseDTO {
                     IsSuccess = true,
@@ -87,7 +85,7 @@ namespace Application.Services {
 
                 return new ClaimsPrincipal(new ClaimsIdentity(jwtToken.Claims, JwtBearerDefaults.AuthenticationScheme));
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 throw new Exception("Erro ao obter claims principal do Access Token");
             }
         }
