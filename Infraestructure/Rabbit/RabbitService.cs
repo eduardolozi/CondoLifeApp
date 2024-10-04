@@ -1,4 +1,7 @@
 ﻿using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text;
+using System.Text.Json;
 
 namespace Infraestructure.Rabbit {
     public class RabbitService {
@@ -45,8 +48,23 @@ namespace Infraestructure.Rabbit {
             }
         }
 
-        public void Send() {
+        public void Send<T>(T messageObject, string exchangeName, string routingKey) {
+            var messageBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(messageObject));
+            _channel.BasicPublish(exchangeName, routingKey, null, messageBody);
+        }
 
+        public EventingBasicConsumer GetBasicConsumer(string queueName, bool autoAck) {
+            var consumer = new EventingBasicConsumer(_channel);
+            _channel.BasicConsume(queueName, autoAck, consumer);
+            return consumer;
+        }
+
+        public void Ack(ulong deliveryTag, bool multiple = false) {
+            _channel.BasicAck(deliveryTag, multiple);
+        }
+
+        public void Nack(ulong deliveryTag, bool requeue, bool multiple = false) {
+            _channel.BasicNack(deliveryTag, multiple, requeue);
         }
     }
 }
