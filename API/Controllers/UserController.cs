@@ -37,6 +37,12 @@ namespace API.Controllers {
             _userService.VerifyEmail(verificationToken);
             return Ok();
         }
+
+        [HttpPatch("{id}")]
+        public NoContentResult Update([FromRoute] int id, [FromBody] User user) { 
+            _userService.Update(id, user);
+            return NoContent();
+        }
         
         [HttpPatch("recovery-password-email")]
         public async Task<NoContentResult> SendRecoveryPasswordEmail([FromBody] ChangePasswordDTO changePassword) {
@@ -51,7 +57,7 @@ namespace API.Controllers {
         }
 
         [HttpPatch("change-password")]
-        public  NoContentResult ChangePassword([FromBody] ChangePasswordDTO changePassword) {
+        public NoContentResult ChangePassword([FromBody] ChangePasswordDTO changePassword) {
             _userService.ChangePassword(changePassword);
             return NoContent();
         }

@@ -61,6 +61,14 @@ namespace Application.Services {
             _dbContext.SaveChanges();
         }
 
+        public void Update(int id, User user) {
+            var userDB = _dbContext.Users.FirstOrDefault(x => x.Id == id)
+                ?? throw new ResourceNotFoundException("Usuario não encontrado.");
+
+            userDB = user;
+            _dbContext.SaveChanges();
+        }
+
         public async Task SendRecoveryPasswordEmail(ChangePasswordDTO changePassword) {
             var user = _dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == changePassword.Email!.ToLower())
                 ?? throw new ResourceNotFoundException("Email inválido");

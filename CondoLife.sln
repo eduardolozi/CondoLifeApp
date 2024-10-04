@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens
 		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Worker", "Worker\Worker.csproj", "{B6FBF0EA-2CF8-42EA-8F75-C38BE1969CDB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{6AA66526-6100-4ABA-81C1-5F3885BADD7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AA66526-6100-4ABA-81C1-5F3885BADD7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6AA66526-6100-4ABA-81C1-5F3885BADD7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6FBF0EA-2CF8-42EA-8F75-C38BE1969CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6FBF0EA-2CF8-42EA-8F75-C38BE1969CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6FBF0EA-2CF8-42EA-8F75-C38BE1969CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6FBF0EA-2CF8-42EA-8F75-C38BE1969CDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

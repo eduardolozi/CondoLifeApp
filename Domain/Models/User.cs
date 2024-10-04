@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Domain.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Domain.Models {
@@ -20,7 +21,9 @@ namespace Domain.Models {
         
         [JsonIgnore]
         public bool IsChangePasswordConfirmed { get; set; } = false;
-        
+
+        public UserRoleEnum Role { get; set; }
+
         public required string Apartment { get; set; }
         
         public string? Block {  get; set; }
