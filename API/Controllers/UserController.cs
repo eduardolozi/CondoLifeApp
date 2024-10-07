@@ -27,8 +27,8 @@ namespace API.Controllers {
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] User user) {
-            await _userService.Insert(user);
+        public ActionResult Create([FromBody] User user) {
+            _userService.Insert(user);
             return Created();
         }
 

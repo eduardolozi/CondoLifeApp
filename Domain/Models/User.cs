@@ -16,10 +16,8 @@ namespace Domain.Models {
         [JsonIgnore]
         public string? PasswordHash { get; set; } = null!;
         
-        [JsonIgnore]
         public bool IsEmailVerified { get; set; } = false;
         
-        [JsonIgnore]
         public bool IsChangePasswordConfirmed { get; set; } = false;
 
         public UserRoleEnum Role { get; set; }

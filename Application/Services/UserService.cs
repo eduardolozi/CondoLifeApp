@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Domain.Exceptions;
 using Domain.Models;
 using Infraestructure;
+using Infraestructure.Rabbit;
 using Microsoft.AspNetCore.Identity;
 
 namespace Application.Services {
@@ -11,13 +12,18 @@ namespace Application.Services {
         private readonly IEmailService _emailService;
         private readonly VerificationTokenService _verificationTokenService;
         private readonly PasswordHasher<User> _passworHasher;
+        private readonly RabbitService _rabbitService;
 
-        public UserService(CondoLifeContext dbContext, IEmailService emailService, VerificationTokenService verificationTokenService)
+        public UserService(CondoLifeContext dbContext,
+            IEmailService emailService,
+            VerificationTokenService verificationTokenService,
+            RabbitService rabbitService)
         {
             _dbContext = dbContext;
             _emailService = emailService;
             _verificationTokenService = verificationTokenService;
             _passworHasher = new PasswordHasher<User>();
+            _rabbitService = rabbitService;
         }
 
         public List<User> GetAll() { 
@@ -29,7 +35,7 @@ namespace Application.Services {
                 ?? throw new ResourceNotFoundException("Usuário não encontrado");
         }  
 
-        public async Task Insert(User user) {
+        public void Insert(User user) {
             user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
 
             _dbContext.Users.Add(user);
@@ -37,10 +43,10 @@ namespace Application.Services {
 
             var verificationToken = _verificationTokenService.CreateVerificationToken(user);
 
-            await SendVerificationEmail(user, verificationToken);
+            SendVerificationEmail(user, verificationToken);
         }
 
-        private async Task SendVerificationEmail(User user, VerificationToken verificationToken) {
+        private void SendVerificationEmail(User user, VerificationToken verificationToken) {
             var verificationLink = $"https://localhost:7031/api/User/verify-email?verificationToken={verificationToken.Value}";
             var message = new EmailMessage {
                 FromEmail = "condolifemail@gmail.com",
@@ -50,7 +56,9 @@ namespace Application.Services {
                 Subject = "Verificação de conta - Condolife",
                 Body = $@"<p>Olá {user.Name}, precisamos verificar a sua conta. Para isso, basta apenas clicar no link a seguir: <a href={verificationLink}>Verificar email</a></p>",
             };
-            await _emailService.SendEmail(message);
+
+            _rabbitService.Send(message, RabbitConstants.EMAIL_EXCHANGE, RabbitConstants.EMAIL_ROUTING_KEY);
+            //await _emailService.SendEmail(message);
         }
 
         public void VerifyEmail(string verificationToken) {

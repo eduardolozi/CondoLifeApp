@@ -10,7 +10,7 @@ namespace Infraestructure.Rabbit {
         private IModel _channel;
 
         public RabbitService() {
-            _factory = new ConnectionFactory { Uri = new Uri("amqp://admin:Admin@123#!@5c08cf41cba6:5672/") };
+            _factory = new ConnectionFactory { Uri = new Uri(RabbitConstants.URL_CONN) };
             Connect();
         }
 
@@ -58,7 +58,7 @@ namespace Infraestructure.Rabbit {
             _channel.BasicConsume(queueName, autoAck, consumer);
             return consumer;
         }
-
+        
         public void Ack(ulong deliveryTag, bool multiple = false) {
             _channel.BasicAck(deliveryTag, multiple);
         }
