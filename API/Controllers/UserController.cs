@@ -1,7 +1,7 @@
-﻿using Application.DTOs;
+﻿using API.Hubs;
+using Application.DTOs;
 using Application.Services;
 using Domain.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers {
@@ -9,8 +9,10 @@ namespace API.Controllers {
     [ApiController]
     public class UserController : ControllerBase {
         private readonly UserService _userService;
-        public UserController(UserService userService)
+        private readonly EmailNotificationHub _emailNotificationHub;
+        public UserController(UserService userService, EmailNotificationHub emailNotificationHub)
         {
+            _emailNotificationHub = emailNotificationHub;
             _userService = userService;
         }
 
@@ -33,8 +35,9 @@ namespace API.Controllers {
         }
 
         [HttpGet("verify-email")]
-        public OkResult VerifyEmail([FromQuery] string verificationToken) {
-            _userService.VerifyEmail(verificationToken);
+        public async Task<OkResult> VerifyEmail([FromQuery] string verificationToken) {
+            var id = _userService.VerifyEmail(verificationToken);
+            //await _emailNotificationHub.NotifyRegistrationVerification(id.ToString());
             return Ok();
         }
 
@@ -51,8 +54,9 @@ namespace API.Controllers {
         }
 
         [HttpGet("confirm-password-change")]
-        public OkResult ConfirmPasswordChange([FromQuery] string verificationToken) {
-            _userService.ConfirmPasswordChange(verificationToken);
+        public async Task<OkResult> ConfirmPasswordChange([FromQuery] string verificationToken) {
+            var id = _userService.ConfirmPasswordChange(verificationToken);
+            //await _emailNotificationHub.NotifyPasswordReset(id.ToString());
             return Ok();
         }
 

@@ -1,5 +1,6 @@
 using API;
 using API.Handlers;
+using API.Hubs;
 using Application;
 using Infraestructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -7,17 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddApiServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfraServices();
-builder.Services.AddExceptionHandler<ExceptionHandler>();
-builder.Services.AddProblemDetails();
 
 //env
 var rsa = RSA.Create();
@@ -57,5 +50,7 @@ app.UseAuthorization();
 app.UseExceptionHandler();
 
 app.MapControllers();
+
+app.MapHub<EmailNotificationHub>("/emailNotificationHub");
 
 app.Run();

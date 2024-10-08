@@ -26,10 +26,15 @@ namespace Worker.BackgroundServices
                 }
                 var consumer = _rabbitService.GetBasicConsumer(RabbitConstants.EMAIL_QUEUE, false);
                 consumer.Received += async (sender, e) => {
-                    var body = Encoding.UTF8.GetString(e.Body.ToArray());
-                    var emailMessage = JsonSerializer.Deserialize<EmailMessage>(body);
-                    await _emailService.SendEmail(emailMessage);
-                    _rabbitService.Ack(e.DeliveryTag);
+                    try {
+                        var body = Encoding.UTF8.GetString(e.Body.ToArray());
+                        var emailMessage = JsonSerializer.Deserialize<EmailMessage>(body);
+                        await _emailService.SendEmail(emailMessage);
+                        _rabbitService.Ack(e.DeliveryTag);
+                    }
+                    catch (Exception) {
+                        _rabbitService.Nack(e.DeliveryTag, false);
+                    }
                 };
                 await Task.Delay(1000, stoppingToken);
             }

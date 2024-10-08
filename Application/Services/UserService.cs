@@ -61,12 +61,13 @@ namespace Application.Services {
             //await _emailService.SendEmail(message);
         }
 
-        public void VerifyEmail(string verificationToken) {
+        public int VerifyEmail(string verificationToken) {
             var token = _verificationTokenService.GetVerificationTokenWithUser(verificationToken)
                 ?? throw new ResourceNotFoundException("Token não encontrado.");
 
             _verificationTokenService.HandleVerificationEmail(token);
             _dbContext.SaveChanges();
+            return token.User.Id;
         }
 
         public void Update(int id, User user) {
@@ -95,12 +96,13 @@ namespace Application.Services {
             await _emailService.SendEmail(message);
         }
 
-        public void ConfirmPasswordChange(string verificationToken) {
+        public int ConfirmPasswordChange(string verificationToken) {
             var token = _verificationTokenService.GetVerificationTokenWithUser(verificationToken)
                 ?? throw new ResourceNotFoundException("Token não encontrado.");
 
             _verificationTokenService.HandlePasswordChange(token);
             _dbContext.SaveChanges();
+            return token.User.Id;
         }
 
         public void ChangePassword(ChangePasswordDTO changePassword) {
