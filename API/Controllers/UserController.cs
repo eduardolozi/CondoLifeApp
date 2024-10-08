@@ -35,7 +35,7 @@ namespace API.Controllers {
         }
 
         [HttpGet("verify-email")]
-        public async Task<OkResult> VerifyEmail([FromQuery] string verificationToken) {
+        public OkResult VerifyEmail([FromQuery] string verificationToken) {
             var id = _userService.VerifyEmail(verificationToken);
             //await _emailNotificationHub.NotifyRegistrationVerification(id.ToString());
             return Ok();
@@ -54,7 +54,7 @@ namespace API.Controllers {
         }
 
         [HttpGet("confirm-password-change")]
-        public async Task<OkResult> ConfirmPasswordChange([FromQuery] string verificationToken) {
+        public OkResult ConfirmPasswordChange([FromQuery] string verificationToken) {
             var id = _userService.ConfirmPasswordChange(verificationToken);
             //await _emailNotificationHub.NotifyPasswordReset(id.ToString());
             return Ok();
