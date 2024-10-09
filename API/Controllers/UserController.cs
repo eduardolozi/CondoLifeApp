@@ -67,5 +67,11 @@ namespace API.Controllers {
             return NoContent();
         }
 
+        [HttpDelete("{id}")]
+        public NoContentResult Delete([FromRoute] int id) {
+            _userService.Delete(id);
+            return NoContent();
+        }
+
     }
 }

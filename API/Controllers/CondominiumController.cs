@@ -31,5 +31,17 @@ namespace API.Controllers {
             _condominiumService.Insert(condominium);
             return Created();
         }
+
+        [HttpPut("{id}")]
+        public NoContentResult Update([FromRoute] int id, [FromBody] Condominium condominium) {
+            _condominiumService.Update(id, condominium);
+            return NoContent();
+        }
+        
+        [HttpDelete("{id}")]
+        public NoContentResult Delete([FromRoute] int id) {
+            _condominiumService.Delete(id);
+            return NoContent();
+        }
     }
 }

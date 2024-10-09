@@ -30,9 +30,8 @@ namespace Application.Services {
             return [.. _dbContext.Users];
         }
 
-        public User GetById(int id) {
-            return _dbContext.Users.FirstOrDefault(x => x.Id == id)
-                ?? throw new ResourceNotFoundException("Usuário não encontrado");
+        public User? GetById(int id) {
+            return _dbContext.Users.FirstOrDefault(x => x.Id == id);
         }  
 
         public void Insert(User user) {
@@ -118,6 +117,13 @@ namespace Application.Services {
             }
 
             throw new BadRequestException("Ainda não foi processada a verificação de mudança de senha no email.");
+        }
+
+        public void Delete(int id) {
+            var user = GetById(id)
+                ?? throw new ResourceNotFoundException("Usuário não encontrado");
+            _dbContext.Remove(user);
+            _dbContext.SaveChanges();
         }
     }
 }
