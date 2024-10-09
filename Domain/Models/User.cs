@@ -27,7 +27,8 @@ namespace Domain.Models {
         public string? Block {  get; set; }
         
         public string? Photo { get; set; }
-        
+
+        [JsonIgnore]
         public List<Condominium> Condominium { get; set; } = [];
     }
 }

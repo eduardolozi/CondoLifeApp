@@ -1,0 +1,25 @@
+.full-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.login {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.signup {
+    width: 50%;
+}
+
+.titulo-form {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.label-form {
+    font-weight: bold;
+    margin: 2rem 0 2rem 0;
+}

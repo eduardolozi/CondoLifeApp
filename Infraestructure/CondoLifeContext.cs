@@ -4,11 +4,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Infraestructure {
     public class CondoLifeContext : DbContext {
         public DbSet<User> Users { get; set; }
+        public DbSet<Condominium> Condominium { get; set; }
+        public DbSet<Address> Address { get; set; }
         public DbSet<VerificationToken> VerificationTokens { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
-        public DbSet<Comment> Comments{ get; set; }
-        public DbSet<Post> Posts { get; set; }
-        public DbSet<Like> Likes { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             //env

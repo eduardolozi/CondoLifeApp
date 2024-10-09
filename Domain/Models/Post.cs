@@ -1,6 +1,8 @@
 ﻿using Domain.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models {
+    [NotMapped]
     public class Post {
         public int Id { get; set; }
         public required string Description { get; set; }

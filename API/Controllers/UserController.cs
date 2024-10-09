@@ -2,6 +2,7 @@
 using Application.DTOs;
 using Application.Services;
 using Domain.Models;
+using Domain.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers {
@@ -17,15 +18,15 @@ namespace API.Controllers {
         }
 
         [HttpGet]
-        public OkObjectResult GetAll() {
+        public IActionResult GetAll() {
             var users = _userService.GetAll();
-            return Ok(users);
+            return users.HasValue() ? Ok(users) : NoContent();
         }
         
         [HttpGet("{id}")]
-        public OkObjectResult GetById([FromRoute] int id) {
+        public IActionResult GetById([FromRoute] int id) {
             var user = _userService.GetById(id);
-            return Ok(user);
+            return user.HasValue() ? Ok(user) : NotFound();
         }
 
         [HttpPost]

@@ -1,11 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Text.Json.Serialization;
 
 namespace Domain.Models {
-    [NotMapped]
     public class Condominium {
         public int Id { get; set; }
+
         public required string Name { get; set; }
+
         public Address Address { get; set; } = null!;
+
+        [JsonIgnore]
         public List<User> Users { get; set; } = [];
     }
 }

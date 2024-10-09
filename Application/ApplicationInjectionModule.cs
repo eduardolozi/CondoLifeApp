@@ -9,6 +9,7 @@ namespace Application {
             services.AddScoped<IEmailService, MailKitService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<VerificationTokenService>();
+            services.AddScoped<CondominiumService>();
         }
     }
 }

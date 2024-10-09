@@ -47,7 +47,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseExceptionHandler();
+//app.UseExceptionHandler();
 
 app.MapControllers();
 
