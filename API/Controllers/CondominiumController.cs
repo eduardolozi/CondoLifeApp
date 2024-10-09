@@ -1,6 +1,7 @@
 ﻿using Application.Services;
 using Domain.Models;
 using Domain.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers {
@@ -15,16 +16,17 @@ namespace API.Controllers {
         [HttpGet]
         public IActionResult GetAll([FromQuery] CondominiumFilter filter) {
             var condos = _condominiumService.GetAll(filter);
-            return condos.HasValue() ?  Ok(condos) : NoContent();
+            return condos.HasValue() ?  Ok(condos) : NotFound();
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetAll([FromRoute] int id) {
+        public IActionResult GetById([FromRoute] int id) {
             var condo = _condominiumService.GetById(id);
-            return condo.HasValue() ? Ok(condo) : NoContent();
+            return condo.HasValue() ? Ok(condo) : NotFound();
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public CreatedResult Create([FromBody] Condominium condominium) {
             _condominiumService.Insert(condominium);
             return Created();

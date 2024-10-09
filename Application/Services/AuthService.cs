@@ -48,6 +48,7 @@ namespace Application.Services {
                 new ("Id", user.Id.ToString()),
                 new (ClaimTypes.Name, user.Name),
                 new (ClaimTypes.Email, user.Email),
+                new (ClaimTypes.Role, user.Role.ToString())
             };
 
             var tokenOptions = new SecurityTokenDescriptor {
@@ -55,7 +56,7 @@ namespace Application.Services {
                 Issuer = "https://localhost:7031",
                 Audience = "https://localhost:7031",
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(2),
+                Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = signinCredentials
             };
 
@@ -68,7 +69,7 @@ namespace Application.Services {
         public RefreshToken CreateRefreshToken(int userId) {
             var refreshToken = new RefreshToken {
                 Token = Guid.NewGuid().ToString(),
-                ExpiresAt = DateTime.UtcNow.AddDays(5),
+                ExpiresAt = DateTime.UtcNow.AddDays(30),
                 UserId = userId
             };
 

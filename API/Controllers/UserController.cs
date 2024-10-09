@@ -20,7 +20,7 @@ namespace API.Controllers {
         [HttpGet]
         public IActionResult GetAll() {
             var users = _userService.GetAll();
-            return users.HasValue() ? Ok(users) : NoContent();
+            return users.HasValue() ? Ok(users) : NotFound();
         }
         
         [HttpGet("{id}")]
