@@ -18,7 +18,7 @@ namespace Application.Services {
         }
         
         public List<Condominium>? GetAll(CondominiumFilter filter) {
-            var query = _dbContext.Condominium.Include(x => x.Address).AsQueryable();
+            var query = _dbContext.Condominium.Include(x => x.Address).AsNoTracking().AsQueryable();
             var address = filter.Address;
 
             if(address.HasValue()) {
@@ -39,7 +39,7 @@ namespace Application.Services {
                 query = query.Where(x => EF.Functions.Like(x.Name, $"%{filter.Name}%"));
 
             var condos = query.ToList();
-            return condos.Count > 0 ? condos : null;
+            return condos.IsEmpty() ? null : condos;
         }
 
         public void Insert(Condominium condominium) {
@@ -49,8 +49,22 @@ namespace Application.Services {
         
         public void Update(int id, Condominium condominium) {
             condominium.Id = id;
-            _dbContext.Condominium.Update(condominium);
-            _dbContext.SaveChanges();
+            var condo = GetById(id);
+            
+            if(condo.HasValue()) {
+                condo!.Name = condominium.Name;
+
+                if(condo.Address.HasValue() && condominium.Address.HasValue()) {
+                    condo.Address.Country = condominium.Address.Country;
+                    condo.Address.State = condominium.Address.State;
+                    condo.Address.City = condominium.Address.City;
+                    condo.Address.PostalCode = condominium.Address.PostalCode;
+                }
+
+                _dbContext.SaveChanges();
+                return;
+            }
+            throw new ResourceNotFoundException("Condomínio não encontrado");
         }
         
         public void Delete(int id) {

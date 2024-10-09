@@ -8,5 +8,8 @@ namespace Domain.Utils {
         public static bool HasValue(this string? value) {
             return !string.IsNullOrEmpty(value);
         }
+        public static bool IsEmpty<T>(this List<T> list) {
+            return list.Count == 0;
+        }
     }
 }

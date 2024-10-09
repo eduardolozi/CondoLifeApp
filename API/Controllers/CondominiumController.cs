@@ -32,13 +32,15 @@ namespace API.Controllers {
             return Created();
         }
 
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public NoContentResult Update([FromRoute] int id, [FromBody] Condominium condominium) {
             _condominiumService.Update(id, condominium);
             return NoContent();
         }
         
         [HttpDelete("{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public NoContentResult Delete([FromRoute] int id) {
             _condominiumService.Delete(id);
             return NoContent();
