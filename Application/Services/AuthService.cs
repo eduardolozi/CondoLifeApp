@@ -5,6 +5,7 @@ using Domain.Models;
 using Infraestructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -118,6 +119,10 @@ namespace Application.Services {
                 IsSuccess = false,
                 ErrorMessage = "Sessão expirada"
             };
+        }
+
+        public async Task DeleteExpiredRefreshTokens() {
+            await _dbContext.RefreshTokens.Where(x => x.ExpiresAt < DateTime.UtcNow).ExecuteDeleteAsync();
         }
     }
 }

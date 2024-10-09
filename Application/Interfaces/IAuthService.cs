@@ -7,5 +7,6 @@ namespace Application.Interfaces {
         public string CreateAccessToken(User user);
         public RefreshToken CreateRefreshToken(int userId);
         public LoginResponseDTO RefreshAccessToken(RefreshRequestDTO refreshRequest);
+        public Task DeleteExpiredRefreshTokens();
     }
 }
