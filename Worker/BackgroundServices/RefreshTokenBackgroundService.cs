@@ -14,16 +14,14 @@ namespace Worker.BackgroundServices {
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
-            try {
-                var horario = int.Parse(_configuration["HorarioDeExecucao:HorarioDeExecucaoRefreshToken"]);
-                if (DateTime.Now.Hour == horario) {
-                    while (!stoppingToken.IsCancellationRequested) {
-                        await _authService.DeleteExpiredRefreshTokens();
-                    }
-                    await Task.Delay(3600000, stoppingToken);
+            var horario = int.Parse(_configuration["HorarioDeExecucao:HorarioDeExecucaoRefreshToken"] 
+                ?? throw new ResourceNotFoundException("Não foi encontrado nenhum horário de execução para o RefreshTokenBackgroundService"));
+            if (DateTime.Now.Hour == horario) {
+                while (!stoppingToken.IsCancellationRequested) {
+                    await _authService.DeleteExpiredRefreshTokens();   
                 }
+                await Task.Delay(3600000, stoppingToken);
             }
-            catch (Exception) { }
         }
     }
 }
