@@ -1,0 +1,70 @@
+﻿@page "/"
+@layout Layout.EmptyLayout
+
+<PageTitle>Eduardo Lozano </PageTitle>
+
+
+<MudGrid>
+    <MudItem Class="mb-15" xs="12">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">CondoLife</MudPaper>
+    </MudItem>
+    <MudItem Class="mb-15" xs="6">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Sua plataforma de convívio de condomínio. Venha fazer parte da comunidade!</MudPaper>
+    </MudItem>
+    <MudItem Class="mb-15" xs="6">
+        <MudTextField 
+            @bind-Value="Email"
+            Variant="Variant.Outlined"
+            Label="Email"
+            InputMode="InputMode.email"
+            InputType="InputType.Email"
+            Required="true"
+            RequiredError="Email é obrigatório">
+        </MudTextField>
+        <MudTextField
+            @bind-Value="Password"
+            Variant="Variant.Outlined"
+            Label="Senha"
+            Required="true"
+            RequiredError="Senha é obrigatória"
+            InputType="@PasswordInputType"
+            Adornment="Adornment.End"
+            AdornmentColor="Color.Primary"
+            AdornmentIcon="@PasswordInputIcon"
+            OnAdornmentClick="OnChangePasswordVisibility">
+        </MudTextField>
+    </MudItem>
+    <MudItem xs="3">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Votações On-Line</MudPaper>
+    </MudItem>
+    <MudItem xs="3">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Feeds de interação e notícias</MudPaper>
+    </MudItem>
+    <MudItem xs="3">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Gestão dos seus boletos</MudPaper>
+    </MudItem>
+    <MudItem xs="3">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Planeje em poucos cliques as suas reservas</MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    public string Email { get; set; }
+    public string Password { get; set; }
+    public bool isPasswordVisible { get; set; }
+    public string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+    public InputType PasswordInputType = InputType.Password;
+
+    void OnChangePasswordVisibility() {
+        if(isPasswordVisible) {
+            isPasswordVisible = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInputType = InputType.Password;
+            return;
+        }
+
+        isPasswordVisible = true;
+        PasswordInputIcon = Icons.Material.Filled.Visibility;
+        PasswordInputType = InputType.Text;
+    }
+}
