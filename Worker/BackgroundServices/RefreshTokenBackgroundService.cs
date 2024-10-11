@@ -15,7 +15,7 @@ namespace Worker.BackgroundServices {
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
             var horario = int.Parse(_configuration["HorarioDeExecucao:HorarioDeExecucaoRefreshToken"] 
-                ?? throw new ResourceNotFoundException("Não foi possível encontrar o horário de execução do Worker de Refresh Token");
+                ?? throw new ResourceNotFoundException("Não foi encontrado nenhum horário de execução para o RefreshTokenBackgroundService"));
             if (DateTime.Now.Hour == horario) {
                 while (!stoppingToken.IsCancellationRequested) {
                     await _authService.DeleteExpiredRefreshTokens();   
