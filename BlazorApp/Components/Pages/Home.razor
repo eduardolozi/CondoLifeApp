@@ -1,70 +1,63 @@
 ﻿@page "/"
 @layout Layout.EmptyLayout
+@inject NavigationManager Navigation
 
-<PageTitle>Eduardo Lozano </PageTitle>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<style type="text/css">
 
+    .bounceIn {
+        opacity: 0;
+        animation-delay: 0.5s;
+        animation-duration: 0.5s;
+        animation-name: bounceIn;
+        animation-fill-mode: forwards;
+    }
+</style>
 
+<PageTitle>Condolife</PageTitle>
 <MudGrid>
-    <MudItem Class="mb-15" xs="12">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">CondoLife</MudPaper>
+    <MudItem Class="mb-20" xs="12">
+        <MudAppBar Color="Color.Success">
+            <MudText Typo="Typo.h5"
+                     Align="Align.Center">
+                Condolife
+            </MudText>
+            <MudSpacer />
+            <MudButton Color="Color.Dark" IconColor="Color.Dark" EndIcon="@Icons.Material.Rounded.Login" OnClick="NavigateToLogin">
+                Entrar
+            </MudButton>
+        </MudAppBar>
     </MudItem>
-    <MudItem Class="mb-15" xs="6">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Sua plataforma de convívio de condomínio. Venha fazer parte da comunidade!</MudPaper>
-    </MudItem>
-    <MudItem Class="mb-15" xs="6">
-        <MudTextField 
-            @bind-Value="Email"
-            Variant="Variant.Outlined"
-            Label="Email"
-            InputMode="InputMode.email"
-            InputType="InputType.Email"
-            Required="true"
-            RequiredError="Email é obrigatório">
-        </MudTextField>
-        <MudTextField
-            @bind-Value="Password"
-            Variant="Variant.Outlined"
-            Label="Senha"
-            Required="true"
-            RequiredError="Senha é obrigatória"
-            InputType="@PasswordInputType"
-            Adornment="Adornment.End"
-            AdornmentColor="Color.Primary"
-            AdornmentIcon="@PasswordInputIcon"
-            OnAdornmentClick="OnChangePasswordVisibility">
-        </MudTextField>
-    </MudItem>
-    <MudItem xs="3">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Votações On-Line</MudPaper>
-    </MudItem>
-    <MudItem xs="3">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Feeds de interação e notícias</MudPaper>
-    </MudItem>
-    <MudItem xs="3">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Gestão dos seus boletos</MudPaper>
-    </MudItem>
-    <MudItem xs="3">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">Planeje em poucos cliques as suas reservas</MudPaper>
+
+    <MudItem Class="mt-20" xs="12">
+        <MudCarousel Class="mud-width-full" Style="height: 40vh;"  TData="object" AutoCycle="false">
+            <MudCarouselItem Color="@Color.Primary" Transition="Transition.Slide">
+                <div class="d-flex" style="height:100%">
+                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
+                </div>
+            </MudCarouselItem>
+            <MudCarouselItem Color="@Color.Primary" Transition="Transition.Slide">
+                <div class="d-flex" style="height:100%">
+                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
+                </div>
+            </MudCarouselItem>
+            <MudCarouselItem Color="@Color.Primary" Transition="Transition.Slide">
+                <div class="d-flex" style="height:100%">
+                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
+                </div>
+            </MudCarouselItem>
+            <MudCarouselItem Color="@Color.Primary" Transition="Transition.Slide">
+                <div class="d-flex" style="height:100%">
+                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
+                </div>
+            </MudCarouselItem>
+        </MudCarousel>
     </MudItem>
 </MudGrid>
 
+
 @code {
-    public string Email { get; set; }
-    public string Password { get; set; }
-    public bool isPasswordVisible { get; set; }
-    public string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-    public InputType PasswordInputType = InputType.Password;
-
-    void OnChangePasswordVisibility() {
-        if(isPasswordVisible) {
-            isPasswordVisible = false;
-            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-            PasswordInputType = InputType.Password;
-            return;
-        }
-
-        isPasswordVisible = true;
-        PasswordInputIcon = Icons.Material.Filled.Visibility;
-        PasswordInputType = InputType.Text;
-    }
+	void NavigateToLogin() {
+		Navigation.NavigateTo("login");
+	}
 }

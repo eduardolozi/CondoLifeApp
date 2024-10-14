@@ -1,0 +1,90 @@
+﻿@page "/login"
+@layout Layout.EmptyLayout
+
+<PageTitle>Login</PageTitle>
+
+
+<MudGrid Class="d-flex flex-column align-items-center" Justify="Justify.Center" Style="height: 100vh">
+    <MudItem Class="d-flex flex-column align-items-center"
+             xs="5"
+             sm="3">
+
+        <MudPaper Class="d-flex flex-column align-items-center pt-6"
+                  Width="180%"
+                  Elevation="5">
+
+            <MudText Class="mb-8"
+                     Typo="Typo.h5"
+                     Style="color: #48a239; font-weight: bold">
+                Seja bem vindo!
+            </MudText>
+
+            <MudTextField Class="mb-9 w-75"
+                          @bind-Value="Email"
+                          Variant="Variant.Outlined"
+                          Placeholder="Email"
+                          InputMode="InputMode.email"
+                          InputType="InputType.Email"
+                          Required="true"
+                          RequiredError="Email é obrigatório">
+            </MudTextField>
+
+            <MudContainer Class="w-75 p-0 d-flex flex-column align-items-end">
+                <MudTextField Class="w-100 m-0"
+                              @bind-Value="Password"
+                              Variant="Variant.Outlined"
+                              Placeholder="Senha"
+                              Required="true"
+                              RequiredError="Senha é obrigatória"
+                              InputType="@PasswordInputType"
+                              Adornment="Adornment.End"
+                              AdornmentColor="Color.Success"
+                              AdornmentIcon="@PasswordInputIcon"
+                              OnAdornmentClick="(() => this.ChangePasswordVisibility())">
+                </MudTextField>
+
+                <MudText Typo="Typo.subtitle2"
+                         Class="mt-1 mb-7">
+                    <a style="font-weight:400; font-size: .8rem" href="#">Esqueci a senha</a>
+                </MudText>
+            </MudContainer>
+
+            <MudButton Class="mb-7 w-75"
+                       ButtonType="ButtonType.Submit"
+                       Color="Color.Success"
+                       Variant="Variant.Filled"
+                       Size="Size.Large">
+                Entrar
+            </MudButton>
+
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public string Email { get; set; }
+
+    [Parameter]
+    public string Password { get; set; }
+
+    [Parameter]
+    public bool isPasswordVisible { get; set; }
+
+    public string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    public InputType PasswordInputType = InputType.Password;
+
+    private void ChangePasswordVisibility() {
+        if (isPasswordVisible) {
+            isPasswordVisible = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInputType = InputType.Password;
+            return;
+        }
+
+        isPasswordVisible = true;
+        PasswordInputIcon = Icons.Material.Filled.Visibility;
+        PasswordInputType = InputType.Text;
+    }
+}

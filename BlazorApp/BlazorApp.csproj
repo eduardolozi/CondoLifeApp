@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\votacao.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MudBlazor" Version="7.9.0" />
   </ItemGroup>
 
