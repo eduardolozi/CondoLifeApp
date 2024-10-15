@@ -3,61 +3,132 @@
 @inject NavigationManager Navigation
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-<style type="text/css">
 
-    .bounceIn {
-        opacity: 0;
-        animation-delay: 0.5s;
-        animation-duration: 0.5s;
-        animation-name: bounceIn;
-        animation-fill-mode: forwards;
+<style type="text/css">
+    .navLink {
+        padding: 6px 12px;
+        font-weight: bold;
+        margin-right: 2%;
+        transition: background-color ease 0.3s;
+    }
+
+        .navLink:hover {
+            cursor: pointer;
+            background-color: #f3ffe0;
+            border-radius: 4px;
+        }
+
+    .login-button:hover {
+        background-color: #b9ffa4 !important;
+    }
+
+    .main-content {
+        margin-top: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5em;
+        font-weight: normal;
+        color: #000;
+        line-height: 1.2;
+    }
+
+    .title {
+        font-weight: 300;
+    }
+
+    .app-bar {
+        background-color: white;
+        border-bottom-width: .1px;
+        border-bottom-color: black;
+    }
+
+    .app-bar-text {
+        font-weight: bold;
+        margin-left: 25%;
+        margin-right: 10%;
+    }
+
+    .logo {
+        width: 40px;
+        height: 40px;
+        margin-right: 6px;
+    }
+
+    .highlight-text {
+        color: #5dbb4d;
+    }
+
+    .subtext {
+        margin-top: 1.5rem;
+    }
+
+    .register-button {
+        margin-top: 2rem;
+        width: 20%;
     }
 </style>
 
 <PageTitle>Condolife</PageTitle>
+
 <MudGrid>
     <MudItem Class="mb-20" xs="12">
-        <MudAppBar Color="Color.Success">
+        <MudAppBar Elevation="0" Class="app-bar">
             <MudText Typo="Typo.h5"
-                     Align="Align.Center">
+                     Align="Align.Center"
+                     Color="Color.Dark"
+                     Class="app-bar-text">
+                <img src="/logo-condolife.png" class="logo" alt="Alternate Text" />
                 Condolife
             </MudText>
+            <MudText Class="navLink" 
+                     Typo="Typo.body1"
+                     Align="Align.Center"
+                     Color="Color.Dark">
+                Por que Condolife?
+            </MudText>
+            <MudText Class="navLink"
+                     Typo="Typo.body1"
+                     Align="Align.Center"
+                     Color="Color.Dark">
+                Recursos
+            </MudText>
             <MudSpacer />
-            <MudButton Color="Color.Dark" IconColor="Color.Dark" EndIcon="@Icons.Material.Rounded.Login" OnClick="NavigateToLogin">
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Dark"
+                       IconColor="Color.Dark"
+                       EndIcon="@Icons.Material.Rounded.Login"
+                       OnClick="NavigateToLogin"
+                       Class="login-button">
                 Entrar
             </MudButton>
         </MudAppBar>
     </MudItem>
-
-    <MudItem Class="mt-20" xs="12">
-        <MudCarousel Class="mud-width-full" Style="height: 40vh;"  TData="object" AutoCycle="false">
-            <MudCarouselItem Color="@Color.Primary" Transition="Transition.Slide">
-                <div class="d-flex" style="height:100%">
-                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
-                </div>
-            </MudCarouselItem>
-            <MudCarouselItem Color="@Color.Primary" Transition="Transition.Slide">
-                <div class="d-flex" style="height:100%">
-                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
-                </div>
-            </MudCarouselItem>
-            <MudCarouselItem Color="@Color.Primary" Transition="Transition.Slide">
-                <div class="d-flex" style="height:100%">
-                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
-                </div>
-            </MudCarouselItem>
-            <MudCarouselItem Color="@Color.Primary" Transition="Transition.Slide">
-                <div class="d-flex" style="height:100%">
-                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
-                </div>
-            </MudCarouselItem>
-        </MudCarousel>
-    </MudItem>
 </MudGrid>
 
+<div class="main-content">
+    <MudText Typo="Typo.h3">
+        Faça parte da sua <span class="highlight-text">Comunidade!</span>
+    </MudText>
+    <MudText Class="subtext" 
+             Typo="Typo.h6">
+        Te ajudamos a simplificar a vida no condomínio, conectando você ao que realmente importa.
+    </MudText>
+    <MudButton Class="register-button"
+               Size="Size.Large"
+               Variant="Variant.Filled"
+               Color="Color.Success">
+        Registre-se agora
+    </MudButton>
+</div>
 
 @code {
-	void NavigateToLogin() {
-		Navigation.NavigateTo("login");
-	}
+    void NavigateToLogin() {
+        Navigation.NavigateTo("login");
+    }
 }
