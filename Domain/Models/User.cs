@@ -1,4 +1,5 @@
 ﻿using Domain.Enums;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -25,8 +26,11 @@ namespace Domain.Models {
         public required string Apartment { get; set; }
         
         public string? Block {  get; set; }
-        
-        public string? Photo { get; set; }
+
+        [NotMapped]
+        public IFormFile? Photo { get; set; }
+
+        public string? PhotoUrl { get; set; }
 
         [JsonIgnore]
         public List<Condominium> Condominium { get; set; } = [];

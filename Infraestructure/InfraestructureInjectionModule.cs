@@ -1,4 +1,5 @@
 ﻿using Infraestructure.Rabbit;
+using Infraestructure.RavenDb;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 
@@ -6,6 +7,8 @@ namespace Infraestructure {
     public static class InfraestructureInjectionModule {
         public static void AddInfraServices(this IServiceCollection services) {
             services.AddDbContext<CondoLifeContext>();
+            var storeHolder = DocumentStoreHolder.Store;
+            services.AddSingleton(storeHolder);
             var rabbitService = new RabbitService();
             services.AddSingleton(services => rabbitService);
             ConfigureRabbit(rabbitService);
