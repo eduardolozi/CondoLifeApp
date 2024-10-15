@@ -5,19 +5,28 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
 <style type="text/css">
-    .navLink {
-        padding: 6px 12px;
+    .title {
+        font-weight: 300;
+    }
+
+    .app-bar {
+        display: flex;
+        background-color: white;
+        border-bottom-color: black;
+    }
+
+    .app-bar-text {
         font-weight: bold;
-        margin-right: 2%;
-        transition: background-color ease 0.3s;
+        margin-left: 5%;
+        margin-right: 10%;
+        color: #0A0A0A;
     }
 
-    .navLink:hover {
-        cursor: pointer;
-        background-color: #f3ffe0;
-        border-radius: 4px;
+    .logo {
+        width: 40px;
+        height: 40px;
+        margin-right: 6px;
     }
-
     .login-button:hover {
         background-color: #b9ffa4 !important;
     }
@@ -37,28 +46,6 @@
         line-height: 1.2;
     }
 
-    .title {
-        font-weight: 300;
-    }
-
-    .app-bar {
-        display: flex;
-        background-color: white;
-        border-bottom-color: black;
-    }
-
-    .app-bar-text {
-        font-weight: bold;
-        margin-left: 5%;
-        margin-right: 10%;
-    }
-
-    .logo {
-        width: 40px;
-        height: 40px;
-        margin-right: 6px;
-    }
-
     .highlight-text {
         color: #72BF78;
     }
@@ -73,35 +60,83 @@
         background-color: #00a82d !important;
     }
 
-    @@media (max-width: 500px) {
-        .app-bar {
-            height: 23vh;
+    .resources {
+        margin-top: 6rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .resource-card {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 25%;
+        flex: 1 1 22%;
+        margin: 10px;
+    }
+
+    .title-card {
+        margin-top: 0;
+        font-weight: bold;
+        color: #333333;
+    }
+
+    @@media (max-width: 850px) {
+        .subtext {
+            margin-top: 1.5rem;
+            width: 80%;
+        }
+
+        .register-button {
+            margin-top: 2rem;
+            width: 50%;
+            background-color: #00a82d !important;
+        }
+
+        .resource-card {
             display: flex;
-            flex-direction: column; /* Muda a direção para coluna */
-            align-items: center; /* Centraliza os itens */
-            padding: 10px 0; /* Adiciona um pouco de padding para espaçamento */
+            justify-content: center;
+            align-items: center;
+            width: 40%;
+            flex: 1 1 40%;
+            margin: 10px;
+        }
+    }
+
+    @@media (max-width: 500px) {
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: -2rem 2rem 0 2rem;
         }
 
-        .app-bar-text {
-            margin-left: 0; /* Remove a margem esquerda */
-            margin-right: 0; /* Remove a margem direita */
-            margin-bottom: 10px; /* Adiciona espaço abaixo do título */
+        .subtext {
+            margin-top: 1.5rem;
         }
 
-        .navLink {
-            margin: 3px 0;
-            transition: background-color ease 0.3s;
+        .register-button {
+            margin-top: 2rem;
+            width: 70%;
+            background-color: #00a82d !important;
         }
 
-        .navLink:hover {
-            cursor: pointer;
-            background-color: #f3ffe0;
-            border-radius: 4px;
+        .resources {
+            margin: 3rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
         }
 
-        .login-button {
-            margin-top: 12px;
-            margin-bottom: 5px;
+        .resource-card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 70%;
+            flex: 1 1 70%;
+            margin: 10px;
         }
     }
 </style>
@@ -113,24 +148,11 @@
         <MudToolBar Elevation="0" Class="app-bar" >
             <MudText Typo="Typo.h5"
                      Align="Align.Center"
-                     Color="Color.Dark"
                      Class="app-bar-text">
                 <img src="/logo-condolife.png" class="logo" alt="Alternate Text" />
                 Condolife
             </MudText>
             <MudSpacer />
-            <MudText Class="navLink" 
-                        Typo="Typo.body1"
-                        Align="Align.Center"
-                        Color="Color.Dark">
-                Por que Condolife?
-            </MudText>
-            <MudText Class="navLink"
-                        Typo="Typo.body1"
-                        Align="Align.Center"
-                        Color="Color.Dark">
-                Recursos
-            </MudText>
             <MudButton Variant="Variant.Outlined"
                        Color="Color.Dark"
                        IconColor="Color.Dark"
@@ -144,7 +166,7 @@
 </MudGrid>
 
 <div class="main-content">
-    <MudText Typo="Typo.h3">
+    <MudText Typo="Typo.h3" Style="color: #333333">
         Faça parte da sua <span class="highlight-text">Comunidade!</span>
     </MudText>
     <MudText Class="subtext" 
@@ -157,6 +179,41 @@
                Color="Color.Success">
         Registre-se agora
     </MudButton>
+</div>
+
+<div class="resources">
+    <MudCard Class="resource-card" Elevation="0">
+        <MudCardMedia Image="/post.gif" Height="200" Style="width: 50%;"></MudCardMedia>
+        <MudCardContent Class="py-0">
+            <MudText Typo="Typo.body1" Class="title-card">
+                Veja os conteúdos do seu condomínio
+            </MudText>
+        </MudCardContent>
+    </MudCard>
+    <MudCard Class="resource-card" Elevation="0">
+        <MudCardMedia Image="/receipt.gif" Height="200" Style="width: 50%;"></MudCardMedia>
+        <MudCardContent Class="py-0">
+            <MudText Typo="Typo.body1" Class="title-card">
+                Gerencie e pague seus boletos
+            </MudText>
+        </MudCardContent>
+    </MudCard>
+    <MudCard Class="resource-card" Elevation="0">
+        <MudCardMedia Image="/voting.gif" Height="200" Style="width: 50%;"></MudCardMedia>
+        <MudCardContent Class="py-0">
+            <MudText Typo="Typo.body1" Class="title-card">
+                Participe das votações rapidamente
+            </MudText>
+        </MudCardContent>
+    </MudCard>
+    <MudCard Class="resource-card" Elevation="0">
+        <MudCardMedia Image="/upcoming.gif" Height="200" Style="width: 50%;"></MudCardMedia>
+        <MudCardContent Class="py-0">
+            <MudText Typo="Typo.body1" Class="title-card">
+                Reserve espaços e serviços com facilidade
+            </MudText>
+        </MudCardContent>
+    </MudCard>
 </div>
 
 @code {
