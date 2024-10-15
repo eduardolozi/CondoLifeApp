@@ -12,18 +12,18 @@
         transition: background-color ease 0.3s;
     }
 
-        .navLink:hover {
-            cursor: pointer;
-            background-color: #f3ffe0;
-            border-radius: 4px;
-        }
+    .navLink:hover {
+        cursor: pointer;
+        background-color: #f3ffe0;
+        border-radius: 4px;
+    }
 
     .login-button:hover {
         background-color: #b9ffa4 !important;
     }
 
     .main-content {
-        margin-top: 3rem;
+        margin-top: 1rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -43,6 +43,7 @@
     }
 
     .app-bar {
+        display: flex;
         background-color: white;
         border-bottom-width: .1px;
         border-bottom-color: black;
@@ -50,7 +51,7 @@
 
     .app-bar-text {
         font-weight: bold;
-        margin-left: 25%;
+        margin-left: 5%;
         margin-right: 10%;
     }
 
@@ -61,7 +62,7 @@
     }
 
     .highlight-text {
-        color: #5dbb4d;
+        color: #72BF78;
     }
 
     .subtext {
@@ -71,6 +72,39 @@
     .register-button {
         margin-top: 2rem;
         width: 20%;
+        background-color: #00a82d !important;
+    }
+
+    @@media (max-width: 500px) {
+        .app-bar {
+            height: 23vh;
+            display: flex;
+            flex-direction: column; /* Muda a direção para coluna */
+            align-items: center; /* Centraliza os itens */
+            padding: 10px 0; /* Adiciona um pouco de padding para espaçamento */
+        }
+
+        .app-bar-text {
+            margin-left: 0; /* Remove a margem esquerda */
+            margin-right: 0; /* Remove a margem direita */
+            margin-bottom: 10px; /* Adiciona espaço abaixo do título */
+        }
+
+        .navLink {
+            margin: 3px 0;
+            transition: background-color ease 0.3s;
+        }
+
+        .navLink:hover {
+            cursor: pointer;
+            background-color: #f3ffe0;
+            border-radius: 4px;
+        }
+
+        .login-button {
+            margin-top: 12px;
+            margin-bottom: 5px;
+        }
     }
 </style>
 
@@ -78,7 +112,7 @@
 
 <MudGrid>
     <MudItem Class="mb-20" xs="12">
-        <MudAppBar Elevation="0" Class="app-bar">
+        <MudToolBar Elevation="0" Class="app-bar" >
             <MudText Typo="Typo.h5"
                      Align="Align.Center"
                      Color="Color.Dark"
@@ -86,19 +120,19 @@
                 <img src="/logo-condolife.png" class="logo" alt="Alternate Text" />
                 Condolife
             </MudText>
+            <MudSpacer />
             <MudText Class="navLink" 
-                     Typo="Typo.body1"
-                     Align="Align.Center"
-                     Color="Color.Dark">
+                        Typo="Typo.body1"
+                        Align="Align.Center"
+                        Color="Color.Dark">
                 Por que Condolife?
             </MudText>
             <MudText Class="navLink"
-                     Typo="Typo.body1"
-                     Align="Align.Center"
-                     Color="Color.Dark">
+                        Typo="Typo.body1"
+                        Align="Align.Center"
+                        Color="Color.Dark">
                 Recursos
             </MudText>
-            <MudSpacer />
             <MudButton Variant="Variant.Outlined"
                        Color="Color.Dark"
                        IconColor="Color.Dark"
@@ -107,7 +141,7 @@
                        Class="login-button">
                 Entrar
             </MudButton>
-        </MudAppBar>
+        </MudToolBar>
     </MudItem>
 </MudGrid>
 

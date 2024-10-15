@@ -1,10 +1,24 @@
 ﻿@page "/login"
 @layout Layout.EmptyLayout
+@inject NavigationManager Navigation
+
+<style>
+    .nav-back {
+        margin: 2rem 0 0 2rem;
+        transition: background-color ease 0.3s;
+        border-radius: 50%;
+    }
+
+    .nav-back:hover {
+        cursor: pointer;
+        background-color: #b9ffa4;
+    }
+</style>
 
 <PageTitle>Login</PageTitle>
 
-
-<MudGrid Class="d-flex flex-column align-items-center" Justify="Justify.Center" Style="height: 100vh">
+<MudIcon Class="nav-back" Icon="@Icons.Material.Sharp.NavigateBefore" Color="Color.Success" Size="Size.Large" @onclick="NavigateToHome"></MudIcon>
+<MudGrid Class="d-flex flex-column align-items-center" Justify="Justify.Center" Style="height: 100vh; padding-bottom:8rem;">
     <MudItem Class="d-flex flex-column align-items-center"
              xs="5"
              sm="3">
@@ -86,5 +100,9 @@
         isPasswordVisible = true;
         PasswordInputIcon = Icons.Material.Filled.Visibility;
         PasswordInputType = InputType.Text;
+    }
+
+    private void NavigateToHome() {
+        Navigation.NavigateTo("");
     }
 }
