@@ -2,9 +2,17 @@
 using Application.Interfaces;
 using Domain.Exceptions;
 using Domain.Models;
+using Domain.Utils;
 using Infraestructure;
 using Infraestructure.Rabbit;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Raven.Client.Documents;
+using Raven.Client.Documents.Operations.Attachments;
+using Raven.Client.Documents.Session;
+using System.IO;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Application.Services {
     public class UserService {
@@ -13,17 +21,20 @@ namespace Application.Services {
         private readonly VerificationTokenService _verificationTokenService;
         private readonly PasswordHasher<User> _passworHasher;
         private readonly RabbitService _rabbitService;
+        private readonly IDocumentStore _ravenStore;
 
         public UserService(CondoLifeContext dbContext,
             IEmailService emailService,
             VerificationTokenService verificationTokenService,
-            RabbitService rabbitService)
+            RabbitService rabbitService,
+            IDocumentStore ravenStore)
         {
             _dbContext = dbContext;
             _emailService = emailService;
             _verificationTokenService = verificationTokenService;
             _passworHasher = new PasswordHasher<User>();
             _rabbitService = rabbitService;
+            _ravenStore = ravenStore;
         }
 
         public List<User> GetAll() { 
@@ -31,14 +42,77 @@ namespace Application.Services {
         }
 
         public User? GetById(int id) {
-            return _dbContext.Users.FirstOrDefault(x => x.Id == id);
-        }  
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == id);
+            if(user == null) return null;
+
+            user.PhotoUrl = $"https://localhost:7031/api/user/{id}/photo";
+            
+            return user;
+        }
+
+        public UserPhotoDTO GetUserPhoto(int id) {
+            var session = _ravenStore.OpenSession();
+            var docId = $"user/{id}";
+            var userPhoto = session.Query<UserPhoto>().FirstOrDefault(x => x.Id == docId);
+
+            byte[] bytes;
+            List<byte> totalStream = new();
+            var buffer = new byte[128];
+            int read;
+
+            using var photoAttachment = session.Advanced.Attachments.Get(docId, userPhoto.FileName);
+            while ((read = photoAttachment.Stream.Read(buffer, 0, buffer.Length)) > 0) {
+                totalStream.AddRange(buffer.Take(read));
+            }
+
+            return new UserPhotoDTO {
+                PhotoBytes = totalStream.ToArray(),
+                ContentType = userPhoto.ContentType
+            };
+        }
+
+        private static long GetStreamLength(Stream stream) {
+            long originalPosition = 0;
+            long totalBytesRead = 0;
+
+            if (stream.CanSeek) {
+                originalPosition = stream.Position;
+                stream.Position = 0;
+            }
+
+            try {
+                byte[] readBuffer = new byte[4096];
+                int bytesRead;
+
+                while ((bytesRead = stream.Read(readBuffer, 0, 4096)) > 0) {
+                    totalBytesRead += bytesRead;
+                }
+
+            }
+            finally {
+                if (stream.CanSeek) {
+                    stream.Position = originalPosition;
+                }
+            }
+
+            return totalBytesRead;
+        }
 
         public void Insert(User user) {
             user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
 
             _dbContext.Users.Add(user);
             _dbContext.SaveChanges();
+
+            if (user.Photo.HasValue()) {
+                var docId = $"user/{user.Id}";
+                var fileName = $"profile-photo-user-{user.Id}.{user.Photo.ContentType.Split('/')[1]}";
+                using var session = _ravenStore.OpenSession();
+                var userPhoto = new UserPhoto(docId, fileName, user.Photo!.ContentType);
+                session.Store(userPhoto, userPhoto.Id);
+                session.Advanced.Attachments.Store(userPhoto.Id, userPhoto.FileName, user.Photo!.OpenReadStream(), userPhoto.ContentType);
+                session.SaveChanges();
+            }
 
             var verificationToken = _verificationTokenService.CreateVerificationToken(user);
 
@@ -120,7 +194,7 @@ namespace Application.Services {
         }
 
         public void Delete(int id) {
-            var user = GetById(id)
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == id)
                 ?? throw new ResourceNotFoundException("Usuário não encontrado");
             _dbContext.Remove(user);
             _dbContext.SaveChanges();

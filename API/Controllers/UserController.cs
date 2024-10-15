@@ -28,9 +28,15 @@ namespace API.Controllers {
             var user = _userService.GetById(id);
             return user.HasValue() ? Ok(user) : NotFound();
         }
+        
+        [HttpGet("{id}/photo")]
+        public IActionResult GetUserPhoto([FromRoute] int id) {
+            var photo = _userService.GetUserPhoto(id);
+            return File(new MemoryStream(photo.PhotoBytes), photo.ContentType);
+        }
 
         [HttpPost]
-        public ActionResult Create([FromBody] User user) {
+        public ActionResult Create([FromForm] User user) {
             _userService.Insert(user);
             return Created();
         }
