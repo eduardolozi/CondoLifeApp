@@ -5,14 +5,8 @@ using Domain.Models;
 using Domain.Utils;
 using Infraestructure;
 using Infraestructure.Rabbit;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Raven.Client.Documents;
-using Raven.Client.Documents.Operations.Attachments;
-using Raven.Client.Documents.Session;
-using System.IO;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Application.Services {
     public class UserService {
@@ -71,33 +65,6 @@ namespace Application.Services {
             };
         }
 
-        private static long GetStreamLength(Stream stream) {
-            long originalPosition = 0;
-            long totalBytesRead = 0;
-
-            if (stream.CanSeek) {
-                originalPosition = stream.Position;
-                stream.Position = 0;
-            }
-
-            try {
-                byte[] readBuffer = new byte[4096];
-                int bytesRead;
-
-                while ((bytesRead = stream.Read(readBuffer, 0, 4096)) > 0) {
-                    totalBytesRead += bytesRead;
-                }
-
-            }
-            finally {
-                if (stream.CanSeek) {
-                    stream.Position = originalPosition;
-                }
-            }
-
-            return totalBytesRead;
-        }
-
         public void Insert(User user) {
             user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
 
@@ -107,6 +74,7 @@ namespace Application.Services {
             if (user.Photo.HasValue()) {
                 var docId = $"user/{user.Id}";
                 var fileName = $"profile-photo-user-{user.Id}.{user.Photo.ContentType.Split('/')[1]}";
+
                 using var session = _ravenStore.OpenSession();
                 var userPhoto = new UserPhoto(docId, fileName, user.Photo!.ContentType);
                 session.Store(userPhoto, userPhoto.Id);
