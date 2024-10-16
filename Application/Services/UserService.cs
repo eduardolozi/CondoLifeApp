@@ -39,8 +39,6 @@ namespace Application.Services {
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == id);
             if(user == null) return null;
 
-            user.PhotoUrl = $"https://localhost:7031/api/user/{id}/photo";
-            
             return user;
         }
 
@@ -69,7 +67,6 @@ namespace Application.Services {
             user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
 
             _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
 
             if (user.Photo.HasValue()) {
                 var docId = $"user/{user.Id}";
@@ -80,8 +77,10 @@ namespace Application.Services {
                 session.Store(userPhoto, userPhoto.Id);
                 session.Advanced.Attachments.Store(userPhoto.Id, userPhoto.FileName, user.Photo!.OpenReadStream(), userPhoto.ContentType);
                 session.SaveChanges();
-            }
 
+                user.PhotoUrl = $"https://localhost:7031/api/user/{user.Id}/photo";
+            }
+            _dbContext.SaveChanges();
             var verificationToken = _verificationTokenService.CreateVerificationToken(user);
 
             SendVerificationEmail(user, verificationToken);
