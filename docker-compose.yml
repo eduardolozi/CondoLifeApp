@@ -1,4 +1,3 @@
-version: '3.2'
 services:
   mssql-server:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -30,8 +29,8 @@ services:
         RAVEN_Security.Certificate.Path: "/certs/my-test.instance.pfx"
         RAVEN_License: "{\"Id\":\"210dc380-84d3-40a4-9a50-a4a731153131\",\"Name\":\"Eduardo Lozano\",\"Keys\":[\"vGwChKZdZtTz3ZSSI/EcgGNYr\",\"hQPSHdnDa+G0/xAKEsw+v2DH7\",\"8yN8Z350nrQdLHItqBxPI2cT3\",\"Rmi+FuGNHvY26qRCSBbTKpaww\",\"3UHcVNG4NPd/2tJouWnVIHfN9\",\"rt2LPZeUjkunidmuM56QgNEm9\",\"I3MqlNjHWsbXzKDfgc5ARAAYE\",\"DNi4wBQYHKEkDCgsMDQ4PEBES\",\"ExQ1FhcYGRobHB0enwIfAJ8CI\",\"ACfAiEgnwIjAJ8CJACfAiUAnw\",\"ImAJ8CJwCfAigAnwIpAJ8CKgCfAisAnwIsAJ8CLQCfAi4AnwIvAJ8CMACfAzFAAp8DMkACnwMzQC2fAzRAJJ8DNUAknwM2QAGfAztAA58DPEAPnwM9QAGfAz5ABZ8DP0ABnwNAQAVDBkQDYo5a\"]}"
     volumes:
-        - C:\Users\eduardo.azevedo\Documents\volumes\raven\ravendb_data:/usr/lib/ravendb/server/ravendb_data
-        - C:\Users\eduardo.azevedo\Documents\volumes\raven\certs\my-test.instance.pfx:/certs/my-test.instance.pfx
+        - C:\Users\eduardo.azevedo\Documents\volumes\ravendb\data:/var/lib/ravendb/data
+        - C:\Users\eduardo.azevedo\Documents\volumes\ravendb\certs:/certs
     ports:
         - "443:443"
         - "38888:38888"

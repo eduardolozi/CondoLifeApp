@@ -21,7 +21,7 @@ namespace Infraestructure.RavenDb {
                 },
                 Database = "Condolife",
 
-                Certificate = new X509Certificate2("C:\\Users\\eduardo.azevedo\\Documents\\volumes\\raven\\certs\\my-test.instance.pfx"),
+                Certificate = new X509Certificate2("C:\\Users\\eduardo.azevedo\\Documents\\volumes\\ravendb\\certs\\my-test.instance.pfx"),
 
             }.Initialize();
 
