@@ -38,12 +38,12 @@
         align-items: center;
     }
 
-    .h3 {
-        font-family: 'Playfair Display', serif;
+    .main-text {
         font-size: 2.5em;
         font-weight: normal;
         color: #000;
         line-height: 1.2;
+
     }
 
     .highlight-text {
@@ -166,7 +166,7 @@
 </MudGrid>
 
 <div class="main-content">
-    <MudText Typo="Typo.h3" Style="color: #333333">
+    <MudText Class="main-text" Typo="Typo.h3" Style="color: #333333">
         Faça parte da sua <span class="highlight-text">Comunidade!</span>
     </MudText>
     <MudText Class="subtext" 
@@ -176,7 +176,8 @@
     <MudButton Class="register-button"
                Size="Size.Large"
                Variant="Variant.Filled"
-               Color="Color.Success">
+               Color="Color.Success"
+                OnClick="NavigateToRegister">
         Registre-se agora
     </MudButton>
 </div>
@@ -219,5 +220,9 @@
 @code {
     void NavigateToLogin() {
         Navigation.NavigateTo("login");
+    }
+
+    void NavigateToRegister() {
+        Navigation.NavigateTo("register");
     }
 }

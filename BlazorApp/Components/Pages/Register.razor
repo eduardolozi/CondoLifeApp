@@ -1,0 +1,40 @@
+﻿@page "/register"
+@layout Layout.EmptyLayout
+
+<PageTitle>Criar conta</PageTitle>
+
+<style type="text/css">
+	.white-border {
+
+	}
+
+	.form-card-condominium {
+		background-color: #99ffb1;
+	}
+
+</style>
+
+<MudPaper Elevation="3" Class="vh-100 d-flex flex-row justify-content-center align-content-center">
+	<MudCard Class="w-75 h-50 d-flex flex-row card-form mt-15" Elevation="1">
+		<MudForm Class="w-50 h-100 m-auto form-card-condominium">
+			<MudCardContent Class="p-5 border-end border-white">
+				<MudText Typo="Typo.h5" Class="mb-5 text-dark fw-bold">
+					Dados do usuário
+				</MudText>
+				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text"  Placeholder="Nome"></MudTextField>
+				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text" Placeholder="Email"></MudTextField>
+				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text" Placeholder="Senha"></MudTextField>
+			</MudCardContent>
+		</MudForm>
+		<MudForm Class="w-50 h-100 m-auto form-card-condominium">
+			<MudCardContent Class="p-5">
+				<MudText Typo="Typo.h5" Class="mb-5 text-dark fw-bold">
+					Dados do condomínio
+				</MudText>
+				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text" Placeholder="Nome"></MudTextField>
+				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text" Placeholder="Email"></MudTextField>
+				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text" Placeholder="Senha"></MudTextField>
+			</MudCardContent>
+		</MudForm>
+	</MudCard>
+</MudPaper>
