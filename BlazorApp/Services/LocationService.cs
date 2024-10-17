@@ -35,6 +35,19 @@ namespace BlazorApp.Services {
             var countryNames = countries!.Select(country => country.country_name).ToList();
 			return countryNames;
 		}
+        
+        public async Task<List<string>> GetStates(string country) {
+            var accessToken = await GetAccessToken();
+
+			_httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+            var response = await _httpClient.GetAsync($"states/{country}");
+            var x = response.StatusCode;
+            response.EnsureSuccessStatusCode();
+            var states = await response.Content.ReadFromJsonAsync<List<State>>();
+            var stateNames = states!.Select(state => state.state_name).ToList();
+			return stateNames;
+		}
+
     }
 
     public class AccessTokenResponse {

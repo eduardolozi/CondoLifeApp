@@ -1,4 +1,4 @@
 ﻿namespace BlazorApp.Models {
-	public class City {
+	public record City {
 	}
 }

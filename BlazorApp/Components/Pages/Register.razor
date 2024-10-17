@@ -26,7 +26,7 @@
 			<MudText Typo="Typo.h5" Class="mb-5">
 				Dados do condomínio
 			</MudText>
-			<MudSelect @bind-Value="value" Class="input-form" Label="País" Disabled="_countries == null || !_countries.Any()">
+			<MudSelect T="string" Value="_country" ValueChanged="@(async (string _country) => await LoadStates(_country))" Class="input-form"  Label="País" Disabled="_countries == null || !_countries.Any()">
 				@if (_countries != null && _countries.Any())
 				{
 					@foreach (var country in _countries)
@@ -34,12 +34,14 @@
 						<MudSelectItem Value="@country">@country</MudSelectItem>
 					}
 				}
-				else
-				{
-					<MudText Typo="Typo.caption">Carregando países...</MudText>
+			</MudSelect>
+			<MudSelect Class="input-form" @bind-Value="_state" Label="Estado" Disabled="_states == null || !_states.Any()">
+				@if (_states != null && _states.Any()) {
+					@foreach (var state in _states) {
+						<MudSelectItem Value="@state">@state</MudSelectItem>
+					}
 				}
 			</MudSelect>
-			<MudTextField T="string" Class="input-form"></MudTextField>
 			<MudTextField T="string" Class="input-form"></MudTextField>
 		</MudForm>
 	</MudCard>
@@ -48,11 +50,22 @@
 
 @code{
 	List<string> _countries;
-	List<string> States;
-	List<string> Cities;
+	List<string> _states;
+	List<string> _cities;
+
+	string _country;
+	string _state;
+	string _city;
+
 	protected override async Task OnInitializedAsync()
 	{
 		_countries = await locationService.GetCountries();
+		StateHasChanged();
+	}
+
+	async Task LoadStates(string country) {
+		_country = country;
+		_states = await locationService.GetStates(_country);
 		StateHasChanged();
 	}
 
