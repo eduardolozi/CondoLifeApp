@@ -1,40 +1,60 @@
 ﻿@page "/register"
-@layout Layout.EmptyLayout
+@inject LocationService locationService
+@layout Layout.EmptyAppBarLayout
 
 <PageTitle>Criar conta</PageTitle>
 
 <style type="text/css">
-	.white-border {
-
-	}
-
-	.form-card-condominium {
-		background-color: #99ffb1;
+	.input-form {
+		width: 50%;
+		margin-bottom: 1.5rem;
 	}
 
 </style>
 
-<MudPaper Elevation="3" Class="vh-100 d-flex flex-row justify-content-center align-content-center">
-	<MudCard Class="w-75 h-50 d-flex flex-row card-form mt-15" Elevation="1">
-		<MudForm Class="w-50 h-100 m-auto form-card-condominium">
-			<MudCardContent Class="p-5 border-end border-white">
-				<MudText Typo="Typo.h5" Class="mb-5 text-dark fw-bold">
-					Dados do usuário
-				</MudText>
-				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text"  Placeholder="Nome"></MudTextField>
-				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text" Placeholder="Email"></MudTextField>
-				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text" Placeholder="Senha"></MudTextField>
-			</MudCardContent>
+<MudContainer Class="w-100 d-flex flex-row ms-0">
+	<MudCard Class="mt-10 h-100 d-flex flex-column w-50 justify-content-around align-items-center p-4">
+		<MudForm Class="w-100 h-100 mb-5">
+			<MudText Typo="Typo.h5" Class="mb-7">
+				Dados do usuário
+			</MudText>
+			<MudTextField T="string" Placeholder="Nome" Class="input-form"></MudTextField>
+			<MudTextField T="string" Placeholder="Email" Class="input-form"></MudTextField>
+			<MudTextField T="string" Placeholder="Senha" Class="input-form"></MudTextField>
 		</MudForm>
-		<MudForm Class="w-50 h-100 m-auto form-card-condominium">
-			<MudCardContent Class="p-5">
-				<MudText Typo="Typo.h5" Class="mb-5 text-dark fw-bold">
-					Dados do condomínio
-				</MudText>
-				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text" Placeholder="Nome"></MudTextField>
-				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text" Placeholder="Email"></MudTextField>
-				<MudTextField Class="mb-5 white-border" T="string" Variant="Variant.Text" Placeholder="Senha"></MudTextField>
-			</MudCardContent>
+		<MudForm Class="w-100 h-100 mt-5">
+			<MudText Typo="Typo.h5" Class="mb-5">
+				Dados do condomínio
+			</MudText>
+			<MudSelect @bind-Value="value" Class="input-form" Label="País" Disabled="_countries == null || !_countries.Any()">
+				@if (_countries != null && _countries.Any())
+				{
+					@foreach (var country in _countries)
+					{
+						<MudSelectItem Value="@country">@country</MudSelectItem>
+					}
+				}
+				else
+				{
+					<MudText Typo="Typo.caption">Carregando países...</MudText>
+				}
+			</MudSelect>
+			<MudTextField T="string" Class="input-form"></MudTextField>
+			<MudTextField T="string" Class="input-form"></MudTextField>
 		</MudForm>
 	</MudCard>
-</MudPaper>
+	<MudImage Src="/register-condominium.jpg" Class="vh-100 w-50 position-absolute top-0 end-0"></MudImage>
+</MudContainer>
+
+@code{
+	List<string> _countries;
+	List<string> States;
+	List<string> Cities;
+	protected override async Task OnInitializedAsync()
+	{
+		_countries = await locationService.GetCountries();
+		StateHasChanged();
+	}
+
+	string value;
+}

@@ -10,6 +10,6 @@ namespace Application {
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<VerificationTokenService>();
             services.AddScoped<CondominiumService>();
-        }
+		}
     }
 }

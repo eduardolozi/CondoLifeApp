@@ -1,0 +1,40 @@
+﻿@inherits LayoutComponentBase
+<MudPopoverProvider />
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<style>
+    .app-bar {
+        display: flex;
+        background-color: white;
+        border-bottom-color: black;
+    }
+
+    .app-bar-text {
+        font-weight: bold;
+        margin-left: 5%;
+        margin-right: 10%;
+        color: #0A0A0A;
+    }
+
+    .logo {
+        width: 40px;
+        height: 40px;
+        margin-right: 6px;
+    }
+</style>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudToolBar Elevation="0" Class="app-bar">
+            <MudText Typo="Typo.h5"
+                     Align="Align.Center"
+                     Class="app-bar-text">
+                <img src="/logo-condolife.png" class="logo" alt="Alternate Text" />
+                Condolife
+            </MudText>
+            <MudSpacer />
+        </MudToolBar>
+    </MudItem>
+</MudGrid>
+@Body

@@ -1,18 +1,25 @@
 using BlazorApp.Components;
+using BlazorApp.Services;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddMemoryCache();
 builder.Services.AddMudServices();
+
+builder.Services.AddHttpClient<LocationService>((client) => {
+    //env
+    client.BaseAddress = new Uri("https://www.universal-tutorial.com/api/");
+    client.DefaultRequestHeaders.Add("Accept", "*/*");
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment()) {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
