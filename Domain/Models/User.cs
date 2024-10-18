@@ -23,7 +23,7 @@ namespace Domain.Models {
 
         public UserRoleEnum Role { get; set; }
 
-        public required string Apartment { get; set; }
+        public required int Apartment { get; set; }
         
         public string? Block {  get; set; }
 
