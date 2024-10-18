@@ -29,7 +29,6 @@ namespace BlazorApp.Services {
 
 			_httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
             var response = await _httpClient.GetAsync("countries");
-            var x = response.StatusCode;
             response.EnsureSuccessStatusCode();
             var countries = await response.Content.ReadFromJsonAsync<List<Country>>();
             var countryNames = countries!.Select(country => country.country_name).ToList();
@@ -39,13 +38,21 @@ namespace BlazorApp.Services {
         public async Task<List<string>> GetStates(string country) {
             var accessToken = await GetAccessToken();
 
-			_httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
             var response = await _httpClient.GetAsync($"states/{country}");
-            var x = response.StatusCode;
             response.EnsureSuccessStatusCode();
             var states = await response.Content.ReadFromJsonAsync<List<State>>();
             var stateNames = states!.Select(state => state.state_name).ToList();
 			return stateNames;
+		}
+        
+        public async Task<List<string>> GetCities(string state) {
+            var accessToken = await GetAccessToken();
+
+            var response = await _httpClient.GetAsync($"cities/{state}");
+            response.EnsureSuccessStatusCode();
+            var cities = await response.Content.ReadFromJsonAsync<List<City>>();
+            var citieNames = cities!.Select(city => city.city_name).ToList();
+			return citieNames;
 		}
 
     }
