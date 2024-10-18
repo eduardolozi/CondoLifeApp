@@ -1,0 +1,64 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+<MudPopoverProvider />
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<style>
+    .app-bar {
+        display: flex;
+        background-color: white;
+        border-bottom-color: black;
+    }
+
+    .app-bar-text {
+        font-weight: bold;
+        margin-left: 5%;
+        margin-right: 10%;
+        color: #0A0A0A;
+    }
+
+    .app-bar:hover {
+        cursor: pointer
+    }
+
+    .logo {
+        width: 40px;
+        height: 40px;
+        margin-right: 6px;
+    }
+
+    .nav-back {
+        margin: 2rem 0 0 2rem;
+        transition: background-color ease 0.3s;
+        border-radius: 50%;
+    }
+
+    .nav-back:hover {
+        cursor: pointer;
+        background-color: #b9ffa4;
+    }
+</style>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudToolBar Elevation="0" Class="app-bar">
+            <MudText Typo="Typo.h5"
+                     Align="Align.Center"
+                     Class="app-bar-text"
+                     @onclick="NavigateToHome">
+                <img src="/logo-condolife.png" class="logo" alt="Alternate Text" />
+                Condolife
+            </MudText>
+            <MudSpacer />
+        </MudToolBar>
+    </MudItem>
+</MudGrid>
+<MudIcon Class="nav-back" Icon="@Icons.Material.Sharp.NavigateBefore" Color="Color.Success" Size="Size.Large" @onclick="NavigateToHome"></MudIcon>
+@Body
+
+@code {
+    void NavigateToHome() {
+        Navigation.NavigateTo("");
+    }
+}
