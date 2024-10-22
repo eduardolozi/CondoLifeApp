@@ -80,5 +80,10 @@ namespace API.Controllers {
             return NoContent();
         }
 
-    }
+		[HttpDelete("all")]
+		public NoContentResult DeleteAll() {
+			_userService.DeleteAll();
+			return NoContent();
+		}
+	}
 }

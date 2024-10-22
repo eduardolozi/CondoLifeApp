@@ -6,6 +6,7 @@ using Domain.Utils;
 using Infraestructure;
 using Infraestructure.Rabbit;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Utilities;
 using Raven.Client.Documents;
 
@@ -66,6 +67,7 @@ namespace Application.Services {
 
         public void Insert(User user) {
             user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
+
 
             _dbContext.Users.Add(user);
             _dbContext.SaveChanges();
@@ -166,6 +168,15 @@ namespace Application.Services {
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == id)
                 ?? throw new ResourceNotFoundException("Usuário não encontrado");
             _dbContext.Remove(user);
+            _dbContext.SaveChanges();
+        }
+        
+        public void DeleteAll() {
+            var users = GetAll();
+            foreach (var user in users)
+            {
+                _dbContext.Remove(user);
+            }
             _dbContext.SaveChanges();
         }
     }

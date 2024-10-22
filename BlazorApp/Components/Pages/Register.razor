@@ -210,6 +210,9 @@
 			</MudForm>
 		</MudStep>
 	</MudStepper>
+	@if (isLoading) {
+		<MudProgressCircular Class="my-3" Indeterminate="true" Color="Color.Primary" />
+	}
 	
 	<MudImage Src="/fundo-condo.jpg" Class="vh-100 w-50 position-absolute top-0 end-0 image-register"></MudImage>
 </MudContainer>
@@ -293,12 +296,19 @@
 		_condos = await condoService.GetAll(address);
 	}
 
+	bool isLoading = false;
 	[Inject]
 	private IDialogService DialogService { get; set; }
 	async Task CreateUser() {
-		user.CondominiumId = _condo.Id;
-		await userService.CreateUser(user);
-		await DialogService.ShowMessageBox("Conta criada com sucesso!", "Conta criada com sucesso! Enviamos um e-mail de verificação. Confirme seu cadastro para poder acessar sua conta.", "OK");
-		Navigation.NavigateTo("");
+		try {
+			isLoading = true;
+			user.CondominiumId = _condo.Id;
+			await userService.CreateUser(user);
+			await DialogService.ShowMessageBox("Conta criada com sucesso!", "Conta criada com sucesso! Enviamos um e-mail de verificação. Confirme seu cadastro para poder acessar sua conta.", "OK");
+			Navigation.NavigateTo("");
+		}
+		finally {
+			isLoading = false;
+		}
 	}
 }
