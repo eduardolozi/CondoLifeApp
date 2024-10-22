@@ -55,6 +55,9 @@
                        OnClick="SubmitLogin">
                 Entrar
             </MudButton>
+            @if (isLoading) {
+                <MudProgressCircular Class="my-3" Indeterminate="true" Color="Color.Primary" />
+            }
 
         </MudPaper>
     </MudItem>
@@ -77,6 +80,8 @@
 
     public InputType PasswordInputType = InputType.Password;
 
+    public bool isLoading = false;
+
     private void ChangePasswordVisibility() {
         if (isPasswordVisible) {
             isPasswordVisible = false;
@@ -96,13 +101,19 @@
             Email = _email,
             Password = _password
         };
-        var result = await authService.Login(loginRequest);
-        if(!result.IsSuccess) {
-            await DialogService.ShowMessageBox("Erro ao logar!", "Verifique os dados do login.", "OK");
-            return;
+        try {
+            isLoading = true;
+            var result = await authService.Login(loginRequest);
+            if(!result.IsSuccess) {
+                await DialogService.ShowMessageBox("Erro ao logar!", "Verifique os dados do login.", "OK");
+                return;
+            }
+            await LocalStorage.SetItemAsync("authToken", result.AccessToken);
+            await LocalStorage.SetItemAsync("refreshToken", result.RefreshToken);
+            Navigation.NavigateTo("counter");
         }
-        await LocalStorage.SetItemAsync("authToken", result.AccessToken);
-        await LocalStorage.SetItemAsync("refreshToken", result.RefreshToken);
-        Navigation.NavigateTo("counter");
+        finally {
+            isLoading = false;
+        }
     }
 }
