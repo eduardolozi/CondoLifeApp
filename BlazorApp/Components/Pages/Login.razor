@@ -1,6 +1,8 @@
 ﻿@page "/login"
 @layout Layout.EmptyAppBarLayout
 @inject NavigationManager Navigation
+@inject AuthService authService
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 <PageTitle>Login</PageTitle>
 
@@ -20,7 +22,7 @@
             </MudText>
 
             <MudTextField Class="mb-9 w-75"
-                          @bind-Value="Email"
+                          @bind-Value="_email"
                           Variant="Variant.Outlined"
                           Placeholder="Email"
                           InputMode="InputMode.email"
@@ -29,7 +31,7 @@
 
             <MudContainer Class="w-75 p-0 d-flex flex-column align-items-end">
                 <MudTextField Class="w-100 m-0"
-                              @bind-Value="Password"
+                              @bind-Value="_password"
                               Variant="Variant.Outlined"
                               Placeholder="Senha"
                               InputType="@PasswordInputType"
@@ -49,20 +51,27 @@
                        ButtonType="ButtonType.Submit"
                        Color="Color.Success"
                        Variant="Variant.Filled"
-                       Size="Size.Large">
+                       Size="Size.Large"
+                       OnClick="SubmitLogin">
                 Entrar
             </MudButton>
+            @if (isLoading) {
+                <MudProgressCircular Class="my-3" Indeterminate="true" Color="Color.Primary" />
+            }
 
         </MudPaper>
     </MudItem>
 </MudGrid>
 
 @code {
-    [Parameter]
-    public string Email { get; set; }
+    [Inject]
+    private IDialogService DialogService { get; set; }
 
     [Parameter]
-    public string Password { get; set; }
+    public string _email { get; set; }
+
+    [Parameter]
+    public string _password { get; set; }
 
     [Parameter]
     public bool isPasswordVisible { get; set; }
@@ -70,6 +79,8 @@
     public string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
 
     public InputType PasswordInputType = InputType.Password;
+
+    public bool isLoading = false;
 
     private void ChangePasswordVisibility() {
         if (isPasswordVisible) {
@@ -82,5 +93,27 @@
         isPasswordVisible = true;
         PasswordInputIcon = Icons.Material.Filled.Visibility;
         PasswordInputType = InputType.Text;
+    }
+
+    async Task SubmitLogin() {
+        var loginRequest = new UserLoginRequest
+        {
+            Email = _email,
+            Password = _password
+        };
+        try {
+            isLoading = true;
+            var result = await authService.Login(loginRequest);
+            if(!result.IsSuccess) {
+                await DialogService.ShowMessageBox("Erro ao logar!", "Verifique os dados do login.", "OK");
+                return;
+            }
+            await LocalStorage.SetItemAsync("authToken", result.AccessToken);
+            await LocalStorage.SetItemAsync("refreshToken", result.RefreshToken);
+            Navigation.NavigateTo("inicial");
+        }
+        finally {
+            isLoading = false;
+        }
     }
 }

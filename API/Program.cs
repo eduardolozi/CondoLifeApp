@@ -11,7 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApiServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfraServices();
-
+builder.Services.AddCors(options => {
+	options.AddPolicy("AllowBlazorClient",
+		builder => {
+			builder.WithOrigins("https://localhost:7136")
+				   .AllowAnyHeader()
+				   .AllowAnyMethod();
+		});
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -21,7 +28,7 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowBlazorClient");
 app.UseAuthentication();
 
 app.UseAuthorization();

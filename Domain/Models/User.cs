@@ -1,10 +1,9 @@
 ﻿using Domain.Enums;
-using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Domain.Models {
-    public class User {
+	public class User {
         public int Id { get; set; }
         
         public required string Name { get; set; }
@@ -28,11 +27,13 @@ namespace Domain.Models {
         public string? Block {  get; set; }
 
         [NotMapped]
-        public IFormFile? Photo { get; set; }
+        public UserPhoto? Photo { get; set; }
 
         public string? PhotoUrl { get; set; }
 
+        public int CondominiumId { get; set; }
+
         [JsonIgnore]
-        public List<Condominium> Condominium { get; set; } = [];
+        public Condominium? Condominium { get; set; }
     }
 }
