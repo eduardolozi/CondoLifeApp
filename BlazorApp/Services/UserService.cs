@@ -1,8 +1,5 @@
 ﻿using BlazorApp.Models;
-using BlazorApp.Utils;
 using Microsoft.Extensions.Caching.Memory;
-using System.Net.Http.Headers;
-using System.Reflection.PortableExecutable;
 
 namespace BlazorApp.Services {
 	public class UserService {

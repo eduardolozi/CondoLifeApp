@@ -1,6 +1,7 @@
 ﻿@page "/register"
 @inject LocationService locationService
 @inject UserService userService
+@inject NavigationManager Navigation
 @layout Layout.EmptyAppBarLayout
 
 <PageTitle>Criar conta</PageTitle>
@@ -82,13 +83,17 @@
 					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Counselor">Conselheiro</MudRadio>
 					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Manager">Síndico</MudRadio>
 				</MudRadioGroup>
-				<MudFileUpload Class="mt-3" T="IBrowserFile" FilesChanged="@UploadFiles" Accept=".png, .jpg">
+				<MudFileUpload Class="mt-3 mb-5" T="IBrowserFile" FilesChanged="@UploadFiles" Accept=".png, .jpg">
 					<ActivatorContent>
-						<MudButton Variant="Variant.Filled"
-								   Color="Color.Primary"
-								   StartIcon="@Icons.Material.Filled.CloudUpload">
-							Selecione a sua foto
-						</MudButton>
+						<MudContainer Class="d-flex flex-row p-0">
+							<MudButton Variant="Variant.Filled"
+									   Color="Color.Primary"
+									   StartIcon="@Icons.Material.Filled.CloudUpload">
+								Selecione a sua foto
+							</MudButton>
+							<MudTextField Class="ms-5" T="string" Disabled="true" Value="ImageName">
+							</MudTextField>
+						</MudContainer>
 					</ActivatorContent>
 				</MudFileUpload>
 			</MudForm>
@@ -195,6 +200,7 @@
 		StateHasChanged();
 	}
 
+	string ImageName = "Imagem selecionada";
 	private async Task UploadFiles(IBrowserFile file) {
 		using var memoryStream = new MemoryStream();
 		await file.OpenReadStream().CopyToAsync(memoryStream);
@@ -203,6 +209,7 @@
 		user.Photo.ContentBase64 = Convert.ToBase64String(fileBytes);
 		user.Photo.FileName = file.Name;
 		user.Photo.ContentType = file.ContentType;
+		ImageName = file.Name;
 	}
 
 	public bool isPasswordVisible { get; set; }
@@ -245,7 +252,11 @@
 		StateHasChanged();
 	}
 
+	[Inject]
+	private IDialogService DialogService { get; set; }
 	async Task CreateUser() {
 		await userService.CreateUser(user);
+		await DialogService.ShowMessageBox("Conta criada com sucesso!", "Conta criada com sucesso! Enviamos um e-mail de verificação. Confirme seu cadastro para poder acessar sua conta.", "OK");
+		Navigation.NavigateTo("");
 	}
 }
