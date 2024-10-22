@@ -1,0 +1,10 @@
+.roboto-font {
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+.top-row, .nav-link, .navbar-brand {
+    font-family: 'Roboto', sans-serif;
+}

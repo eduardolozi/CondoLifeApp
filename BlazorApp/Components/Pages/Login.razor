@@ -110,7 +110,7 @@
             }
             await LocalStorage.SetItemAsync("authToken", result.AccessToken);
             await LocalStorage.SetItemAsync("refreshToken", result.RefreshToken);
-            Navigation.NavigateTo("counter");
+            Navigation.NavigateTo("inicial");
         }
         finally {
             isLoading = false;
