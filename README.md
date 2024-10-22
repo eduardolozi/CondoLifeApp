@@ -3,6 +3,7 @@ As variáveis de ambiente do projeto não foram protegidas pois este não é o r
 ## Tecnologias Utilizadas
 
 - **.NET**: Framework principal para desenvolvimento da aplicação.
+- **BLAZOR**: Framework para o front-end.
 - **Entity Framework + SQL Server**: ORM utilizado para interagir com o banco de dados relacional SQL Server.
 - **RavenDB (NoSQL)**: Banco de dados orientado a documentos para armazenamento de mídias (imagens, documentos, etc.).
 - **RabbitMQ**: Sistema de mensageria para comunicação assíncrona entre serviços.
