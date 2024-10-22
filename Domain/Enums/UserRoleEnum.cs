@@ -4,7 +4,8 @@ namespace Domain.Enums {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum UserRoleEnum {
         Admin,
-        Manager,
-        User
-    }
+		Resident,
+		Counselor,
+		Manager
+	}
 }

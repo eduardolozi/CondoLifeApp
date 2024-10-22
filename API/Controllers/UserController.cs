@@ -37,7 +37,7 @@ namespace API.Controllers {
         }
 
         [HttpPost]
-        public ActionResult Create([FromForm] User user) {
+        public ActionResult Create([FromBody] User user) {
             _userService.Insert(user);
             return Created();
         }

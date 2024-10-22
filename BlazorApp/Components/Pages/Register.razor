@@ -1,5 +1,6 @@
 ﻿@page "/register"
 @inject LocationService locationService
+@inject UserService userService
 @layout Layout.EmptyAppBarLayout
 
 <PageTitle>Criar conta</PageTitle>
@@ -76,41 +77,66 @@
 					OnAdornmentClick="(() => this.ChangePasswordVisibility())">
 				</MudTextField>
 				<MudText>Tipo de usuário:</MudText>
-				<MudRadioGroup @bind-Value="user.UserType">
-					<MudRadio Color="Color.Primary" Value="@UserType.Morador">Morador comum</MudRadio>
-					<MudRadio Color="Color.Primary" Value="@UserType.Conselheiro">Conselheiro</MudRadio>
-					<MudRadio Color="Color.Primary" Value="@UserType.Sindico">Síndico</MudRadio>
+				<MudRadioGroup @bind-Value="user.Role">
+					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Resident">Morador comum</MudRadio>
+					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Counselor">Conselheiro</MudRadio>
+					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Manager">Síndico</MudRadio>
 				</MudRadioGroup>
+				<MudFileUpload Class="mt-3" T="IBrowserFile" FilesChanged="@UploadFiles" Accept=".png, .jpg">
+					<ActivatorContent>
+						<MudButton Variant="Variant.Filled"
+								   Color="Color.Primary"
+								   StartIcon="@Icons.Material.Filled.CloudUpload">
+							Selecione a sua foto
+						</MudButton>
+					</ActivatorContent>
+				</MudFileUpload>
 			</MudForm>
 		</MudStep>
 
 		<MudStep Title="Dados do condomínio">
-			<MudForm Class="mt-4 w-100 h-100 mb-3 d-flex flex-column justify-content-around align-items-start">
-				<MudSelect Class="mb-5" Variant="Variant.Outlined" T="string" Value="_country" ValueChanged="@LoadStates" Label="País" Disabled="_countries == null || !_countries.Any()">
-					@if (_countries != null && _countries.Any()) {
-						@foreach (var country in _countries) {
-							<MudSelectItem Value="@country">@country</MudSelectItem>
+			<MudForm Class="mt-4 w-100 h-100 mb-3 d-flex flex-row justify-content-around align-items-start">
+				<MudContainer Class="d-flex flex-column">
+					<MudSelect Class="mb-5" Variant="Variant.Outlined" T="string" Value="_country" ValueChanged="@LoadStates" Label="País" Disabled="_countries == null || !_countries.Any()">
+						@if (_countries != null && _countries.Any()) {
+							@foreach (var country in _countries) {
+								<MudSelectItem Value="@country">@country</MudSelectItem>
+							}
 						}
-					}
-				</MudSelect>
-				<MudSelect Class="mb-5" Variant="Variant.Outlined" T="string" Value="_state" ValueChanged="@LoadCities" Label="Estado" Disabled="_states == null || !_states.Any()">
-					@if (_states != null && _states.Any()) {
-						@foreach (var state in _states) {
-							<MudSelectItem Value="@state">@state</MudSelectItem>
+					</MudSelect>
+					<MudSelect Class="mb-5" Variant="Variant.Outlined" T="string" Value="_state" ValueChanged="@LoadCities" Label="Estado" Disabled="_states == null || !_states.Any()">
+						@if (_states != null && _states.Any()) {
+							@foreach (var state in _states) {
+								<MudSelectItem Value="@state">@state</MudSelectItem>
+							}
 						}
-					}
-				</MudSelect>
-				<MudSelect Variant="Variant.Outlined" @bind-Value="_city" Label="Cidade" Disabled="_cities == null || !_cities.Any()">
-					@if (_cities != null && _cities.Any()) {
-						@foreach (var city in _cities) {
-							<MudSelectItem Value="@city">@city</MudSelectItem>
+					</MudSelect>
+					<MudSelect Variant="Variant.Outlined" @bind-Value="_city" Label="Cidade" Disabled="_cities == null || !_cities.Any()">
+						@if (_cities != null && _cities.Any()) {
+							@foreach (var city in _cities) {
+								<MudSelectItem Value="@city">@city</MudSelectItem>
+							}
 						}
-					}
-				</MudSelect>
+					</MudSelect>
+				</MudContainer>
+				<MudContainer Class="d-flex flex-column">
+					<MudTextField @bind-Value="user.Apartment"
+								  FullWidth="true"
+								  Variant="Variant.Outlined"
+								  Placeholder="N° Apartamento"
+								  Class="mt-2 mb-5">
+					</MudTextField>
+					<MudTextField @bind-Value="user.Block"
+								  FullWidth="true"
+								  Variant="Variant.Outlined"
+								  Placeholder="Bloco (Opcional)"
+								  Class="mt-2 mb-5">
+					</MudTextField>
+				</MudContainer>
 			</MudForm>
 		</MudStep>
 
-		<MudStep Title="Revisão">
+		<MudStep Title="Revisão" CompletedChanged="CreateUser">
 			<MudForm Class="mt-4 w-100 h-100 d-flex flex-column justify-content-around">
 				<MudTextField @bind-Value="user.Name"
 							  FullWidth="true"
@@ -127,9 +153,9 @@
 							  Disabled="true">
 				</MudTextField>
 				<MudRadio Color="Color.Primary"
-						  @bind-Value="user.UserType"
+						  @bind-Value="user.Role"
 						  Disabled="true">
-						  @user.UserType
+						  @user.Role
 				</MudRadio>
 				<MudTextField @bind-Value="_country"
 							  FullWidth="true"
@@ -164,9 +190,19 @@
 	const string Morador = "Morador";
 	const string Conselheiro = "Conselheiro";
 	const string Sindico = "Sindico";
-	void SelectUserType(UserType type) {
-		user.UserType = type;
+	void SelectUserType(UserRoleEnum type) {
+		user.Role = type;
 		StateHasChanged();
+	}
+
+	private async Task UploadFiles(IBrowserFile file) {
+		using var memoryStream = new MemoryStream();
+		await file.OpenReadStream().CopyToAsync(memoryStream);
+		var fileBytes = memoryStream.ToArray();
+		user.Photo = new UserPhoto();
+		user.Photo.ContentBase64 = Convert.ToBase64String(fileBytes);
+		user.Photo.FileName = file.Name;
+		user.Photo.ContentType = file.ContentType;
 	}
 
 	public bool isPasswordVisible { get; set; }
@@ -202,10 +238,14 @@
 		_states = await locationService.GetStates(_country);
 		StateHasChanged();
 	}
-	
+
 	async Task LoadCities(string state) {
 		_state = state;
 		_cities = await locationService.GetCities(_state);
 		StateHasChanged();
+	}
+
+	async Task CreateUser() {
+		await userService.CreateUser(user);
 	}
 }

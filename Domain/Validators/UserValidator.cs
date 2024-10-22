@@ -11,7 +11,7 @@ namespace Domain.Validators {
             RuleFor(x => x.Password).NotEmpty().Length(8, 25);
             RuleFor(x => x.Role).IsInEnum();
             RuleFor(x => x.Apartment).NotEmpty().GreaterThan(100);
-            RuleFor(x => x.Photo).Must(IsPngOrJpg).Must(ExpectedSize);
+            //RuleFor(x => x.Photo).Must(IsPngOrJpg).Must(ExpectedSize);
         }
 
         bool IsPngOrJpg(IFormFile? photo) {

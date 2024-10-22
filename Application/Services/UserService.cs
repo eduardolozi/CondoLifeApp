@@ -6,6 +6,7 @@ using Domain.Utils;
 using Infraestructure;
 using Infraestructure.Rabbit;
 using Microsoft.AspNetCore.Identity;
+using Org.BouncyCastle.Utilities;
 using Raven.Client.Documents;
 
 namespace Application.Services {
@@ -67,6 +68,7 @@ namespace Application.Services {
             user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
 
             _dbContext.Users.Add(user);
+            _dbContext.SaveChanges();
 
             if (user.Photo.HasValue()) {
                 var docId = $"user/{user.Id}";
@@ -75,15 +77,15 @@ namespace Application.Services {
                 using var session = _ravenStore.OpenSession();
                 var userPhoto = new UserPhoto(docId, fileName, user.Photo!.ContentType);
                 session.Store(userPhoto, userPhoto.Id);
-                session.Advanced.Attachments.Store(userPhoto.Id, userPhoto.FileName, user.Photo!.OpenReadStream(), userPhoto.ContentType);
+                var photoBytes = Convert.FromBase64String(user.Photo.ContentBase64);
+                session.Advanced.Attachments.Store(userPhoto.Id, userPhoto.FileName, new MemoryStream(photoBytes), userPhoto.ContentType);
                 session.SaveChanges();
 
                 user.PhotoUrl = $"https://localhost:7031/api/user/{user.Id}/photo";
             }
-            _dbContext.SaveChanges();
+			_dbContext.SaveChanges();
             var verificationToken = _verificationTokenService.CreateVerificationToken(user);
-
-            SendVerificationEmail(user, verificationToken);
+			SendVerificationEmail(user, verificationToken);
         }
 
         private void SendVerificationEmail(User user, VerificationToken verificationToken) {

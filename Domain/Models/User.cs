@@ -28,7 +28,7 @@ namespace Domain.Models {
         public string? Block {  get; set; }
 
         [NotMapped]
-        public IFormFile? Photo { get; set; }
+        public UserPhoto? Photo { get; set; }
 
         public string? PhotoUrl { get; set; }
 

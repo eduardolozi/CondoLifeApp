@@ -16,6 +16,10 @@ builder.Services.AddHttpClient<LocationService>((client) => {
     client.DefaultRequestHeaders.Add("Accept", "*/*");
 });
 
+builder.Services.AddHttpClient<UserService>(client => {
+	client.BaseAddress = new Uri("https://localhost:7031/api/User/");
+});
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment()) {
