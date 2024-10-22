@@ -1,6 +1,8 @@
 ﻿@page "/register"
+@using System.Text.RegularExpressions
 @inject LocationService locationService
 @inject UserService userService
+@inject CondominiumService condoService
 @inject NavigationManager Navigation
 @layout Layout.EmptyAppBarLayout
 
@@ -116,15 +118,30 @@
 							}
 						}
 					</MudSelect>
-					<MudSelect Variant="Variant.Outlined" @bind-Value="_city" Label="Cidade" Disabled="_cities == null || !_cities.Any()">
+					<MudSelect Class="mb-5" Variant="Variant.Outlined" @bind-Value="_city" Label="Cidade" Disabled="_cities == null || !_cities.Any()">
 						@if (_cities != null && _cities.Any()) {
 							@foreach (var city in _cities) {
 								<MudSelectItem Value="@city">@city</MudSelectItem>
 							}
 						}
 					</MudSelect>
+					<MudTextField T="string"
+								  Value="_zipCode"
+								  ValueChanged="@LoadCondos"
+								  FullWidth="true"
+								  Variant="Variant.Outlined"
+								  Placeholder="CEP (sem traços e pontos)"
+								  Class="input-form mt-2">
+					</MudTextField>
 				</MudContainer>
 				<MudContainer Class="d-flex flex-column">
+					<MudSelect Class="mb-5" Variant="Variant.Outlined" @bind-Value="_condo" Label="Condomínio" Disabled="_condos == null || !_condos.Any()">
+						@if (_condos != null && _condos.Any()) {
+							@foreach (var condo in _condos) {
+								<MudSelectItem Value="@condo">@condo.Name</MudSelectItem>
+							}
+						}
+					</MudSelect>
 					<MudTextField @bind-Value="user.Apartment"
 								  FullWidth="true"
 								  Variant="Variant.Outlined"
@@ -183,6 +200,13 @@
 							  Class="input-form mt-3"
 							  Disabled="true">
 				</MudTextField>
+				<MudTextField Value="@(_condo is null ? string.Empty : _condo.Name)"
+							  FullWidth="true"
+							  Variant="Variant.Outlined"
+							  Label="Condomínio"
+							  Class="input-form mt-3"
+							  Disabled="true">
+				</MudTextField>
 			</MudForm>
 		</MudStep>
 	</MudStepper>
@@ -231,9 +255,12 @@
 	List<string> _countries;
 	List<string> _states;
 	List<string> _cities;
+	List<Condominium>? _condos;
 	string _country;
 	string _state;
 	string _city;
+	string _zipCode;
+	Condominium? _condo;
 	protected override async Task OnInitializedAsync()
 	{
 		_countries = await locationService.GetCountries();
@@ -252,9 +279,24 @@
 		StateHasChanged();
 	}
 
+	async Task LoadCondos(string zipCode) {
+		_zipCode = zipCode;
+		_condo = null;
+		var address = new Address
+		{
+			Country = _country,
+			State = _state,
+			City = _city,
+			PostalCode = _zipCode
+		};
+
+		_condos = await condoService.GetAll(address);
+	}
+
 	[Inject]
 	private IDialogService DialogService { get; set; }
 	async Task CreateUser() {
+		user.CondominiumId = _condo.Id;
 		await userService.CreateUser(user);
 		await DialogService.ShowMessageBox("Conta criada com sucesso!", "Conta criada com sucesso! Enviamos um e-mail de verificação. Confirme seu cadastro para poder acessar sua conta.", "OK");
 		Navigation.NavigateTo("");

@@ -10,5 +10,7 @@ namespace BlazorApp.Models {
 		public UserPhoto? Photo { get; set; }
 		public int? Apartment { get; set; }
 		public string? Block { get; set; }
+		public int CondominiumId { get; set; }
+		public Condominium? Condominium { get; set; }
 	}
 }

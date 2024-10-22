@@ -1,13 +1,10 @@
 ﻿using BlazorApp.Models;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace BlazorApp.Services {
 	public class UserService {
 		private readonly HttpClient _httpClient;
-		private readonly IMemoryCache _memoryCache;
-		public UserService(HttpClient httpClient, IMemoryCache memoryCache) {
+		public UserService(HttpClient httpClient) {
 			_httpClient = httpClient;
-			_memoryCache = memoryCache;
 		}
 
 		public async Task CreateUser(User user) {
