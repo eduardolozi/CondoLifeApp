@@ -8,6 +8,8 @@ namespace Infraestructure {
         public DbSet<Address> Address { get; set; }
         public DbSet<VerificationToken> VerificationTokens { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Space> Space { get; set; } 
+        public DbSet<Booking> Booking { get; set; } 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             //env

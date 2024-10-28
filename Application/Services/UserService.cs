@@ -47,7 +47,7 @@ namespace Application.Services {
         public UserPhotoDTO GetUserPhoto(int id) {
             var session = _ravenStore.OpenSession();
             var docId = $"user/{id}";
-            var userPhoto = session.Query<UserPhoto>().FirstOrDefault(x => x.Id == docId);
+            var userPhoto = session.Query<Photo>().FirstOrDefault(x => x.Id == docId);
 
             byte[] bytes;
             List<byte> totalStream = new();
@@ -68,7 +68,6 @@ namespace Application.Services {
         public void Insert(User user) {
             user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
 
-
             _dbContext.Users.Add(user);
             _dbContext.SaveChanges();
 
@@ -77,15 +76,16 @@ namespace Application.Services {
                 var fileName = $"profile-photo-user-{user.Id}.{user.Photo.ContentType.Split('/')[1]}";
 
                 using var session = _ravenStore.OpenSession();
-                var userPhoto = new UserPhoto(docId, fileName, user.Photo!.ContentType);
+                var userPhoto = new Photo(docId, fileName, user.Photo!.ContentType);
                 session.Store(userPhoto, userPhoto.Id);
                 var photoBytes = Convert.FromBase64String(user.Photo.ContentBase64);
                 session.Advanced.Attachments.Store(userPhoto.Id, userPhoto.FileName, new MemoryStream(photoBytes), userPhoto.ContentType);
                 session.SaveChanges();
 
                 user.PhotoUrl = $"https://localhost:7031/api/user/{user.Id}/photo";
+			    _dbContext.SaveChanges();
             }
-			_dbContext.SaveChanges();
+
             var verificationToken = _verificationTokenService.CreateVerificationToken(user);
 			SendVerificationEmail(user, verificationToken);
         }

@@ -3,8 +3,8 @@ using System.Net.Mime;
 
 namespace Domain.Models {
     [NotMapped]
-    public class UserPhoto {
-        public UserPhoto(string id, string fileName, string contentType)
+    public class Photo {
+        public Photo(string id, string fileName, string contentType)
         {
             Id = id;
             FileName = fileName;
