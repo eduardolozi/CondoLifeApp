@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices.Marshalling;
-using Domain.Models;
-using Domain.Utils;
+﻿using Domain.Models;
 using FluentValidation;
 
 namespace Domain.Validators {
@@ -8,16 +6,16 @@ namespace Domain.Validators {
         public SpaceValidator()
         {
             RuleFor(x => x.Name)
-                .NotEmpty()
-                .MaximumLength(25)
-                .Must(IsSpaceNameAvailable);
+                .NotEmpty().WithMessage("O nome deve ser preenchido.")
+                .Length(4, 25).WithMessage("O nome deve ter entre 4 e 25 caracteres.")
+                .Must(IsSpaceNameAvailable).WithMessage("O espaço já existe.");
 
             RuleFor(x => x.Photo)
-                .Must(IsExpectedExtension)
-                .Must(IsExpectedSize);
+                .Must(IsExpectedExtension).WithMessage("A imagem deve ser JPG ou PNG).")
+                .Must(IsExpectedSize).WithMessage("A imagem deve ser de 300x200 a 1200x800 pixels.");
 
             RuleFor(x => x.Availability)
-                .NotEmpty();
+                .NotEmpty().WithMessage("A disponibilidade deve ser preenchida.");
         }
 
         private bool IsExpectedSize(Photo? photo)
