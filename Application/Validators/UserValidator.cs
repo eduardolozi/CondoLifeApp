@@ -2,7 +2,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 
-namespace Domain.Validators {
+namespace Application.Validators {
 	public class UserValidator : AbstractValidator<User> {
         public UserValidator()
         {
