@@ -117,6 +117,16 @@
 
     async Task UploadImage(IBrowserFile file)
     {
-        
+        using var memoryStream = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(memoryStream);
+        var fileBytes = memoryStream.ToArray();
+        _user!.Photo = new UserPhoto
+        {
+            ContentBase64 = Convert.ToBase64String(fileBytes),
+            FileName = file.Name,
+            ContentType = file.ContentType
+        };
+        base64Image = $"data:image/png;base64,{_user.Photo.ContentBase64}";
+        StateHasChanged();
     }
 }
