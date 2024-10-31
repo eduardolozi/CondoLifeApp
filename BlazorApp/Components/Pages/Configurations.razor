@@ -107,7 +107,7 @@
                     var photo = await userService.GetUserPhoto(_user.Id);
                     if (photo is not null)
                     {
-                        base64Image = $"data:image/png;base64,{photo.ContentBase64}";
+                        base64Image = string.IsNullOrEmpty(photo.ContentBase64) ? "/blank-profile-picture.png" : $"data:image/png;base64,{photo.ContentBase64}";
                         StateHasChanged();
                     }
                 }
