@@ -5,6 +5,10 @@
     .input-form {
         width: 100%;
     }
+
+    .tamanho-tab {
+        width: 50%;    
+    }
     
     .titulo-tab {
         color: #00a82d !important;
@@ -14,64 +18,76 @@
     .mud-tab-slider {
         background: #00a82d !important;
     }
+    
+    @@media (max-width: 1100px) {
+        .tamanho-tab{
+            width: 100%;
+        }
+    }
 </style>
 
 <PageTitle>Configurações</PageTitle>
 
-<MudTabs Class="mt-5" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-    <MudTabPanel Text="Usuário" Class="titulo-tab">
-        <MudContainer Class="w-100 d-flex flex-row ms-0">
-            <MudPaper Elevation="0" Class="mt-2 d-flex flex-column align-items-start" Style="width: 25%">
-                <MudAvatar Style="width: 140px; height: 150px;">
-                    <MudImage Src="https://i.pinimg.com/564x/81/31/ab/8131ab3881a62145cc687a2834566d56.jpg"></MudImage>
-                </MudAvatar>
-                <MudFileUpload Class="mt-3 input-form" T="IBrowserFile" Accept=".png, .jpg">
-                    <ActivatorContent>
-                        <MudContainer Class="d-flex flex-row p-0">
-                            <MudButton Variant="Variant.Filled"
-                                       Color="Color.Success"
-                                       StartIcon="@Icons.Material.Filled.CloudUpload">
-                                Selecionar
-                            </MudButton>
-                        </MudContainer>
-                    </ActivatorContent>
-                </MudFileUpload>
-            </MudPaper>
-
-            <MudPaper Elevation="0" Style="width: 45%;">
-                <MudTextField @bind-Value="a"
-                              FullWidth="true"
-                              Variant="Variant.Outlined"
-                              Label="Nome"
-                              Class="input-form">
-                </MudTextField>
-                <MudTextField @bind-Value="a"
-                              FullWidth="true"
-                              Variant="Variant.Outlined"
-                              Label="Email"
-                              Class="input-form mt-5">
-                </MudTextField>
-            </MudPaper>
-            <MudPaper Elevation="0" Class="ms-10" Style="width: 40%">
-                <MudTextField @bind-Value="a"
-                              FullWidth="true"
-                              Variant="Variant.Outlined"
-                              Label="N° apto"
-                              Class="w-25">
-                </MudTextField>
-                <MudTextField @bind-Value="a"
-                              FullWidth="true"
-                              Variant="Variant.Outlined"
-                              Label="Bloco"
-                              Class="w-25 mt-5">
-                </MudTextField>
-            </MudPaper>
-        </MudContainer>
-    </MudTabPanel>
-    <MudTabPanel Text="Notificações" Class="titulo-tab">
-        <MudText>Content Two</MudText>
-    </MudTabPanel>
-</MudTabs>
+<MudContainer Class="d-flex flex-row justify-content-center mt-10">
+    <MudTabs Class="my-5 tamanho-tab" Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+        <MudTabPanel Text="Usuário" Class="titulo-tab">
+            <MudCard Class="d-flex flex-column align-items-center" Elevation="0">
+                <MudCardHeader Class="d-flex flex-column align-items-start">
+                    <MudText Typo="Typo.h5" Class="fw-bold">Informações do usuário</MudText>
+                    <MudText Typo="Typo.subtitle1">Gerencie suas informações pessoais e dados do apartamento.</MudText>
+                </MudCardHeader>
+                <MudCardContent Style="width: 100%" Class="d-flex flex-column align-items-center">
+                    <MudImage Style="width: 150px; height: 150px; border-radius: 50%;" Src="https://i.pinimg.com/736x/08/b5/e7/08b5e732b705db901c383d1293144cae.jpg"></MudImage>
+                    <MudFileUpload Class="mt-3 mb-5" T="IBrowserFile" Accept=".png, .jpg">
+                        <ActivatorContent>
+                            <MudContainer Class="d-flex flex-row p-0">
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Success"
+                                           StartIcon="@Icons.Material.Filled.CloudUpload">
+                                    Selecione a sua foto
+                                </MudButton>
+                            </MudContainer>
+                        </ActivatorContent>
+                    </MudFileUpload>
+                    <MudTextField Placeholder="Nome"
+                                  T=string
+                                  Variant="Variant.Outlined"
+                                  Class="mt-3 mb-5"
+                                  FullWidth="true">
+                    </MudTextField>
+                    <MudTextField Placeholder="Email"
+                                  T=string
+                                  Variant="Variant.Outlined"
+                                  Class="mb-5"
+                                  FullWidth="true">
+                    </MudTextField>
+                    <MudPaper Style="width: 100%" Elevation="0" Class="d-flex flex-row">
+                        <MudTextField Placeholder="N° Apto"
+                                      T=string
+                                      Variant="Variant.Outlined"
+                                      Style="width: 55%"
+                                      FullWidth="true">
+                        </MudTextField>
+                        <MudTextField Placeholder="Bloco"
+                                      T=string
+                                      Variant="Variant.Outlined"
+                                      Style="width: 50%"
+                                      FullWidth="true">
+                        </MudTextField>
+                    </MudPaper>
+                </MudCardContent>
+                <MudCardActions Class="w-100">
+                    <MudButton Class="mt-5 w-100" Color="Color.Success" Size="Size.Large" Variant="Variant.Filled">
+                        Salvar alterações
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudTabPanel>
+        <MudTabPanel Text="Notificações" Class="titulo-tab">
+            <MudText>Content Two</MudText>
+        </MudTabPanel>
+    </MudTabs>
+</MudContainer>
 
 @code
 {
