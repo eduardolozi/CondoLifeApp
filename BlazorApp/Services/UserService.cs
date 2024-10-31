@@ -18,7 +18,7 @@ namespace BlazorApp.Services {
 			}
 		}
 
-		public async Task<UserPhoto?> GetUserPhoto(int id)
+		public async Task<UserPhoto?> GetUserPhoto(int? id)
 		{
 			try {
 				var photo = await _httpClient.GetFromJsonAsync<UserPhoto>($"{id}/photo");

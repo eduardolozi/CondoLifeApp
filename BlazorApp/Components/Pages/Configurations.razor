@@ -1,5 +1,6 @@
 ﻿@page "/configuracoes"
 @layout Layout.MainLayout
+@inject UserService userService
 
 <style type="text/css">
     .input-form {
@@ -96,15 +97,22 @@
     User? _user = new User();
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _user = await _authService.GetUserByClaims();
-        if (_user is not null)
+        if (firstRender)
         {
-            if (_user.Photo is not null)
+            _user = await _authService.GetUserByClaims();
+            if (_user is not null)
             {
-                base64Image = $"data:image/jpeg;base64,{_user.Photo.ContentBase64}";
+                if (_user.PhotoUrl is not null)
+                {
+                    var photo = await userService.GetUserPhoto(_user.Id);
+                    if (photo is not null)
+                    {
+                        base64Image = $"data:image/png;base64,{photo.ContentBase64}";
+                        StateHasChanged();
+                    }
+                }
             }
         }
-        
     }
 
     async Task UploadImage(IBrowserFile file)

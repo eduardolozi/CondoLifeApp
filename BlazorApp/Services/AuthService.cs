@@ -29,7 +29,6 @@ namespace BlazorApp.Services {
             var handler = new JwtSecurityTokenHandler();
             var decodedToken = handler.ReadJwtToken(accessToken);
             var claims = decodedToken.Claims.ToDictionary(c => c.Type, c => c.Value);
-            // var photo = await _localStorage.GetItemAsStringAsync("userPhoto");
             
             return new User
             {
@@ -38,7 +37,7 @@ namespace BlazorApp.Services {
                 Email = claims.TryGetValue("email", out var email) ? email : string.Empty,
                 Apartment = claims.TryGetValue("Apartment", out var apartment) ? Convert.ToInt32(apartment) : 0,
                 Block = claims.GetValueOrDefault("Block"),
-                // Photo = new UserPhoto { ContentBase64 = photo },
+                PhotoUrl = claims.TryGetValue("PhotoUrl", out var photoUrl) ? photoUrl : string.Empty,
                 Condominium = new Condominium { Name = claims.GetValueOrDefault("CondominiumName") }
             };
         }
