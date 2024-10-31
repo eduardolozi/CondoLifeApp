@@ -10,20 +10,24 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using Raven.Client.Documents;
+using User = Domain.Models.User;
 
 namespace Application.Services {
     public class AuthService : IAuthService {
         private readonly CondoLifeContext _dbContext;
         private readonly PasswordHasher<User> _passwordHasher;
+        private readonly UserService _userService;
 
-        public AuthService(CondoLifeContext dbContext)
+        public AuthService(CondoLifeContext dbContext, IDocumentStore ravenStore, UserService userService)
         {
             _dbContext = dbContext;
             _passwordHasher = new PasswordHasher<User>();
+            _userService = userService;
         }
 
         public LoginResponseDTO? Login(UserLoginDTO userLogin) {
-            var user = _dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == userLogin.Email.ToLower());
+            var user = _dbContext.Users.Include(x => x.Condominium).FirstOrDefault(x => x.Email.ToLower() == userLogin.Email.ToLower());
             if(user is null) return new LoginResponseDTO { IsSuccess = false, ErrorMessage = "Email incorreto" };
 
             var verifyPasswordResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash!, userLogin.Password);
@@ -31,7 +35,8 @@ namespace Application.Services {
                 return new LoginResponseDTO {
                     IsSuccess = true,
                     AccessToken = CreateAccessToken(user),
-                    RefreshToken = CreateRefreshToken(user.Id).Token
+                    RefreshToken = CreateRefreshToken(user.Id).Token,
+                    UserId = user.Id
                 };
             }
 
@@ -49,7 +54,10 @@ namespace Application.Services {
                 new ("Id", user.Id.ToString()),
                 new (ClaimTypes.Name, user.Name),
                 new (ClaimTypes.Email, user.Email),
-                new (ClaimTypes.Role, user.Role.ToString())
+                new (ClaimTypes.Role, user.Role.ToString()),
+                new ("Apartment", $"{user.Apartment}"),
+                new ("Block", user.Block ?? string.Empty),
+                new ("CondominiumName", user.Condominium is null ? string.Empty : user.Condominium.Name)
             };
 
             var tokenOptions = new SecurityTokenDescriptor {

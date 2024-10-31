@@ -17,5 +17,16 @@ namespace BlazorApp.Services {
 				throw new Exception(ex.Message, ex);
 			}
 		}
+
+		public async Task<UserPhoto?> GetUserPhoto(int id)
+		{
+			try {
+				var photo = await _httpClient.GetFromJsonAsync<UserPhoto>($"{id}/photo");
+				return photo;
+			}
+			catch (Exception ex) {
+				throw new Exception(ex.Message, ex);
+			}
+		}
 	}
 }

@@ -30,10 +30,14 @@ namespace API.Controllers {
         }
         
         [HttpGet("{id}/photo")]
-        public IActionResult GetUserPhoto([FromRoute] int id) {
-            var photo = _userService.GetUserPhoto(id);
+        public IActionResult GetUserPhoto([FromRoute] int id)
+        {
+            var photo = new Photo
+            {
+                ContentBase64 = _userService.GetUserPhoto(id)
+            };
             Response.Headers.Append("Content-Disposition", "inline");
-            return File(new MemoryStream(photo.PhotoBytes), photo.ContentType);
+            return Ok(photo);
         }
 
         [HttpPost]

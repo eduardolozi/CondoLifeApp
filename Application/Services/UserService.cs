@@ -44,11 +44,12 @@ namespace Application.Services {
             return user;
         }
 
-        public UserPhotoDTO GetUserPhoto(int id) {
+        public string? GetUserPhoto(int id) {
             var session = _ravenStore.OpenSession();
             var docId = $"user/{id}";
             var userPhoto = session.Query<Photo>().FirstOrDefault(x => x.Id == docId);
-
+            if(userPhoto is null) return null;
+            
             byte[] bytes;
             List<byte> totalStream = new();
             var buffer = new byte[128];
@@ -59,10 +60,7 @@ namespace Application.Services {
                 totalStream.AddRange(buffer.Take(read));
             }
 
-            return new UserPhotoDTO {
-                PhotoBytes = totalStream.ToArray(),
-                ContentType = userPhoto.ContentType
-            };
+            return Convert.ToBase64String(totalStream.ToArray());
         }
 
         public void Insert(User user) {

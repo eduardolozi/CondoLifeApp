@@ -3,6 +3,7 @@
 @inject NavigationManager Navigation
 @inject AuthService authService
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject UserService userService
 
 <PageTitle>Login</PageTitle>
 
@@ -101,16 +102,31 @@
             Email = _email,
             Password = _password
         };
-        try {
+        try
+        {
             isLoading = true;
             var result = await authService.Login(loginRequest);
-            if(!result.IsSuccess) {
+            if (!result.IsSuccess)
+            {
                 await DialogService.ShowMessageBox("Erro ao logar!", "Verifique os dados do login.", "OK");
                 return;
             }
-            await LocalStorage.SetItemAsync("authToken", result.AccessToken);
-            await LocalStorage.SetItemAsync("refreshToken", result.RefreshToken);
+
+            await LocalStorage.RemoveItemsAsync(["authToken", "refreshToken", "userPhoto"]);
+
+            var userPhoto = await userService.GetUserPhoto(result.UserId);
+            await LocalStorage.SetItemAsStringAsync("authToken", result.AccessToken!);
+            await LocalStorage.SetItemAsStringAsync("refreshToken", result.RefreshToken!);
+            if (userPhoto is not null)
+            {
+                await LocalStorage.SetItemAsStringAsync("userPhoto", userPhoto.ContentBase64 is null ? string.Empty : userPhoto.ContentBase64!);
+            }
+            
             Navigation.NavigateTo("inicial");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message, ex);
         }
         finally {
             isLoading = false;

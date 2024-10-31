@@ -6,6 +6,7 @@ using Infraestructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using Blazored.LocalStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApiServices();

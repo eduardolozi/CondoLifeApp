@@ -37,8 +37,8 @@
                     <MudText Typo="Typo.subtitle1">Gerencie suas informações pessoais e dados do apartamento.</MudText>
                 </MudCardHeader>
                 <MudCardContent Style="width: 100%" Class="d-flex flex-column align-items-center">
-                    <MudImage Style="width: 150px; height: 150px; border-radius: 50%;" Src="https://i.pinimg.com/736x/08/b5/e7/08b5e732b705db901c383d1293144cae.jpg"></MudImage>
-                    <MudFileUpload Class="mt-3 mb-5" T="IBrowserFile" Accept=".png, .jpg">
+                    <MudImage Elevation="5" Style="width: 150px; height: 150px; border-radius: 50%;" Src="@base64Image"></MudImage>
+                    <MudFileUpload Class="mt-3 mb-5" T="IBrowserFile" FilesChanged="UploadImage" Accept=".png, .jpg">
                         <ActivatorContent>
                             <MudContainer Class="d-flex flex-row p-0">
                                 <MudButton Variant="Variant.Filled"
@@ -50,26 +50,26 @@
                         </ActivatorContent>
                     </MudFileUpload>
                     <MudTextField Placeholder="Nome"
-                                  T=string
+                                  @bind-Value="_user.Name"
                                   Variant="Variant.Outlined"
                                   Class="mt-3 mb-5"
                                   FullWidth="true">
                     </MudTextField>
                     <MudTextField Placeholder="Email"
-                                  T=string
+                                  @bind-Value="_user.Email"
                                   Variant="Variant.Outlined"
                                   Class="mb-5"
                                   FullWidth="true">
                     </MudTextField>
                     <MudPaper Style="width: 100%" Elevation="0" Class="d-flex flex-row">
                         <MudTextField Placeholder="N° Apto"
-                                      T=string
+                                      @bind-Value="_user.Apartment"
                                       Variant="Variant.Outlined"
                                       Style="width: 55%"
                                       FullWidth="true">
                         </MudTextField>
                         <MudTextField Placeholder="Bloco"
-                                      T=string
+                                      @bind-Value="_user.Block"
                                       Variant="Variant.Outlined"
                                       Style="width: 50%"
                                       FullWidth="true">
@@ -91,5 +91,24 @@
 
 @code
 {
-    string a = "";
+    [Inject] private AuthService _authService { get; set; }
+    string base64Image = string.Empty;
+    User? _user = new User();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _user = await _authService.GetUserByClaims();
+        if (_user is not null)
+        {
+            if (_user.Photo is not null)
+            {
+                base64Image = $"data:image/jpeg;base64,{_user.Photo.ContentBase64}";
+            }
+        }
+        
+    }
+
+    async Task UploadImage(IBrowserFile file)
+    {
+        
+    }
 }
