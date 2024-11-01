@@ -28,15 +28,32 @@ namespace Application.Validators {
         {
             if(photo is null) return true;
             
-            var imageBytes = Convert.FromBase64String(photo.ContentBase64);
+            var imageBytes = Convert.FromBase64String(photo.ContentBase64!);
             return imageBytes.Length <= 409600;
+        }
+
+        private bool StartsWithHeader(byte[] imageBytes, byte[] headerBytes)
+        {
+            for (var i = 0; i < headerBytes.Length; i++)
+            {
+                if(imageBytes[i] != headerBytes[i]) return false;
+            }
+
+            return true;
         }
 
         private bool IsExpectedExtension(Photo? photo)
         {
             if(photo is null) return true;
             
-            return true;
+            var jpgHeader = new byte[] { 0xFF, 0xD8 };
+            var pngHeader = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+            var imageBytes = Convert.FromBase64String(photo.ContentBase64!);
+
+            var isJpg = StartsWithHeader(imageBytes, jpgHeader);
+            var isPng = StartsWithHeader(imageBytes, pngHeader);
+            
+            return isPng || isJpg;
         }
 
         private bool IsSpaceNameAvailable(Space space)
