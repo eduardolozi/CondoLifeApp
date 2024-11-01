@@ -114,13 +114,8 @@
 
             await LocalStorage.RemoveItemsAsync(["authToken", "refreshToken", "userPhoto"]);
 
-            var userPhoto = await userService.GetUserPhoto(result.UserId);
             await LocalStorage.SetItemAsStringAsync("authToken", result.AccessToken!);
             await LocalStorage.SetItemAsStringAsync("refreshToken", result.RefreshToken!);
-            if (userPhoto is not null)
-            {
-                await LocalStorage.SetItemAsStringAsync("userPhoto", userPhoto.ContentBase64 is null ? string.Empty : userPhoto.ContentBase64!);
-            }
             
             Navigation.NavigateTo("inicial");
         }

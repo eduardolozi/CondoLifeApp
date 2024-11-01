@@ -11,7 +11,7 @@ namespace Domain.Models {
         public required string Email { get; set; }
         
         [NotMapped]
-        public required string Password { get; set; }
+        public string? Password { get; set; }
 
         [JsonIgnore]
         public string? PasswordHash { get; set; } = null!;

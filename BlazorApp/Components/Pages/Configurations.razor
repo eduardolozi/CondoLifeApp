@@ -1,6 +1,7 @@
 ﻿@page "/configuracoes"
 @layout Layout.MainLayout
 @inject UserService userService
+@inject IDialogService dialogService
 
 <style type="text/css">
     .input-form {
@@ -12,7 +13,7 @@
     }
     
     .titulo-tab {
-        color: #00a82d !important;
+        color: #0f0f0f !important;
         font-weight: bold;
     }
     
@@ -38,7 +39,7 @@
                     <MudText Typo="Typo.subtitle1">Gerencie suas informações pessoais e dados do apartamento.</MudText>
                 </MudCardHeader>
                 <MudCardContent Style="width: 100%" Class="d-flex flex-column align-items-center">
-                    <MudImage Elevation="5" Style="width: 150px; height: 150px; border-radius: 50%;" Src="@base64Image"></MudImage>
+                    <MudImage Elevation="5" Style="width: 150px; height: 150px; border-radius: 50%;" Src="@_base64Image"></MudImage>
                     <MudFileUpload Class="mt-3 mb-5" T="IBrowserFile" FilesChanged="UploadImage" Accept=".png, .jpg">
                         <ActivatorContent>
                             <MudContainer Class="d-flex flex-row p-0">
@@ -78,10 +79,17 @@
                     </MudPaper>
                 </MudCardContent>
                 <MudCardActions Class="w-100">
-                    <MudButton Class="mt-5 w-100" Color="Color.Success" Size="Size.Large" Variant="Variant.Filled">
+                    <MudButton Class="mt-5 w-100"
+                               Color="Color.Success"
+                               Size="Size.Large"
+                               Variant="Variant.Filled"
+                               OnClick="SaveUserChanges">
                         Salvar alterações
                     </MudButton>
                 </MudCardActions>
+                @if (_isLoading) {
+                <MudProgressCircular Class="my-3" Indeterminate="true" Color="Color.Primary" />
+                }
             </MudCard>
         </MudTabPanel>
         <MudTabPanel Text="Notificações" Class="titulo-tab">
@@ -93,7 +101,7 @@
 @code
 {
     [Inject] private AuthService _authService { get; set; }
-    string base64Image = string.Empty;
+    string _base64Image = string.Empty;
     User? _user = new User();
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -102,14 +110,12 @@
             _user = await _authService.GetUserByClaims();
             if (_user is not null)
             {
-                if (_user.PhotoUrl is not null)
+                var param = string.IsNullOrEmpty(_user.PhotoUrl) ? $"{_user.Id}/photo" : _user.PhotoUrl; 
+                var photo = await userService.GetPhoto(param);
+                if (photo is not null)
                 {
-                    var photo = await userService.GetUserPhoto(_user.Id);
-                    if (photo is not null)
-                    {
-                        base64Image = string.IsNullOrEmpty(photo.ContentBase64) ? "/blank-profile-picture.png" : $"data:image/png;base64,{photo.ContentBase64}";
-                        StateHasChanged();
-                    }
+                    _base64Image = string.IsNullOrEmpty(photo.ContentBase64) ? "/blank-profile-picture.png" : $"data:image/png;base64,{photo.ContentBase64}";
+                    StateHasChanged();
                 }
             }
         }
@@ -126,7 +132,23 @@
             FileName = file.Name,
             ContentType = file.ContentType
         };
-        base64Image = $"data:image/png;base64,{_user.Photo.ContentBase64}";
+        _base64Image = $"data:image/png;base64,{_user.Photo.ContentBase64}";
         StateHasChanged();
+    }
+
+    bool _isLoading;
+    async Task SaveUserChanges()
+    {
+        try
+        {
+            _isLoading = true;
+            await userService.Update(_user);
+            await dialogService.ShowMessageBox("Perfil atualizado!", "Seus dados foram editados com sucesso!.", "OK");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+
     }
 }

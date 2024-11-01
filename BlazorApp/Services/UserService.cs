@@ -7,7 +7,7 @@ namespace BlazorApp.Services {
 			_httpClient = httpClient;
 		}
 
-		public async Task CreateUser(User user) {
+		public async Task Create(User user) {
 			try {
 				user.Id = 0;
 				var response = await _httpClient.PostAsJsonAsync("", user);
@@ -18,13 +18,26 @@ namespace BlazorApp.Services {
 			}
 		}
 
-		public async Task<UserPhoto?> GetUserPhoto(int? id)
+		public async Task<UserPhoto?> GetPhoto(string? param)
 		{
 			try {
-				var photo = await _httpClient.GetFromJsonAsync<UserPhoto>($"{id}/photo");
+				var photo = await _httpClient.GetFromJsonAsync<UserPhoto>(param);
 				return photo;
 			}
 			catch (Exception ex) {
+				throw new Exception(ex.Message, ex);
+			}
+		}
+
+		public async Task Update(User user)
+		{
+			try
+			{
+				var response = await _httpClient.PatchAsJsonAsync($"{user.Id}", user);
+				response.EnsureSuccessStatusCode();
+			}
+			catch (Exception ex)
+			{
 				throw new Exception(ex.Message, ex);
 			}
 		}

@@ -44,7 +44,7 @@ namespace Application.Services {
             return user;
         }
 
-        public string? GetUserPhoto(int id) {
+        public string? GetUserPhoto(int id, string fileName) {
             var session = _ravenStore.OpenSession();
             var docId = $"user/{id}";
             var userPhoto = session.Query<Photo>().FirstOrDefault(x => x.Id == docId);
@@ -63,6 +63,35 @@ namespace Application.Services {
             return Convert.ToBase64String(totalStream.ToArray());
         }
 
+        private void SavePhoto(User user)
+        {
+            var fileName = user.Photo!.FileName.Replace(' ', '-').Replace('.', '-');
+            var photoBytes = Convert.FromBase64String(user.Photo.ContentBase64!);
+
+            using var session = _ravenStore.OpenSession();
+            var userPhoto = new Photo($"user/{user.Id}", fileName, user.Photo.ContentType!);
+            var document = session.Load<Photo>(userPhoto.Id);
+            if (document is not null)
+            {
+                document.ContentType = userPhoto.ContentType;
+                document.FileName = userPhoto.FileName;
+            }
+            else
+            {
+                session.Store(userPhoto);
+            }
+            session.SaveChanges();
+            
+            session.Advanced.Attachments.Delete(userPhoto.Id, userPhoto.FileName);
+            session.SaveChanges();
+            
+            session.Advanced.Attachments.Store(userPhoto.Id, userPhoto.FileName, new MemoryStream(photoBytes), userPhoto.ContentType);
+            session.SaveChanges();
+
+            user.PhotoUrl = $"https://localhost:7031/api/user/{user.Id}/photo?fileName={fileName}";
+            _dbContext.SaveChanges();
+        }
+
         public void Insert(User user) {
             user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
 
@@ -70,18 +99,7 @@ namespace Application.Services {
             _dbContext.SaveChanges();
 
             if (user.Photo.HasValue()) {
-                var docId = $"user/{user.Id}";
-                var fileName = $"profile-photo-user-{user.Id}.{user.Photo.ContentType.Split('/')[1]}";
-
-                using var session = _ravenStore.OpenSession();
-                var userPhoto = new Photo(docId, fileName, user.Photo!.ContentType);
-                session.Store(userPhoto, userPhoto.Id);
-                var photoBytes = Convert.FromBase64String(user.Photo.ContentBase64);
-                session.Advanced.Attachments.Store(userPhoto.Id, userPhoto.FileName, new MemoryStream(photoBytes), userPhoto.ContentType);
-                session.SaveChanges();
-
-                user.PhotoUrl = $"https://localhost:7031/api/user/{user.Id}/photo";
-			    _dbContext.SaveChanges();
+                SavePhoto(user);
             }
 
             var verificationToken = _verificationTokenService.CreateVerificationToken(user);
@@ -100,7 +118,6 @@ namespace Application.Services {
             };
 
             _rabbitService.Send(message, RabbitConstants.EMAIL_EXCHANGE, RabbitConstants.EMAIL_ROUTING_KEY);
-            //await _emailService.SendEmail(message);
         }
 
         public int VerifyEmail(string verificationToken) {
@@ -116,8 +133,16 @@ namespace Application.Services {
             var userDB = _dbContext.Users.FirstOrDefault(x => x.Id == id)
                 ?? throw new ResourceNotFoundException("Usuario não encontrado.");
 
-            userDB = user;
+            userDB.Name = user.Name;
+            userDB.Email = user.Email;
+            userDB.Photo = user.Photo;
+            userDB.Apartment = user.Apartment;
+            userDB.Block = user.Block; 
             _dbContext.SaveChanges();
+            
+            if (userDB.Photo.HasValue()) {
+                SavePhoto(user);
+            }
         }
 
         public async Task SendRecoveryPasswordEmail(ChangePasswordDTO changePassword) {

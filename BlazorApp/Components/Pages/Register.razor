@@ -303,8 +303,8 @@
 		try {
 			isLoading = true;
 			user.CondominiumId = _condo.Id;
-			await userService.CreateUser(user);
-			await DialogService.ShowMessageBox("Conta criada com sucesso!", "Conta criada com sucesso! Enviamos um e-mail de verificação. Confirme seu cadastro para poder acessar sua conta.", "OK");
+			await userService.Create(user);
+			await DialogService.ShowMessageBox("Conta criada com sucesso!", "Enviamos um e-mail de verificação. Confirme seu cadastro para poder acessar sua conta.", "OK");
 			Navigation.NavigateTo("");
 		}
 		finally {
