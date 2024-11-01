@@ -67,8 +67,9 @@ public class SpaceService
     public void Update(int id, Space space)
     {
         _spaceValidator.ValidateAndThrow(space);
-        var spaceDb = GetById(id);
+        var spaceDb = GetById(id) ?? throw new ResourceNotFoundException("Espaço não encontrado.");
         spaceDb.Name = space.Name;
+        spaceDb.Availability = space.Availability;
         _dbContext.SaveChanges();
         
         if (space.Photo.HasValue())
@@ -79,7 +80,7 @@ public class SpaceService
 
     public void Delete(int id)
     {
-        var space = GetById(id);
+        var space = GetById(id) ?? throw new ResourceNotFoundException("Espaço não encontrado.");
         if (space.PhotoUrl.HasValue())
         {
             using var session = _ravenStore.OpenSession();
@@ -90,10 +91,9 @@ public class SpaceService
         _dbContext.SaveChanges();
     }
 
-    public Space GetById(int id)
+    public Space? GetById(int id)
     {
-        return _dbContext.Space.FirstOrDefault(s => s.Id == id)
-            ?? throw new ResourceNotFoundException("Espaço não foi encontrado");
+        return _dbContext.Space.FirstOrDefault(s => s.Id == id);
     }
 
     public List<Space> GetAll(SpaceFilter? filter)
@@ -106,6 +106,11 @@ public class SpaceService
                 query = query.Where(s => s.CondominiumId == filter.CondominiumId);
             }
 
+            if (filter.Availability.HasValue())
+            {
+                query = query.Where(s => s.Availability == filter.Availability);
+            }
+
             if (filter.Name.HasValue())
             {
                 query = query.Where(s => EF.Functions.Like(s.Name, $"%{filter.Name}%"));
@@ -113,5 +118,25 @@ public class SpaceService
         }
         
         return query.ToList();
+    }
+
+    public string? GetSpacePhoto(int id, string? fileName)
+    {
+        var session = _ravenStore.OpenSession();
+        var docId = $"space/{id}";
+        var spacePhoto = session.Query<Photo>().FirstOrDefault(x => x.Id == docId);
+        if(spacePhoto is null) return null;
+            
+        byte[] bytes;
+        List<byte> totalStream = new();
+        var buffer = new byte[128];
+        int read;
+
+        using var photoAttachment = session.Advanced.Attachments.Get(docId, spacePhoto.FileName);
+        while ((read = photoAttachment.Stream.Read(buffer, 0, buffer.Length)) > 0) {
+            totalStream.AddRange(buffer.Take(read));
+        }
+
+        return Convert.ToBase64String(totalStream.ToArray());
     }
 }

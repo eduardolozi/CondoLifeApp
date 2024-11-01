@@ -44,7 +44,7 @@ namespace Application.Services {
             return user;
         }
 
-        public string? GetUserPhoto(int id, string fileName) {
+        public string? GetUserPhoto(int id, string? fileName) {
             var session = _ravenStore.OpenSession();
             var docId = $"user/{id}";
             var userPhoto = session.Query<Photo>().FirstOrDefault(x => x.Id == docId);

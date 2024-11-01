@@ -1,10 +1,9 @@
-﻿using API.Handlers;
+﻿using System.Security.Claims;
+using System.Security.Cryptography;
+using API.Handlers;
 using API.Hubs;
-using Domain.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Security.Cryptography;
 
 namespace API {
     public static class ApiInjectionModule {
@@ -46,9 +45,11 @@ namespace API {
             });
         }
 
-        private static void AddPolicies(this IServiceCollection services) {
+        private static void AddPolicies(this IServiceCollection services)
+        {
             services.AddAuthorizationBuilder()
-                .AddPolicy("AdminOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
+                .AddPolicy("AdminOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"))
+                .AddPolicy("ManagerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Manager"));
         }
 
 

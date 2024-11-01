@@ -18,7 +18,7 @@ namespace Application.Validators {
                 .Must(IsExpectedSize).WithMessage("A imagem deve ser menor que 400kb");
 
             RuleFor(x => x.Availability)
-                .NotEmpty().WithMessage("A disponibilidade deve ser preenchida.");
+                .NotNull().WithMessage("A disponibilidade deve ser preenchida.");
             
             RuleFor(x => x)
                 .Must(IsSpaceNameAvailable).WithMessage("O espaço já existe.");
@@ -58,7 +58,7 @@ namespace Application.Validators {
 
         private bool IsSpaceNameAvailable(Space space)
         {
-            return !_dbContext.Space.Any(x => x.Name == space.Name && x.CondominiumId == space.CondominiumId);
+            return !_dbContext.Space.Any(x => x.Name == space.Name && x.CondominiumId == space.CondominiumId && x.Id != space.Id);
         }
     }
 }

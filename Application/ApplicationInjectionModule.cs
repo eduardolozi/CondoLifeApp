@@ -13,6 +13,7 @@ namespace Application {
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<VerificationTokenService>();
             services.AddScoped<CondominiumService>();
+            services.AddScoped<SpaceService>();
 
             services.AddScoped<IValidator<Space>, SpaceValidator>();
         }

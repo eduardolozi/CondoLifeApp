@@ -35,6 +35,30 @@
                 <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Settings"></MudIcon> Configurações
             </NavLink>
         </div>
+        
+        @if (_user.Role is UserRoleEnum.Manager)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="espacos">
+                    <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.AccountBalance"></MudIcon> Espaços
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
+
+@code
+{
+    [Inject] private AuthService _authService { get; set; }
+    [Inject] private UserService _userService { get; set; }
+    string _base64Image = string.Empty;
+    User? _user = new User();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _user = await _authService.GetUserByClaims();
+        }
+    }
+}
 

@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using BlazorApp.Enums;
 using BlazorApp.Models;
 using Blazored.LocalStorage;
 
@@ -37,7 +38,8 @@ namespace BlazorApp.Services {
                 Apartment = claims.TryGetValue("Apartment", out var apartment) ? Convert.ToInt32(apartment) : 0,
                 Block = claims.GetValueOrDefault("Block"),
                 PhotoUrl = claims.TryGetValue("PhotoUrl", out var photoUrl) ? photoUrl : string.Empty,
-                Condominium = new Condominium { Name = claims.GetValueOrDefault("CondominiumName") }
+                Condominium = new Condominium { Name = claims.GetValueOrDefault("CondominiumName") },
+                Role = claims.TryGetValue("role", out var role) ? Enum.Parse<UserRoleEnum>(role) : UserRoleEnum.Resident,
             };
         }
     }
