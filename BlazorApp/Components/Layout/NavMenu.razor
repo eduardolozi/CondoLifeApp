@@ -4,17 +4,19 @@
     }
 
     .sidebar {
-        background-color: #248277 !important;
+        background: linear-gradient(to bottom, #105444, #115e59);
     }
 
     .fundo-logo {
-        background-color: #036666 !important;
+        background-color: #105444 !important;
     }
+
 </style>
 
-<div class="top-row ps-3 navbar navbar-dark fundo-logo">
-    <div class="container-fluid">
+<div class="top-row ps-3 navbar navbar-dark fundo-logo pt-0 ps-0">
+    <div class="container-fluid d-flex flex-row justify-content-start pt-0">
         <img src="/logo-condolife.png" style="width: 40px; height: 40px;" />
+        <p class="text-white fw-bold ms-2 pt-5 fs-4">Condolife</p>
     </div>
 </div>
 
@@ -22,7 +24,7 @@
 
 <div class="nav-scrollable sidebar" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
-        <div class="nav-item px-3">
+        <div class="nav-item ms-0 px-3">
             <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="inicial" Match="NavLinkMatch.All">
                 <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Home"></MudIcon> Página Inicial
             </NavLink>
