@@ -1,7 +1,9 @@
 ﻿@page "/configuracoes"
+@using Blazored.LocalStorage
 @layout Layout.MainLayout
 @inject UserService userService
 @inject IDialogService dialogService
+@inject ILocalStorageService localStorage
 
 <style type="text/css">
     .input-form {
@@ -142,7 +144,18 @@
         try
         {
             _isLoading = true;
-            await userService.Update(_user);
+            var result = await userService.Update(_user);
+            if (!result.IsSuccess)
+            {
+                await dialogService.ShowMessageBox("Erro ao atualizar!", "Verifique os dados alterados.", "OK");
+                return;
+            }
+
+            await localStorage.RemoveItemsAsync(["authToken", "refreshToken", "userPhoto"]);
+
+            await localStorage.SetItemAsStringAsync("authToken", result.AccessToken!);
+            await localStorage.SetItemAsStringAsync("refreshToken", result.RefreshToken!);
+            
             await dialogService.ShowMessageBox("Perfil atualizado!", "Seus dados foram editados com sucesso!.", "OK");
         }
         finally

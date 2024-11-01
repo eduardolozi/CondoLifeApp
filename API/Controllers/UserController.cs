@@ -1,5 +1,6 @@
 ﻿using API.Hubs;
 using Application.DTOs;
+using Application.Interfaces;
 using Application.Services;
 using Domain.Models;
 using Domain.Utils;
@@ -11,10 +12,14 @@ namespace API.Controllers {
     public class UserController : ControllerBase {
         private readonly UserService _userService;
         private readonly EmailNotificationHub _emailNotificationHub;
-        public UserController(UserService userService, EmailNotificationHub emailNotificationHub)
+        private readonly IAuthService _authService;
+        public UserController(UserService userService,
+            EmailNotificationHub emailNotificationHub,
+            IAuthService authService)
         {
             _emailNotificationHub = emailNotificationHub;
             _userService = userService;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -54,9 +59,18 @@ namespace API.Controllers {
         }
 
         [HttpPatch("{id}")]
-        public NoContentResult Update([FromRoute] int id, [FromBody] User user) { 
+        public IActionResult Update([FromRoute] int id, [FromBody] User user) { 
             _userService.Update(id, user);
-            return NoContent();
+            
+            var accessToken = _authService.CreateAccessToken(user);
+            var refreshToken = _authService.CreateRefreshToken(user.Id).Token;
+            return Ok(new LoginResponseDTO
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                IsSuccess = true,
+                UserId = user.Id
+            });
         }
         
         [HttpPatch("recovery-password-email")]

@@ -29,12 +29,14 @@ namespace BlazorApp.Services {
 			}
 		}
 
-		public async Task Update(User user)
+		public async Task<LoginResponse?> Update(User user)
 		{
 			try
 			{
 				var response = await _httpClient.PatchAsJsonAsync($"{user.Id}", user);
 				response.EnsureSuccessStatusCode();
+				var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+				return loginResponse;
 			}
 			catch (Exception ex)
 			{

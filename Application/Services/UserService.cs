@@ -130,17 +130,17 @@ namespace Application.Services {
         }
 
         public void Update(int id, User user) {
-            var userDB = _dbContext.Users.FirstOrDefault(x => x.Id == id)
+            var userDb = _dbContext.Users.FirstOrDefault(x => x.Id == id)
                 ?? throw new ResourceNotFoundException("Usuario não encontrado.");
 
-            userDB.Name = user.Name;
-            userDB.Email = user.Email;
-            userDB.Photo = user.Photo;
-            userDB.Apartment = user.Apartment;
-            userDB.Block = user.Block; 
+            userDb.Name = user.Name;
+            userDb.Email = user.Email;
+            userDb.Photo = user.Photo;
+            userDb.Apartment = user.Apartment;
+            userDb.Block = user.Block; 
             _dbContext.SaveChanges();
             
-            if (userDB.Photo.HasValue()) {
+            if (userDb.Photo.HasValue()) {
                 SavePhoto(user);
             }
         }
