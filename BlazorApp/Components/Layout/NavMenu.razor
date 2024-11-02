@@ -58,6 +58,7 @@
         if (firstRender)
         {
             _user = await _authService.GetUserByClaims();
+            StateHasChanged();
         }
     }
 }
