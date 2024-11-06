@@ -1,11 +1,18 @@
 ﻿@page "/espacos"
+@using BlazorApp.Components.Pages.Dialogs
 @layout Layout.MainLayout
 @inject SpaceService SpaceService
 @inject AuthService AuthService
+@inject IDialogService DialogService
 
 <PageTitle>Gerenciamento dos Espaços</PageTitle>
 <MudContainer Class="w-100 d-flex flex-row justify-content-end mt-5 me-0 pe-0">
-    <MudButton Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success">Adicionar</MudButton>
+    <MudButton Size="Size.Small"
+               Variant="Variant.Filled"
+               StartIcon="@Icons.Material.Filled.Add"
+               Color="Color.Success"
+               OnClick="OpenRegisterDialog">
+        Adicionar</MudButton>
 </MudContainer>
 @if (_isLoading)
 {
@@ -42,14 +49,14 @@ else
                     <MudCardActions Class="d-flex flex-row justify-content-end mb-1">
                         <MudButton Size="Size.Small"
                                    Class="mx-2"
-                                   Variant="Variant.Filled"
+                                   Variant="Variant.Outlined"
                                    StartIcon="@Icons.Material.Filled.Edit"
                                    Color="Color.Info">
                             Editar
                         </MudButton>
                         <MudButton Size="Size.Small"
                                    Class="mx-1"
-                                   Variant="Variant.Filled"
+                                   Variant="Variant.Outlined"
                                    StartIcon="@Icons.Material.Filled.Delete"
                                    Color="Color.Error"
                                    OnClick="@(async () => await DeleteSpace(space.Id))">
@@ -57,7 +64,7 @@ else
                         </MudButton>
                         <MudButton Size="Size.Small"
                                    Class="mx-2"
-                                   Variant="Variant.Filled"
+                                   Variant="Variant.Outlined"
                                    StartIcon="@Icons.Material.Filled.Assignment"
                                    Color="Color.Warning">
                             Agendamentos
@@ -126,5 +133,15 @@ else
             _isLoading = false;
         }
     }
-    
+
+    Task OpenRegisterDialog()
+    {
+        var parameters = new DialogParameters<RegisterSpaceDialog>
+        {
+            {x => x.CondominiumId, _user!.CondominiumId}
+        };
+        
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large };
+        return DialogService.ShowAsync<RegisterSpaceDialog>("Adicionar espaço", parameters, options);
+    }
 }

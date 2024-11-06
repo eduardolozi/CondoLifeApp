@@ -1,0 +1,29 @@
+﻿@layout Layout.MainLayout
+
+<MudDialog Class="w-50">
+    <DialogContent>
+        <MudText Class="fw-bold">Crie um espaço do seu condomínio</MudText>
+        <MudContainer Class="w-100 flex-column align-items-start">
+            <MudFileUpload T="IBrowserFile"></MudFileUpload>
+            <MudTextField T="string" Placeholder="Nome" Variant="Variant.Outlined">
+            </MudTextField>
+            <MudSwitch T="string" Label="Disponibilidade">
+            </MudSwitch>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="Submit">Criar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public int CondominiumId { get; set; }
+    
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    private void Cancel() => MudDialog.Cancel();
+}
