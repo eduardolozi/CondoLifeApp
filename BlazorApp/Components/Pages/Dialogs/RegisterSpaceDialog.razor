@@ -2,18 +2,33 @@
 
 <MudDialog Class="w-50">
     <DialogContent>
-        <MudText Class="fw-bold">Crie um espaço do seu condomínio</MudText>
         <MudContainer Class="w-100 flex-column align-items-start">
-            <MudFileUpload T="IBrowserFile"></MudFileUpload>
-            <MudTextField T="string" Placeholder="Nome" Variant="Variant.Outlined">
+            <MudTextField T="string"
+                          Placeholder="Nome do espaço"
+                          Variant="Variant.Outlined"
+                          Style="width: 100%">
             </MudTextField>
-            <MudSwitch T="string" Label="Disponibilidade">
+            <MudImage Class="mt-4 mb-2" Elevation="1" Style="width: 100%;" Height="300"  Src="@(string.IsNullOrEmpty(_base64Image) ? null : $"data:image/png;base64,{_base64Image}")"></MudImage>
+            <MudFileUpload Class="mb-4" T="IBrowserFile" FilesChanged="UploadImage" Accept=".png, .jpg">
+                <ActivatorContent>
+                    <MudContainer Class="d-flex flex-row p-0">
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Success"
+                                   StartIcon="@Icons.Material.Filled.CloudUpload"
+                                   Style="width: 100%">
+                            Selecione a foto
+                        </MudButton>
+                    </MudContainer>
+                </ActivatorContent>
+            </MudFileUpload>
+            <MudText Class="fw-bold">Disponibilidade</MudText>
+            <MudSwitch T="string"
+                       Color="Color.Primary">
             </MudSwitch>
         </MudContainer>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="Submit">Criar</MudButton>
+        <MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="Submit" Class="mb-2 me-2">Adicionar</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -23,7 +38,17 @@
 
     [Parameter]
     public int CondominiumId { get; set; }
+
+    string? _base64Image;
     
     private void Submit() => MudDialog.Close(DialogResult.Ok(true));
-    private void Cancel() => MudDialog.Cancel();
+    
+    async Task UploadImage(IBrowserFile file)
+    {
+        using var memoryStream = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(memoryStream);
+        var fileBytes = memoryStream.ToArray();
+        _base64Image = Convert.ToBase64String(fileBytes);
+        StateHasChanged();
+    }
 }

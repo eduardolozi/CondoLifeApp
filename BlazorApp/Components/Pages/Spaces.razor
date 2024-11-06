@@ -141,7 +141,7 @@ else
             {x => x.CondominiumId, _user!.CondominiumId}
         };
         
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
         return DialogService.ShowAsync<RegisterSpaceDialog>("Adicionar espaço", parameters, options);
     }
 }
