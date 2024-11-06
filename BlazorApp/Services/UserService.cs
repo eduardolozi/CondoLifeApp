@@ -18,10 +18,10 @@ namespace BlazorApp.Services {
 			}
 		}
 
-		public async Task<UserPhoto?> GetPhoto(string? param)
+		public async Task<Photo?> GetPhoto(string? param)
 		{
 			try {
-				var photo = await _httpClient.GetFromJsonAsync<UserPhoto>(param);
+				var photo = await _httpClient.GetFromJsonAsync<Photo>(param);
 				return photo;
 			}
 			catch (Exception ex) {

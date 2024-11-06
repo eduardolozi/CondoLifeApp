@@ -84,7 +84,8 @@ public class SpaceService
         if (space.PhotoUrl.HasValue())
         {
             using var session = _ravenStore.OpenSession();
-            session.Delete(space);
+            var photoId = $"space/{space.Id}";
+            session.Delete(photoId);
             session.SaveChanges();
         }
         _dbContext.Space.Remove(space);
@@ -120,7 +121,7 @@ public class SpaceService
         return query.ToList();
     }
 
-    public string? GetSpacePhoto(int id, string? fileName)
+    public string? GetSpacePhoto(int id)
     {
         var session = _ravenStore.OpenSession();
         var docId = $"space/{id}";

@@ -58,7 +58,8 @@ namespace Application.Services {
                 new ("Apartment", $"{user.Apartment}"),
                 new ("Block", user.Block ?? string.Empty),
                 new ("CondominiumName", user.Condominium is null ? string.Empty : user.Condominium.Name),
-                new ("PhotoUrl", user.PhotoUrl ?? string.Empty)
+                new ("PhotoUrl", user.PhotoUrl ?? string.Empty),
+                new ("CondominiumId", user.CondominiumId.ToString())
             };
 
             var tokenOptions = new SecurityTokenDescriptor {

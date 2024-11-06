@@ -7,7 +7,7 @@ namespace BlazorApp.Models {
 		public string Email { get; set; }
 		public string Password { get; set; }
 		public UserRoleEnum Role { get; set; }
-		public UserPhoto? Photo { get; set; }
+		public Photo? Photo { get; set; }
 		public string? PhotoUrl { get; set; }
 		public int? Apartment { get; set; }
 		public string? Block { get; set; }

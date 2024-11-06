@@ -128,7 +128,7 @@
         using var memoryStream = new MemoryStream();
         await file.OpenReadStream().CopyToAsync(memoryStream);
         var fileBytes = memoryStream.ToArray();
-        _user!.Photo = new UserPhoto
+        _user!.Photo = new Photo
         {
             ContentBase64 = Convert.ToBase64String(fileBytes),
             FileName = file.Name,
@@ -151,9 +151,9 @@
                 return;
             }
 
-            await localStorage.RemoveItemsAsync(["authToken", "refreshToken", "userPhoto"]);
+            await localStorage.RemoveItemsAsync(["accessToken", "refreshToken", "userPhoto"]);
 
-            await localStorage.SetItemAsStringAsync("authToken", result.AccessToken!);
+            await localStorage.SetItemAsStringAsync("accessToken", result.AccessToken!);
             await localStorage.SetItemAsStringAsync("refreshToken", result.RefreshToken!);
             
             await dialogService.ShowMessageBox("Perfil atualizado!", "Seus dados foram editados com sucesso!.", "OK");

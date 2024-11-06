@@ -23,7 +23,7 @@ namespace BlazorApp.Services {
 
         public async Task<User?> GetUserByClaims()
         {
-            var accessToken = await _localStorage.GetItemAsStringAsync("authToken");
+            var accessToken = await _localStorage.GetItemAsStringAsync("accessToken");
             if (accessToken is null) return null;
             
             var handler = new JwtSecurityTokenHandler();
@@ -40,6 +40,7 @@ namespace BlazorApp.Services {
                 PhotoUrl = claims.TryGetValue("PhotoUrl", out var photoUrl) ? photoUrl : string.Empty,
                 Condominium = new Condominium { Name = claims.GetValueOrDefault("CondominiumName") },
                 Role = claims.TryGetValue("role", out var role) ? Enum.Parse<UserRoleEnum>(role) : UserRoleEnum.Resident,
+                CondominiumId = claims.TryGetValue("CondominiumId", out var condominiumId) ? Convert.ToInt32(condominiumId) : 0,
             };
         }
     }

@@ -232,7 +232,7 @@
 		using var memoryStream = new MemoryStream();
 		await file.OpenReadStream().CopyToAsync(memoryStream);
 		var fileBytes = memoryStream.ToArray();
-		user.Photo = new UserPhoto();
+		user.Photo = new Photo();
 		user.Photo.ContentBase64 = Convert.ToBase64String(fileBytes);
 		user.Photo.FileName = file.Name;
 		user.Photo.ContentType = file.ContentType;

@@ -27,6 +27,9 @@ builder.Services.AddHttpClient<CondominiumService>(client => {
 builder.Services.AddHttpClient<AuthService>(client => {
 	client.BaseAddress = new Uri("https://localhost:7031/api/Auth/");
 });
+builder.Services.AddHttpClient<SpaceService>(client => {
+	client.BaseAddress = new Uri("https://localhost:7031/api/Space/");
+});
 
 var app = builder.Build();
 

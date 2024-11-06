@@ -1,37 +1,130 @@
 ﻿@page "/espacos"
 @layout Layout.MainLayout
+@inject SpaceService SpaceService
+@inject AuthService AuthService
 
 <PageTitle>Gerenciamento dos Espaços</PageTitle>
-<MudContainer Class="w-100 d-flex flex-row justify-content-end mt-5 pe-0">
+<MudContainer Class="w-100 d-flex flex-row justify-content-end mt-5 me-0 pe-0">
     <MudButton Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success">Adicionar</MudButton>
 </MudContainer>
-<MudContainer Class="h-100 mt-5 d-flex flex-row justify-content-around">
-    <MudCard Style="width: 45%">
-        <MudCardHeader Class="h-100 pt-0 px-0 mx-0 d-flex flex-column">
-            <MudImage Src="https://www.decorfacil.com/wp-content/uploads/2017/11/20171122area-de-lazer-com-churrasqueira-e.jpg" Elevation="0" Style="width: 100% !important; height: 400px !important; " Class="px-0 my-0 py-0 mx-0"></MudImage>
-        </MudCardHeader>
-        <MudCardContent Style="padding-top: 0 !important;" Class="d-flex flex-row justify-content-between">
-            <MudText Typo="Typo.h5" Class="fw-bold">Área da churrasqueira</MudText>
-            <MudChip T="string" Class="mb-2" Size="Size.Small" Color="Color.Success">Disponível</MudChip>
-        </MudCardContent>
-        <MudCardActions Class="d-flex flex-row justify-content-end mb-1">
-            <MudButton Size="Size.Small" Class="mx-2" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Info">Editar</MudButton>
-            <MudButton Size="Size.Small" Class="mx-1" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">Remover</MudButton>
-            <MudButton Size="Size.Small" Class="mx-2" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Assignment" Color="Color.Warning">Agendamentos</MudButton>
-        </MudCardActions>
-    </MudCard>
-    <MudCard Style="width: 45%">
-        <MudCardHeader Class="h-100 pt-0 px-0 mx-0 d-flex flex-column">
-            <MudImage Src="https://grupoatualsp.com.br/wp-content/uploads/2022/12/Conheca_as_Principais_Regras_para_o_uso_da_Piscina_em_Condominio_Capa.png" Elevation="0" Style="width: 100% !important; height: 400px !important; " Class="px-0 my-0 py-0 mx-0"></MudImage>
-        </MudCardHeader>
-        <MudCardContent Style="padding-top: 0 !important;" Class="d-flex d-flex flex-row justify-content-between">
-            <MudText Typo="Typo.h5" Class="fw-bold">Piscina</MudText>
-            <MudChip T="string" Class="mb-2" Size="Size.Small" Color="Color.Error">Indisponível</MudChip>
-        </MudCardContent>
-        <MudCardActions Class="d-flex flex-row justify-content-end mb-1">
-            <MudButton Size="Size.Small" Class="mx-2" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Info">Editar</MudButton>
-            <MudButton Size="Size.Small" Class="mx-1" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">Remover</MudButton>
-            <MudButton Size="Size.Small" Class="mx-2" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Assignment" Color="Color.Warning">Agendamentos</MudButton>
-        </MudCardActions>
-    </MudCard>
-</MudContainer>
+@if (_isLoading)
+{
+    <MudProgressCircular Color="Color.Primary" Class="position-absolute top-50 start-50" Indeterminate="true" />
+}
+else
+{
+    <MudContainer Class="h-100 mt-5 d-flex flex-row justify-content-around flex-wrap">
+        @if (_spaces.Count > 0)
+        {
+            @foreach (var space in _spaces)
+            {
+                <MudCard Class="mb-5" Style="width: 45%">
+                    <MudCardHeader Class="h-100 pt-0 px-0 mx-0 d-flex flex-column">
+                        <MudImage Src="@(space.Photo is null ? String.Empty : $"data:image/png;base64,{space.Photo.ContentBase64}")"
+                                  Elevation="0"
+                                  Style="width: 100% !important; height: 400px !important;"
+                                  Class="px-0 my-0 py-0 mx-0">
+                        </MudImage>
+                    </MudCardHeader>
+                    <MudCardContent Style="padding-top: 0 !important;"
+                                    Class="d-flex flex-row justify-content-between">
+                        <MudText Typo="Typo.h5"
+                                 Class="fw-bold">
+                            @space.Name
+                        </MudText>
+                        <MudChip T="string"
+                                 Class="mb-2"
+                                 Size="Size.Small"
+                                 Color="@(space.Availability ? Color.Success : Color.Error)">
+                            @(space.Availability ? "Disponível" : "Indisponível")
+                        </MudChip>
+                    </MudCardContent>
+                    <MudCardActions Class="d-flex flex-row justify-content-end mb-1">
+                        <MudButton Size="Size.Small"
+                                   Class="mx-2"
+                                   Variant="Variant.Filled"
+                                   StartIcon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Info">
+                            Editar
+                        </MudButton>
+                        <MudButton Size="Size.Small"
+                                   Class="mx-1"
+                                   Variant="Variant.Filled"
+                                   StartIcon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   OnClick="@(async () => await DeleteSpace(space.Id))">
+                            Remover
+                        </MudButton>
+                        <MudButton Size="Size.Small"
+                                   Class="mx-2"
+                                   Variant="Variant.Filled"
+                                   StartIcon="@Icons.Material.Filled.Assignment"
+                                   Color="Color.Warning">
+                            Agendamentos
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            }
+        }
+        else
+        {
+            <MudText Typo="Typo.h5"
+                     Align="Align.Center"
+                     Class="mt-5">
+                Não existe nenhum espaço cadastrado.
+            </MudText>
+        }
+    </MudContainer>
+}
+
+@code
+{
+    List<Space> _spaces = [];
+    bool _isLoading = true;
+    User? _user;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isLoading = true;
+            try
+            {
+                _user = await AuthService.GetUserByClaims();
+                await GetSpaces();
+            }
+            finally
+            {
+                _isLoading = false;
+            }
+            StateHasChanged();
+        }
+    }
+
+    async Task GetSpaces()
+    {
+        var filter = new SpaceFilter
+        {
+            CondominiumId = _user!.CondominiumId
+        };
+        _spaces = await SpaceService.GetCondominiumSpaces(filter) ?? [];
+        foreach (var space in _spaces)
+        {
+            space.Photo = await SpaceService.GetSpacePhoto(space.Id);
+        }
+    }
+
+    async Task DeleteSpace(int id)
+    {
+        _isLoading = true;
+        try
+        {
+            await SpaceService.Delete(id);
+            await GetSpaces();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+    
+}

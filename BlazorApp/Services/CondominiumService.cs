@@ -10,19 +10,17 @@ namespace BlazorApp.Services {
 		public async Task<List<Condominium>?> GetAll(Address address) {
 			var queryParameters = string.Empty;
 
-			if (address != null) {
-				if (address.Country != null) {
-					queryParameters += $"?Address.Country={address.Country}";
-				}
-				if (address.State != null) {
-					queryParameters += $"&Address.State={address.State}";
-				}
-				if (address.City != null) {
-					queryParameters += $"&Address.City={address.City}";
-				}
-				if (address.PostalCode != null) {
-					queryParameters += $"&Address.PostalCode={address.PostalCode}";
-				}
+			if (address.Country != null) {
+				queryParameters += $"?Address.Country={address.Country}";
+			}
+			if (address.State != null) {
+				queryParameters += $"&Address.State={address.State}";
+			}
+			if (address.City != null) {
+				queryParameters += $"&Address.City={address.City}";
+			}
+			if (address.PostalCode != null) {
+				queryParameters += $"&Address.PostalCode={address.PostalCode}";
 			}
 
 			try {

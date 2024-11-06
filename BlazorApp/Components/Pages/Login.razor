@@ -112,9 +112,9 @@
                 return;
             }
 
-            await LocalStorage.RemoveItemsAsync(["authToken", "refreshToken", "userPhoto"]);
+            await LocalStorage.RemoveItemsAsync(["accessToken", "refreshToken", "userPhoto"]);
 
-            await LocalStorage.SetItemAsStringAsync("authToken", result.AccessToken!);
+            await LocalStorage.SetItemAsStringAsync("accessToken", result.AccessToken!);
             await LocalStorage.SetItemAsStringAsync("refreshToken", result.RefreshToken!);
             
             Navigation.NavigateTo("inicial");
