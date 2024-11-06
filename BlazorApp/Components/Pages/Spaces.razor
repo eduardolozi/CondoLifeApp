@@ -134,14 +134,26 @@ else
         }
     }
 
-    Task OpenRegisterDialog()
+    async Task OpenRegisterDialog()
     {
         var parameters = new DialogParameters<RegisterSpaceDialog>
         {
             {x => x.CondominiumId, _user!.CondominiumId}
         };
-        
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
-        return DialogService.ShowAsync<RegisterSpaceDialog>("Adicionar espaço", parameters, options);
+        var dialog = await DialogService.ShowAsync<RegisterSpaceDialog>("Adicionar espaço", parameters, options);
+        var result = await dialog.Result;
+        if (result.Data is true)
+        {
+            try {
+                    
+                _isLoading = true;
+                await GetSpaces();
+            }
+            finally
+            {
+                _isLoading = false;
+            }
+        }
     }
 }

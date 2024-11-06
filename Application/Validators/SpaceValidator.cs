@@ -8,6 +8,7 @@ namespace Application.Validators {
         public SpaceValidator(CondoLifeContext dbContext)
         {
             _dbContext = dbContext;
+            RuleLevelCascadeMode = CascadeMode.Stop;
             
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("O nome deve ser preenchido.")
