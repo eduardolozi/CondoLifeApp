@@ -2,7 +2,19 @@
 @inject SpaceService SpaceService
 @inject IDialogService DialogService
 
-<MudDialog Class="w-50">
+<style>
+    .dialog {
+        width: 50%;
+    }
+    
+    @@media (max-width: 760px) {
+        .dialog {
+            width: 85%;
+        }
+    }
+</style>
+
+<MudDialog Class="dialog">
     <DialogContent>
         <MudContainer Class="w-100 flex-column align-items-start">
             <MudTextField @bind-Value="Space.Name"
@@ -43,7 +55,7 @@
 @code {
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
     [Parameter] public int CondominiumId { get; set; }
-    [Parameter] public Space Space { get; set; } = new();
+[Parameter] public Space Space { get; set; } = new();
     
     private async Task Submit()
     {

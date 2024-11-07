@@ -16,22 +16,23 @@
         display: flex;
         justify-content: end;
     }
-    
-    @@media (max-width: 950px) {
-        .space-card {
-            width: 100%;
-        }
-    }
-    
-    @@media (max-width: 430px) {
+
+    @@media (max-width: 1170px) {
         .card-buttons {
             display: flex;
             flex-direction: column;
         }
-        
+
         .phone-button {
             width: 90%;
+            height: 2rem;
             margin-bottom: .8rem;
+        }
+    }
+    
+    @@media (max-width: 950px) {
+        .space-card {
+            width: 100%;
         }
     }
 </style>
@@ -149,11 +150,22 @@ else
 
     async Task DeleteSpace(int id)
     {
-        await PageHelper.ShowBusy(ref _isLoading, async () =>
+        var result = await DialogService.ShowMessageBox("Confirmação de remoção",
+            "Deseja realmente excluir o espaço? Todos os agendamentos vinculados também serão excluídos.",
+            "Sim",
+            "Não");
+        
+        if (result.HasValue)
         {
-            await SpaceService.Delete(id);
-            await GetSpaces();
-        });
+            if (result.Value)
+            {
+                await PageHelper.ShowBusy(ref _isLoading, async () =>
+                {
+                    await SpaceService.Delete(id);
+                    await GetSpaces();
+                });
+            }
+        }
     }
 
     async Task OpenRegisterDialog()
@@ -179,7 +191,15 @@ else
         var parameters = new DialogParameters<RegisterSpaceDialog>
         {
             {x => x.CondominiumId, _user!.CondominiumId},
-            {x => x.Space, space}
+            {x => x.Space, new Space
+                                            {
+                                                Id = space.Id,
+                                                Name = space.Name,
+                                                Availability = space.Availability,
+                                                Photo = space.Photo,
+                                                PhotoUrl = space.PhotoUrl
+                                            }
+            }
         };
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
         var dialog = await DialogService.ShowAsync<RegisterSpaceDialog>("Editar espaço", parameters, options);
