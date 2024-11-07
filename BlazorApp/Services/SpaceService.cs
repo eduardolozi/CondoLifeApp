@@ -81,4 +81,20 @@ public class SpaceService
                 response.EnsureSuccessStatusCode();
         }
     }
+    
+    public async Task Update(Space space)
+    {
+        var accessToken = await _localStorage.GetItemAsStringAsync("accessToken");
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var response = await _httpClient.PatchAsJsonAsync($"{space.Id}", space);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            if (problemDetails != null)
+                throw new ApplicationException(problemDetails.Detail);
+            else
+                response.EnsureSuccessStatusCode();
+        }
+    }
 }

@@ -5,12 +5,12 @@
 <MudDialog Class="w-50">
     <DialogContent>
         <MudContainer Class="w-100 flex-column align-items-start">
-            <MudTextField @bind-Value="_space.Name"
+            <MudTextField @bind-Value="Space.Name"
                           Placeholder="Nome do espaço"
                           Variant="Variant.Outlined"
                           Style="width: 100%">
             </MudTextField>
-            <MudImage Class="mt-4 mb-2" Elevation="1" Style="width: 100%;" Height="300"  Src="@(_space.Photo is null ? null : $"data:image/png;base64,{_space.Photo.ContentBase64}")"></MudImage>
+            <MudImage Class="mt-4 mb-2" Elevation="1" Style="width: 100%;" Height="300"  Src="@(Space.Photo is null ? null : $"data:image/png;base64,{Space.Photo.ContentBase64}")"></MudImage>
             <MudFileUpload Class="mb-4" T="IBrowserFile" FilesChanged="UploadImage" Accept=".png, .jpg">
                 <ActivatorContent>
                     <MudContainer Class="d-flex flex-row p-0">
@@ -24,9 +24,9 @@
                 </ActivatorContent>
             </MudFileUpload>
             <MudText Class="fw-bold">Disponibilidade</MudText>
-            <MudSwitch @bind-Value="_space.Availability"
-                       ThumbIcon="@(_space.Availability ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)"
-                       ThumbIconColor="@(_space.Availability ? Color.Success : Color.Error)">
+            <MudSwitch @bind-Value="Space.Availability"
+                       ThumbIcon="@(Space.Availability ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)"
+                       ThumbIconColor="@(Space.Availability ? Color.Success : Color.Error)">
             </MudSwitch>
         </MudContainer>
     </DialogContent>
@@ -35,7 +35,7 @@
                    Variant="Variant.Filled"
                    OnClick="Submit"
                    Class="mb-2 me-2">
-            Adicionar
+            Salvar
         </MudButton>
     </DialogActions>
 </MudDialog>
@@ -43,14 +43,24 @@
 @code {
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
     [Parameter] public int CondominiumId { get; set; }
-    Space _space = new();
+    [Parameter] public Space Space { get; set; } = new();
     
     private async Task Submit()
     {
         try
         {
-            _space.CondominiumId = CondominiumId;
-            await SpaceService.Add(_space);
+            Space.CondominiumId = CondominiumId;
+
+            if (Space.Id != 0)
+            {
+                if (Space.Photo.FileName is null)
+                    Space.Photo = null;
+                
+                await SpaceService.Update(Space);
+            }
+            else
+                await SpaceService.Add(Space);
+            
             MudDialog.Close(DialogResult.Ok(true));
         }
         catch (Exception e)
@@ -64,7 +74,7 @@
         using var memoryStream = new MemoryStream();
         await file.OpenReadStream().CopyToAsync(memoryStream);
         var fileBytes = memoryStream.ToArray();
-        _space.Photo = new Photo
+        Space.Photo = new Photo
         {
             ContentBase64 = Convert.ToBase64String(fileBytes),
             ContentType = file.ContentType,

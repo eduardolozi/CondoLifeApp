@@ -1,5 +1,6 @@
 ﻿@page "/espacos"
 @using BlazorApp.Components.Pages.Dialogs
+@using BlazorApp.Components.Pages.Dialogs
 @layout Layout.MainLayout
 @inject SpaceService SpaceService
 @inject AuthService AuthService
@@ -51,7 +52,8 @@ else
                                    Class="mx-2"
                                    Variant="Variant.Outlined"
                                    StartIcon="@Icons.Material.Filled.Edit"
-                                   Color="Color.Info">
+                                   Color="Color.Info"
+                                   OnClick="@(async () => await OpenEditDialog(space))">
                             Editar
                         </MudButton>
                         <MudButton Size="Size.Small"
@@ -122,9 +124,9 @@ else
 
     async Task DeleteSpace(int id)
     {
-        _isLoading = true;
         try
         {
+            _isLoading = true;
             await SpaceService.Delete(id);
             await GetSpaces();
         }
@@ -142,6 +144,30 @@ else
         };
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
         var dialog = await DialogService.ShowAsync<RegisterSpaceDialog>("Adicionar espaço", parameters, options);
+        var result = await dialog.Result;
+        if (result.Data is true)
+        {
+            try {
+                    
+                _isLoading = true;
+                await GetSpaces();
+            }
+            finally
+            {
+                _isLoading = false;
+            }
+        }
+    }
+
+    async Task OpenEditDialog(Space space)
+    {
+        var parameters = new DialogParameters<RegisterSpaceDialog>
+        {
+            {x => x.CondominiumId, _user!.CondominiumId},
+            {x => x.Space, space}
+        };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<RegisterSpaceDialog>("Editar espaço", parameters, options);
         var result = await dialog.Result;
         if (result.Data is true)
         {
