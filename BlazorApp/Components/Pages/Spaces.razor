@@ -5,6 +5,7 @@
 @inject SpaceService SpaceService
 @inject AuthService AuthService
 @inject IDialogService DialogService
+@inject PageHelper PageHelper
 
 <PageTitle>Gerenciamento dos Espaços</PageTitle>
 <MudContainer Class="w-100 d-flex flex-row justify-content-end mt-5 me-0 pe-0">
@@ -95,16 +96,11 @@ else
     {
         if (firstRender)
         {
-            _isLoading = true;
-            try
+            await PageHelper.ShowBusy(ref _isLoading, async () =>
             {
                 _user = await AuthService.GetUserByClaims();
                 await GetSpaces();
-            }
-            finally
-            {
-                _isLoading = false;
-            }
+            });
             StateHasChanged();
         }
     }
@@ -124,16 +120,11 @@ else
 
     async Task DeleteSpace(int id)
     {
-        try
+        await PageHelper.ShowBusy(ref _isLoading, async () =>
         {
-            _isLoading = true;
             await SpaceService.Delete(id);
             await GetSpaces();
-        }
-        finally
-        {
-            _isLoading = false;
-        }
+        });
     }
 
     async Task OpenRegisterDialog()
@@ -147,15 +138,10 @@ else
         var result = await dialog.Result;
         if (result.Data is true)
         {
-            try {
-                    
-                _isLoading = true;
-                await GetSpaces();
-            }
-            finally
+            await PageHelper.ShowBusy(ref _isLoading, async () =>
             {
-                _isLoading = false;
-            }
+                await GetSpaces();
+            });
         }
     }
 
@@ -171,15 +157,10 @@ else
         var result = await dialog.Result;
         if (result.Data is true)
         {
-            try {
-                    
-                _isLoading = true;
-                await GetSpaces();
-            }
-            finally
+            await PageHelper.ShowBusy(ref _isLoading, async () =>
             {
-                _isLoading = false;
-            }
+                await GetSpaces();
+            });
         }
     }
 }

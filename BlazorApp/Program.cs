@@ -1,5 +1,6 @@
 using BlazorApp.Components;
 using BlazorApp.Services;
+using BlazorApp.Utils;
 using Blazored.LocalStorage;
 using MudBlazor.Services;
 
@@ -12,6 +13,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
 
+builder.Services.AddScoped<PageHelper>();
 builder.Services.AddHttpClient<LocationService>((client) => {
     //env
     client.BaseAddress = new Uri("https://www.universal-tutorial.com/api/");

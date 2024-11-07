@@ -52,15 +52,10 @@
             Space.CondominiumId = CondominiumId;
 
             if (Space.Id != 0)
-            {
-                if (Space.Photo.FileName is null)
-                    Space.Photo = null;
-                
                 await SpaceService.Update(Space);
-            }
             else
                 await SpaceService.Add(Space);
-            
+
             MudDialog.Close(DialogResult.Ok(true));
         }
         catch (Exception e)

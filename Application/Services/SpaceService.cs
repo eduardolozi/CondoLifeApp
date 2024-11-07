@@ -121,7 +121,7 @@ public class SpaceService
         return query.ToList();
     }
 
-    public string? GetSpacePhoto(int id)
+    public Photo? GetSpacePhoto(int id)
     {
         var session = _ravenStore.OpenSession();
         var docId = $"space/{id}";
@@ -138,6 +138,12 @@ public class SpaceService
             totalStream.AddRange(buffer.Take(read));
         }
 
-        return Convert.ToBase64String(totalStream.ToArray());
+        return new Photo
+        {
+            FileName = spacePhoto.FileName,
+            ContentBase64 = Convert.ToBase64String(totalStream.ToArray()),
+            Id = spacePhoto.Id,
+            ContentType = spacePhoto.ContentType
+        };
     }
 }

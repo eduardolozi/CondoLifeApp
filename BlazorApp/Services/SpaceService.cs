@@ -1,6 +1,9 @@
 ﻿using System.Net.Http.Headers;
 using BlazorApp.Models;
+using BlazorApp.Utils;
 using Blazored.LocalStorage;
+using Microsoft.Extensions.Primitives;
+using Extensions = BlazorApp.Utils.Extensions;
 
 namespace BlazorApp.Services;
 
@@ -53,17 +56,12 @@ public class SpaceService
 
     public async Task Delete(int id)
     {
-        try
-        {
-            var accessToken = await _localStorage.GetItemAsStringAsync("accessToken");
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await _httpClient.DeleteAsync($"{id}");
-            response.EnsureSuccessStatusCode();
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message, ex);
-        }
+        var accessToken = await _localStorage.GetItemAsStringAsync("accessToken");
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var response = await _httpClient.DeleteAsync($"{id}");
+        
+        if (!response.IsSuccessStatusCode)
+            await response.HandleResponseError();
     }
 
     public async Task Add(Space space)
@@ -73,13 +71,7 @@ public class SpaceService
         var response = await _httpClient.PostAsJsonAsync("", space);
         
         if (!response.IsSuccessStatusCode)
-        {
-            var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            if (problemDetails != null)
-                throw new ApplicationException(problemDetails.Detail);
-            else
-                response.EnsureSuccessStatusCode();
-        }
+            await response.HandleResponseError();
     }
     
     public async Task Update(Space space)
@@ -87,14 +79,8 @@ public class SpaceService
         var accessToken = await _localStorage.GetItemAsStringAsync("accessToken");
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var response = await _httpClient.PatchAsJsonAsync($"{space.Id}", space);
-        
+
         if (!response.IsSuccessStatusCode)
-        {
-            var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-            if (problemDetails != null)
-                throw new ApplicationException(problemDetails.Detail);
-            else
-                response.EnsureSuccessStatusCode();
-        }
+            await response.HandleResponseError();
     }
 }

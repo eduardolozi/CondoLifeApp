@@ -10,4 +10,17 @@ public class PageHelper
     {
         _dialogService = dialogService;
     }
+
+    public Task ShowBusy(ref bool isLoading, Func<Task> action)
+    {
+        try
+        {
+            isLoading = true;
+            return action();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 }
