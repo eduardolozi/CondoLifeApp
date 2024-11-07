@@ -7,6 +7,35 @@
 @inject IDialogService DialogService
 @inject PageHelper PageHelper
 
+<style>
+    .space-card {
+        width: 45%;
+    }
+    
+    .card-buttons {
+        display: flex;
+        justify-content: end;
+    }
+    
+    @@media (max-width: 950px) {
+        .space-card {
+            width: 100%;
+        }
+    }
+    
+    @@media (max-width: 430px) {
+        .card-buttons {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .phone-button {
+            width: 90%;
+            margin-bottom: .8rem;
+        }
+    }
+</style>
+
 <PageTitle>Gerenciamento dos Espaços</PageTitle>
 <MudContainer Class="w-100 d-flex flex-row justify-content-end mt-5 me-0 pe-0">
     <MudButton Size="Size.Small"
@@ -27,9 +56,9 @@ else
         {
             @foreach (var space in _spaces)
             {
-                <MudCard Class="mb-5" Style="width: 45%">
+                <MudCard Class="mb-5 space-card">
                     <MudCardHeader Class="h-100 pt-0 px-0 mx-0 d-flex flex-column">
-                        <MudImage Src="@(space.Photo is null ? String.Empty : $"data:image/png;base64,{space.Photo.ContentBase64}")"
+                        <MudImage Src="@(space.Photo is null ? string.Empty : $"data:image/png;base64,{space.Photo.ContentBase64}")"
                                   Elevation="0"
                                   Style="width: 100% !important; height: 400px !important;"
                                   Class="px-0 my-0 py-0 mx-0">
@@ -48,9 +77,9 @@ else
                             @(space.Availability ? "Disponível" : "Indisponível")
                         </MudChip>
                     </MudCardContent>
-                    <MudCardActions Class="d-flex flex-row justify-content-end mb-1">
+                    <MudCardActions Class="card-buttons mb-1">
                         <MudButton Size="Size.Small"
-                                   Class="mx-2"
+                                   Class="mx-2 phone-button"
                                    Variant="Variant.Outlined"
                                    StartIcon="@Icons.Material.Filled.Edit"
                                    Color="Color.Info"
@@ -58,7 +87,7 @@ else
                             Editar
                         </MudButton>
                         <MudButton Size="Size.Small"
-                                   Class="mx-1"
+                                   Class="mx-1 phone-button"
                                    Variant="Variant.Outlined"
                                    StartIcon="@Icons.Material.Filled.Delete"
                                    Color="Color.Error"
@@ -66,7 +95,7 @@ else
                             Remover
                         </MudButton>
                         <MudButton Size="Size.Small"
-                                   Class="mx-2"
+                                   Class="mx-2 phone-button"
                                    Variant="Variant.Outlined"
                                    StartIcon="@Icons.Material.Filled.Assignment"
                                    Color="Color.Warning">

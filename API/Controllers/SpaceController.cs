@@ -33,7 +33,6 @@ public class SpaceController : ControllerBase {
     public IActionResult GetSpacePhoto([FromRoute] int id)
     {
         var photo = _spaceService.GetSpacePhoto(id);
-        Response.Headers.Append("Content-Disposition", "inline");
         return Ok(photo);
     }
 

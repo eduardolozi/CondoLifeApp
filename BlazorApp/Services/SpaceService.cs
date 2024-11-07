@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using BlazorApp.Models;
 using BlazorApp.Utils;
 using Blazored.LocalStorage;
@@ -43,15 +44,14 @@ public class SpaceService
 
     public async Task<Photo?> GetSpacePhoto(int id)
     {
-        try
-        {
-            var response = await _httpClient.GetFromJsonAsync<Photo>($"{id}/photo");
-            return response;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message, ex);
-        }
+        var response = await _httpClient.GetAsync($"{id}/photo");
+        if (!response.IsSuccessStatusCode)
+            await response.HandleResponseError();
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+            return null;
+        
+        return await response.Content.ReadFromJsonAsync<Photo>();
     }
 
     public async Task Delete(int id)
