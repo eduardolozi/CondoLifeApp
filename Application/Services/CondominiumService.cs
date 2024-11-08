@@ -1,25 +1,23 @@
 ﻿using Domain.Exceptions;
 using Domain.Models;
+using Domain.Models.Filters;
 using Domain.Utils;
 using Infraestructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services {
-    public class CondominiumService
+    public class CondominiumService(CondoLifeContext dbContext)
     {
-        private readonly CondoLifeContext _dbContext;
-        public CondominiumService(CondoLifeContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         public Condominium? GetById(int id) {
-            return _dbContext.Condominium.Include(x => x.Address).FirstOrDefault(x => x.Id == id);
+            return dbContext.Condominium.Include(x => x.Address).FirstOrDefault(x => x.Id == id);
         }
         
-        public List<Condominium>? GetAll(CondominiumFilter filter) {
-            var query = _dbContext.Condominium.Include(x => x.Address).AsNoTracking().AsQueryable();
-            var address = filter.Address;
+        public List<Condominium>? GetAll(CondominiumFilter? filter) {
+            var query = dbContext.Condominium.Include(x => x.Address).AsNoTracking().AsQueryable();
+
+            Address? address = null;
+            if(filter.HasValue()) 
+                address = filter!.Address;
 
             if(address.HasValue()) {
                 if (address!.Country.HasValue())
@@ -43,8 +41,8 @@ namespace Application.Services {
         }
 
         public void Insert(Condominium condominium) {
-            _dbContext.Condominium.Add(condominium);
-            _dbContext.SaveChanges();
+            dbContext.Condominium.Add(condominium);
+            dbContext.SaveChanges();
         }
         
         public void Update(int id, Condominium condominium) {
@@ -61,7 +59,7 @@ namespace Application.Services {
                     condo.Address.PostalCode = condominium.Address.PostalCode;
                 }
 
-                _dbContext.SaveChanges();
+                dbContext.SaveChanges();
                 return;
             }
             throw new ResourceNotFoundException("Condomínio não encontrado");
@@ -70,8 +68,8 @@ namespace Application.Services {
         public void Delete(int id) {
             var condo = GetById(id)
                 ?? throw new ResourceNotFoundException("Condomínio não encontrado");
-            _dbContext.Condominium.Remove(condo);
-            _dbContext.SaveChanges();
+            dbContext.Condominium.Remove(condo);
+            dbContext.SaveChanges();
         }
     }
 }

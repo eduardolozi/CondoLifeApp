@@ -14,8 +14,10 @@ namespace Application {
             services.AddScoped<VerificationTokenService>();
             services.AddScoped<CondominiumService>();
             services.AddScoped<SpaceService>();
+            services.AddScoped<BookingService>();
 
-            services.AddScoped<IValidator<Space>, SpaceValidator>();
+            services.AddScoped<AbstractValidator<Space>, SpaceValidator>();
+            services.AddScoped<AbstractValidator<Booking>, BookingValidator>();
         }
     }
 }

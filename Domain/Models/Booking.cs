@@ -16,11 +16,11 @@ namespace Domain.Models {
         public int UserId { get; set; }
         
         [JsonIgnore]
-        public User User { get; set; }
+        public User? User { get; set; }
         
         public int SpaceId { get; set; }
         
         [JsonIgnore]
-        public Space Space { get; set; }
+        public Space? Space { get; set; }
     }
 }

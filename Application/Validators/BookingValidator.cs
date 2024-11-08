@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Domain.Models;
+﻿using Domain.Models;
 using FluentValidation;
 using Infraestructure;
 using Microsoft.EntityFrameworkCore;
@@ -14,17 +13,19 @@ namespace Application.Validators {
             
             RuleFor(x => x)
                 .Must(IsUserAlreadyBookedInSpace).WithMessage("Não é possível fazer outra reserva no mesmo espaço quando já existe uma reserva cadastrada.")
-                .Must(IsSpaceAvailable).WithMessage("Espaço indisponível: não é possível fazer a reserva.");
-            
+                .Must(IsSpaceAvailable).WithMessage("Espaço indisponível: não é possível fazer a reserva.")
+                .Must(InitialDateTimeMustBeAvailable).WithMessage("Já existe uma reserva para este horário")
+                .Must(x => x.FinalDate > x.InitialDate).WithMessage("A data final deve ser maior que a data inicial.")
+                .Must(x => x.FinalDate < x.InitialDate.AddDays(1)).WithMessage("Os horários da reserva devem ser no mesmo dia.")
+                .Must(x => x.FinalDate.Hour is <= 22 and >= 10).WithMessage("O horário da reserva deve finalizar até 22:00");
+
             RuleFor(x => x.InitialDate)
                 .NotEmpty().WithMessage("A data inicial deve ser informada")
                 .GreaterThanOrEqualTo(DateTime.Today).WithMessage("A reserva deve ser feita a partir da data de hoje.")
-                .LessThanOrEqualTo(DateTime.Today.AddMonths(3)).WithMessage("Não foi possível realizar a reserva. As reservas podem ser feitas com até 3 meses de antecedência. Por favor, selecione uma data dentro desse período.")
-                .Must(DateTimeMustBeAvailable).WithMessage("Já existe uma reserva para este horário");
+                .LessThanOrEqualTo(DateTime.Today.AddMonths(3)).WithMessage(
+                    "Não foi possível realizar a reserva. As reservas podem ser feitas com até 3 meses de antecedência. Por favor, selecione uma data dentro desse período.")
+                .Must(x => x.Hour is >= 10 and <= 22).WithMessage("O horário de reserva é das 10:00 a 22:00");
 
-            RuleFor(x => x)
-                .Must(x => x.FinalDate > x.InitialDate && x.FinalDate < x.InitialDate.AddDays(1)).WithMessage("A data final deve ser maior que a data incial e estar no mesmo dia que a data inicial.");
-                
             RuleFor(x => x.Description)
                 .Must(NullOrValidDescription).WithMessage("Tamanho máximo da descrição: 500 caracteres.");
 
@@ -50,9 +51,9 @@ namespace Application.Validators {
             return description.Length < 500;
         }
 
-        private bool DateTimeMustBeAvailable(DateTime date)
+        private bool InitialDateTimeMustBeAvailable(Booking booking)
         {
-            return !(_dbContext.Booking.Any(x => x.InitialDate <= date && x.FinalDate > date));
+            return !_dbContext.Booking.Any(x => x.InitialDate <= booking.InitialDate && x.FinalDate > booking.InitialDate && x.SpaceId == booking.SpaceId);
         }
     }
 }

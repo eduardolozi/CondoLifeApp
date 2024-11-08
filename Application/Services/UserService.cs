@@ -11,41 +11,28 @@ using Org.BouncyCastle.Utilities;
 using Raven.Client.Documents;
 
 namespace Application.Services {
-    public class UserService {
-        private readonly CondoLifeContext _dbContext;
-        private readonly IEmailService _emailService;
-        private readonly VerificationTokenService _verificationTokenService;
-        private readonly PasswordHasher<User> _passworHasher;
-        private readonly RabbitService _rabbitService;
-        private readonly IDocumentStore _ravenStore;
-
-        public UserService(CondoLifeContext dbContext,
-            IEmailService emailService,
-            VerificationTokenService verificationTokenService,
-            RabbitService rabbitService,
-            IDocumentStore ravenStore)
-        {
-            _dbContext = dbContext;
-            _emailService = emailService;
-            _verificationTokenService = verificationTokenService;
-            _passworHasher = new PasswordHasher<User>();
-            _rabbitService = rabbitService;
-            _ravenStore = ravenStore;
-        }
+    public class UserService(
+        CondoLifeContext dbContext,
+        IEmailService emailService,
+        VerificationTokenService verificationTokenService,
+        RabbitService rabbitService,
+        IDocumentStore ravenStore)
+    {
+        private readonly PasswordHasher<User> _passworHasher = new();
 
         public List<User> GetAll() { 
-            return [.. _dbContext.Users];
+            return [.. dbContext.Users];
         }
 
         public User? GetById(int id) {
-            var user = _dbContext.Users.FirstOrDefault(x => x.Id == id);
+            var user = dbContext.Users.FirstOrDefault(x => x.Id == id);
             if(user == null) return null;
 
             return user;
         }
 
         public string? GetUserPhoto(int id, string? fileName) {
-            var session = _ravenStore.OpenSession();
+            var session = ravenStore.OpenSession();
             var docId = $"user/{id}";
             var userPhoto = session.Query<Photo>().FirstOrDefault(x => x.Id == docId);
             if(userPhoto is null) return null;
@@ -68,7 +55,7 @@ namespace Application.Services {
             var fileName = user.Photo!.FileName.Replace(' ', '-').Replace('.', '-');
             var photoBytes = Convert.FromBase64String(user.Photo.ContentBase64!);
 
-            using var session = _ravenStore.OpenSession();
+            using var session = ravenStore.OpenSession();
             var userPhoto = new Photo($"user/{user.Id}", fileName, user.Photo.ContentType!);
             var document = session.Load<Photo>(userPhoto.Id);
             if (document is not null)
@@ -89,20 +76,20 @@ namespace Application.Services {
             session.SaveChanges();
 
             user.PhotoUrl = $"https://localhost:7031/api/user/{user.Id}/photo?fileName={fileName}";
-            _dbContext.SaveChanges();
+            dbContext.SaveChanges();
         }
 
         public void Insert(User user) {
             user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
 
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
+            dbContext.Users.Add(user);
+            dbContext.SaveChanges();
 
             if (user.Photo.HasValue()) {
                 SavePhoto(user);
             }
 
-            var verificationToken = _verificationTokenService.CreateVerificationToken(user);
+            var verificationToken = verificationTokenService.CreateVerificationToken(user);
 			SendVerificationEmail(user, verificationToken);
         }
 
@@ -117,20 +104,20 @@ namespace Application.Services {
                 Body = $@"<p>Olá {user.Name}, precisamos verificar a sua conta. Para isso, basta apenas clicar no link a seguir: <a href={verificationLink}>Verificar email</a></p>",
             };
 
-            _rabbitService.Send(message, RabbitConstants.EMAIL_EXCHANGE, RabbitConstants.EMAIL_ROUTING_KEY);
+            rabbitService.Send(message, RabbitConstants.EMAIL_EXCHANGE, RabbitConstants.EMAIL_ROUTING_KEY);
         }
 
         public int VerifyEmail(string verificationToken) {
-            var token = _verificationTokenService.GetVerificationTokenWithUser(verificationToken)
+            var token = verificationTokenService.GetVerificationTokenWithUser(verificationToken)
                 ?? throw new ResourceNotFoundException("Token não encontrado.");
 
-            _verificationTokenService.HandleVerificationEmail(token);
-            _dbContext.SaveChanges();
+            verificationTokenService.HandleVerificationEmail(token);
+            dbContext.SaveChanges();
             return token.User.Id;
         }
 
         public void Update(int id, User user) {
-            var userDb = _dbContext.Users.FirstOrDefault(x => x.Id == id)
+            var userDb = dbContext.Users.FirstOrDefault(x => x.Id == id)
                 ?? throw new ResourceNotFoundException("Usuario não encontrado.");
 
             userDb.Name = user.Name;
@@ -138,7 +125,7 @@ namespace Application.Services {
             userDb.Photo = user.Photo;
             userDb.Apartment = user.Apartment;
             userDb.Block = user.Block; 
-            _dbContext.SaveChanges();
+            dbContext.SaveChanges();
             
             if (userDb.Photo.HasValue()) {
                 SavePhoto(user);
@@ -146,10 +133,10 @@ namespace Application.Services {
         }
 
         public async Task SendRecoveryPasswordEmail(ChangePasswordDTO changePassword) {
-            var user = _dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == changePassword.Email!.ToLower())
+            var user = dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == changePassword.Email!.ToLower())
                 ?? throw new ResourceNotFoundException("Email inválido");
 
-            var verificationToken = _verificationTokenService.CreateVerificationToken(user);
+            var verificationToken = verificationTokenService.CreateVerificationToken(user);
             var verificationLink = $"https://localhost:7031/api/User/confirm-password-change?verificationToken={verificationToken.Value}";
 
             var message = new EmailMessage {
@@ -160,27 +147,27 @@ namespace Application.Services {
                 Subject = "Mudança de senha - Condolife",
                 Body = $"<p>Olá {user.Name}.\nRecebemos uma notificação de mudança de senha da sua conta.\nConfirme se é você clicando no link a seguir: <a href={verificationLink}>Confirmar mudança de senha</a></p>"
             };
-            await _emailService.SendEmail(message);
+            await emailService.SendEmail(message);
         }
 
         public int ConfirmPasswordChange(string verificationToken) {
-            var token = _verificationTokenService.GetVerificationTokenWithUser(verificationToken)
+            var token = verificationTokenService.GetVerificationTokenWithUser(verificationToken)
                 ?? throw new ResourceNotFoundException("Token não encontrado.");
 
-            _verificationTokenService.HandlePasswordChange(token);
-            _dbContext.SaveChanges();
+            verificationTokenService.HandlePasswordChange(token);
+            dbContext.SaveChanges();
             return token.User.Id;
         }
 
         public void ChangePassword(ChangePasswordDTO changePassword) {
-            var user = _dbContext.Users.FirstOrDefault(x => x.Email == changePassword.Email)
+            var user = dbContext.Users.FirstOrDefault(x => x.Email == changePassword.Email)
                 ?? throw new ResourceNotFoundException("Email inválido.");
 
             if (user.IsChangePasswordConfirmed) {
                 user.Password = changePassword.NewPassword!;
                 user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
                 user.IsChangePasswordConfirmed = false;
-                _dbContext.SaveChanges();
+                dbContext.SaveChanges();
                 return;
             }
 
@@ -188,19 +175,19 @@ namespace Application.Services {
         }
 
         public void Delete(int id) {
-            var user = _dbContext.Users.FirstOrDefault(x => x.Id == id)
+            var user = dbContext.Users.FirstOrDefault(x => x.Id == id)
                 ?? throw new ResourceNotFoundException("Usuário não encontrado");
-            _dbContext.Remove(user);
-            _dbContext.SaveChanges();
+            dbContext.Remove(user);
+            dbContext.SaveChanges();
         }
         
         public void DeleteAll() {
             var users = GetAll();
             foreach (var user in users)
             {
-                _dbContext.Remove(user);
+                dbContext.Remove(user);
             }
-            _dbContext.SaveChanges();
+            dbContext.SaveChanges();
         }
     }
 }

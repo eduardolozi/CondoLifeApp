@@ -1,4 +1,4 @@
-﻿namespace Domain.Models;
+﻿namespace Domain.Models.Filters;
 
 public class SpaceFilter
 {

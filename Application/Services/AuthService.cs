@@ -17,13 +17,11 @@ namespace Application.Services {
     public class AuthService : IAuthService {
         private readonly CondoLifeContext _dbContext;
         private readonly PasswordHasher<User> _passwordHasher;
-        private readonly UserService _userService;
 
         public AuthService(CondoLifeContext dbContext, IDocumentStore ravenStore, UserService userService)
         {
             _dbContext = dbContext;
             _passwordHasher = new PasswordHasher<User>();
-            _userService = userService;
         }
 
         public LoginResponseDTO? Login(UserLoginDTO userLogin) {
