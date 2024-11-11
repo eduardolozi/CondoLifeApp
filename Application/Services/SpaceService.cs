@@ -62,6 +62,7 @@ public class SpaceService(
         var spaceDb = GetById(id) ?? throw new ResourceNotFoundException("Espaço não encontrado.");
         spaceDb.Name = space.Name;
         spaceDb.Availability = space.Availability;
+        spaceDb.BookingPrice = space.BookingPrice;
         dbContext.SaveChanges();
         
         if (space.Photo.HasValue())

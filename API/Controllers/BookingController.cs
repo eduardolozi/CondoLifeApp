@@ -13,7 +13,7 @@ public class BookingController(BookingService bookingService) : ControllerBase
     public IActionResult GetAll([FromQuery] BookingFilter? filter = null)
     {
         var bookings = bookingService.GetAll(filter);
-        return bookings.Any() ? Ok(bookings) : NotFound();
+        return bookings.Any() ? Ok(bookings) : NoContent();
     }
 
     [HttpPost]

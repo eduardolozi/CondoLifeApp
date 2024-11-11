@@ -1,6 +1,5 @@
 ﻿@page "/espacos"
 @using BlazorApp.Components.Pages.Dialogs
-@using BlazorApp.Components.Pages.Dialogs
 @layout Layout.MainLayout
 @inject SpaceService SpaceService
 @inject AuthService AuthService
@@ -72,8 +71,7 @@ else
                                      Class="fw-bold">
                                 @space.Name
                             </MudText>
-                            <MudText Typo="Typo.subtitle1"
-                                     Class="fw-bold">
+                            <MudText Typo="Typo.subtitle1">
                                 Valor da reserva: R$ @(space.BookingPrice ?? 0)
                             </MudText>
                         </div>
@@ -105,7 +103,8 @@ else
                                    Class="mx-2 phone-button"
                                    Variant="Variant.Outlined"
                                    StartIcon="@Icons.Material.Filled.Assignment"
-                                   Color="Color.Warning">
+                                   Color="Color.Warning"
+                                   OnClick="@(async () => await OpenBookingDialog(space))">
                             Agendamentos
                         </MudButton>
                     </MudCardActions>
@@ -218,5 +217,15 @@ else
                 await GetSpaces();
             });
         }
+    }
+
+    async Task OpenBookingDialog(Space space)
+    {
+        var parameters = new DialogParameters<SpaceBookingDialog>
+        {
+            {x => x.SpaceId, space.Id}
+        };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<SpaceBookingDialog>($"Agendamentos {space.Name}", parameters, options);
     }
 }

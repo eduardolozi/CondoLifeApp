@@ -65,7 +65,7 @@
 @code {
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
     [Parameter] public int CondominiumId { get; set; }
-[Parameter] public Space Space { get; set; } = new();
+    [Parameter] public Space Space { get; set; } = new();
     
     private async Task Submit()
     {
