@@ -18,7 +18,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Nome">@context.Name</MudTd>
-        <MudTd DataLabel="Apartamento">@($"{context.Apartment}-{context.Block ?? string.Empty}")</MudTd>
+        <MudTd DataLabel="Apartamento">@($"{context.Apartment}{(string.IsNullOrEmpty(context.Block) ? string.Empty : $"-{context.Block}")}")</MudTd>
         <MudTd DataLabel="Cargo">@(context.Role.GetEnumDescription<UserRoleEnum>())</MudTd>
         <MudTd Class="d-flex flex-row justify-content-end">
             <MudButton Variant="Variant.Outlined" Color="Color.Info" Size="Size.Small" OnClick="@(async () => await OpenUserDialog(@context))">Visualizar</MudButton>
@@ -45,7 +45,17 @@
     {
         var parameters = new DialogParameters<UserViewDialog>
         {
-            {x => x.User, user}
+            {x => x.User, new User
+            {
+                Apartment = user.Apartment,
+                Block = user.Block,
+                Name = user.Name,
+                Role = user.Role,
+                Id = user.Id,
+                Email = user.Email,
+                PhotoUrl = user.PhotoUrl,
+                CondominiumId = user.CondominiumId,
+            }}
         };
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
         var dialog = await DialogService.ShowAsync<UserViewDialog>("Visualização do usuário", parameters, options);
