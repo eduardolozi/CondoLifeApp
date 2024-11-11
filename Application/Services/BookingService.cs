@@ -12,7 +12,7 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
 {
     public List<Booking> GetAll(BookingFilter? filter)
     {
-        var query = dbContext.Booking.AsNoTracking().AsQueryable();
+        var query = dbContext.Booking.AsNoTracking().Include(x => x.User).AsQueryable();
         if (filter != null)
         {
             if (filter.SpaceId.HasValue)
@@ -31,7 +31,16 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 query = query.Where(x => x.UserId == filter.UserId);
         }
         
-        return query.ToList();
+        return query.Select(x => new Booking
+        {
+            Id = x.Id,
+            SpaceId = x.SpaceId,
+            Status = x.Status,
+            InitialDate = x.InitialDate,
+            FinalDate = x.FinalDate,
+            UserId = x.UserId,
+            Username = x.User.Name
+        }).ToList();
     }
 
     public void Create(Booking booking)

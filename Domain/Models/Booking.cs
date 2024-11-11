@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Domain.Enums;
 
 namespace Domain.Models {
@@ -14,6 +15,9 @@ namespace Domain.Models {
         public string? Description { get; set; }
         
         public int UserId { get; set; }
+        
+        [NotMapped]
+        public string? Username { get; set; }
         
         [JsonIgnore]
         public User? User { get; set; }

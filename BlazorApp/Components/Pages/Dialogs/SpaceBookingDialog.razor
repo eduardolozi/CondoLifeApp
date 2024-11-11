@@ -30,16 +30,16 @@
                 {
                     <div class="d-flex flex-row align-items-start justify-content-start w-100 mb-3" style="padding-bottom: 6px; border-bottom-width: 1px; border-color: rgba(189,186,186,0.29)">
                         <div class="d-flex flex-column justify-content-center align-items-start">
-                            <MudText Typo="Typo.body1" Class="fw-bold">Eduardo Lozano</MudText>
+                            <MudText Typo="Typo.body1" Class="fw-bold">@booking.Username</MudText>
                             <MudText Typo="Typo.body1">Junho 15, 8:00 - 17:00</MudText>
-                            <MudText Class="mt-2" Typo="Typo.body2">Observação: Aniversário, traremos caixa de som e bebidas.</MudText>
+                            <MudText Class="mt-2" Typo="Typo.body2">@booking.Description</MudText>
                         </div>
                         <MudSpacer></MudSpacer>
                         <MudChip T="string"
                                  Class="mb-2"
                                  Size="Size.Small"
-                                 Color="Color.Success">
-                            Confirmado
+                                 Color="@(booking.Status is BookingStatusEnum.Confirmed ? Color.Success : Color.Warning)">
+                            @booking.Status
                         </MudChip>
                     </div>
                 }
