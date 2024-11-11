@@ -30,9 +30,20 @@
                 {
                     <div class="d-flex flex-row align-items-start justify-content-start w-100 mb-3" style="padding-bottom: 6px; border-bottom-width: 1px; border-color: rgba(189,186,186,0.29)">
                         <div class="d-flex flex-column justify-content-center align-items-start">
-                            <MudText Typo="Typo.body1" Class="fw-bold">@booking.Username</MudText>
-                            <MudText Typo="Typo.body1">@($"{booking.InitialDate.Day}/{booking.InitialDate.Month}, {booking.InitialDate.Hour}h - {booking.FinalDate.Hour}h")</MudText>
-                            <MudText Class="mt-2" Typo="Typo.body2">@booking.Description</MudText>
+                            <MudText Typo="Typo.body1" Class="fw-bold">Morador:</MudText>
+                            <MudText Class="mb-2" Typo="Typo.body2">@booking.Username</MudText>
+                            <div class="d-flex flex-row justify-content-between align-items-center">
+                                <div class="d-flex flex-column justify-content-center align-items-start me-4">
+                                    <MudText Typo="Typo.body1" Class="fw-bold">Data:</MudText>
+                                    <MudText Class="mb-2" Typo="Typo.body2">@($"{booking.InitialDate.Day}/{booking.InitialDate.Month}")</MudText>
+                                </div>
+                                <div class="d-flex flex-column justify-content-center align-items-start">
+                                    <MudText Typo="Typo.body1" Class="fw-bold">Horário:</MudText>
+                                    <MudText Class="mb-2" Typo="Typo.body2">@($"{booking.InitialDate.Hour}h - {booking.FinalDate.Hour}h")</MudText>
+                                </div>
+                            </div>
+                            <MudText Typo="Typo.body1" Class="fw-bold">Observação:</MudText>
+                            <MudText Class="mb-2" Typo="Typo.body2">@booking.Description</MudText>
                         </div>
                         <MudSpacer></MudSpacer>
                         <MudChip T="string"

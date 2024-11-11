@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using BlazorApp.Models;
 using Domain.Exceptions;
 using Domain.Models;
 using Domain.Utils;
@@ -9,6 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Utilities;
 using Raven.Client.Documents;
+using Photo = Domain.Models.Photo;
+using User = Domain.Models.User;
 
 namespace Application.Services {
     public class UserService(
@@ -20,8 +23,22 @@ namespace Application.Services {
     {
         private readonly PasswordHasher<User> _passworHasher = new();
 
-        public List<User> GetAll() { 
-            return [.. dbContext.Users];
+        public List<User> GetAll(UserFilter? filter = null) { 
+            var query = dbContext.Users.AsNoTracking().AsQueryable();
+            
+            if (filter is not null)
+            {
+                if (filter.CondominiumId.HasValue)
+                    query = query.Where(x => x.CondominiumId == filter.CondominiumId);
+                
+                if (filter.Username.HasValue())
+                    query = query.Where(x => EF.Functions.Like(x.Name, $"%{filter.Username}%"));
+                
+                if (filter.Role.HasValue)
+                    query = query.Where(x => (int)x.Role == (int)filter.Role);
+            }
+            
+            return query.ToList();
         }
 
         public User? GetById(int id) {

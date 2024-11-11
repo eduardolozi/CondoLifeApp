@@ -1,0 +1,99 @@
+﻿@layout Layout.MainLayout
+@inject UserService UserService
+@inject IDialogService DialogService
+
+<style>
+    .dialog {
+        width: 50%;
+    }
+
+    @@media (max-width: 760px) {
+        .dialog {
+            width: 85%;
+        }
+    }
+</style>
+
+<MudDialog Class="dialog">
+    <DialogContent>
+        <MudCard Class="d-flex flex-column align-items-center" Elevation="0">
+            <MudCardContent Style="width: 100%" Class="d-flex flex-column align-items-center">
+                <MudImage Elevation="5" Style="width: 150px; height: 150px; border-radius: 50%;" Src="@_base64Image"></MudImage>
+                <MudTextField Placeholder="Nome"
+                              @bind-Value="User.Name"
+                              Variant="Variant.Outlined"
+                              Class="mt-3 mb-5"
+                              FullWidth="true"
+                              Disabled="true">
+                </MudTextField>
+                <MudTextField Placeholder="Email"
+                              @bind-Value="User.Email"
+                              Variant="Variant.Outlined"
+                              Class="mb-5"
+                              FullWidth="true"
+                              Disabled="true">
+                </MudTextField>
+                <MudPaper Style="width: 100%" Elevation="0" Class="d-flex flex-row">
+                    <MudTextField Placeholder="N° Apto"
+                                  @bind-Value="User.Apartment"
+                                  Variant="Variant.Outlined"
+                                  Style="width: 55%"
+                                  FullWidth="true"
+                                  Disabled="true">
+                    </MudTextField>
+                    <MudTextField Placeholder="Bloco"
+                                  @bind-Value="User.Block"
+                                  Variant="Variant.Outlined"
+                                  Style="width: 50%"
+                                  FullWidth="true"
+                                  Disabled="true">
+                    </MudTextField>
+                </MudPaper>
+                <div class="w-100 mt-3">
+                    <MudRadioGroup @bind-Value="User.Role">
+                        <MudRadio Color="Color.Primary" Value="@UserRoleEnum.Resident">Morador comum</MudRadio>
+                        <MudRadio Color="Color.Primary" Value="@UserRoleEnum.Counselor">Conselheiro</MudRadio>
+                        <MudRadio Color="Color.Primary" Value="@UserRoleEnum.Manager">Síndico</MudRadio>
+                    </MudRadioGroup>
+                </div>
+            </MudCardContent>
+            <MudCardActions Class="w-100">
+                <MudButton Class="mt-3 w-100"
+                           Style="background-color: #019863; color: white"
+                           Size="Size.Large"
+                           Variant="Variant.Filled"
+                           OnClick="Submit">
+                    Salvar alterações
+                </MudButton>
+            </MudCardActions>
+            @if (_isLoading) {
+                <MudProgressCircular Class="my-3" Indeterminate="true" Color="Color.Primary" />
+            }
+        </MudCard>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public User User { get; set; }
+    string? _base64Image = null;
+    bool _isLoading;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var param = string.IsNullOrEmpty(User.PhotoUrl) ? $"{User.Id}/photo" : User.PhotoUrl; 
+            var photo = await UserService.GetPhoto(param);
+            if (photo is not null)
+            {
+                _base64Image = string.IsNullOrEmpty(photo.ContentBase64) ? "/blank-profile-picture.png" : $"data:image/png;base64,{photo.ContentBase64}";
+                StateHasChanged();
+            }
+        }
+    }
+
+    async Task Submit()
+    {
+        
+    }
+}

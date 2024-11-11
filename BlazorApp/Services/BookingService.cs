@@ -15,19 +15,19 @@ public class BookingService(HttpClient httpClient)
             {
                 queryParams += "?";
                 if (filter.FinalDate.HasValue)
-                    queryParams += $"filter.FinalDate={filter.FinalDate}";
+                    queryParams += $"filter.FinalDate={filter.FinalDate}&";
             
                 if (filter.InitialDate.HasValue)
-                    queryParams += $"&filter.InitialDate={filter.InitialDate}";
+                    queryParams += $"filter.InitialDate={filter.InitialDate}&";
             
                 if(filter.Status.HasValue)
-                    queryParams += $"&filter.Status={filter.Status}";
+                    queryParams += $"filter.Status={filter.Status}&";
             
                 if (filter.UserId.HasValue)
-                    queryParams += $"&filter.UserId={filter.UserId}";
+                    queryParams += $"filter.UserId={filter.UserId}&";
             
                 if (filter.SpaceId.HasValue)
-                    queryParams += $"&filter.SpaceId={filter.SpaceId}";
+                    queryParams += $"filter.SpaceId={filter.SpaceId}";
             }
 
             var response = await httpClient.GetAsync(queryParams);

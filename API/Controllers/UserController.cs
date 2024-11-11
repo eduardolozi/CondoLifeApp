@@ -2,9 +2,11 @@
 using Application.DTOs;
 using Application.Interfaces;
 using Application.Services;
-using Domain.Models;
+using BlazorApp.Models;
 using Domain.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Photo = Domain.Models.Photo;
+using User = Domain.Models.User;
 
 namespace API.Controllers {
     [Route("api/[controller]")]
@@ -17,7 +19,7 @@ namespace API.Controllers {
     {
 
         [HttpGet]
-        public IActionResult GetAll() {
+        public IActionResult GetAll(UserFilter? filter = null) {
             var users = userService.GetAll();
             return users.HasValue() ? Ok(users) : NotFound();
         }

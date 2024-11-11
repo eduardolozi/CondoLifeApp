@@ -85,28 +85,42 @@ else
                     <MudCardActions Class="card-buttons mb-1">
                         <MudButton Size="Size.Small"
                                    Class="mx-2 phone-button"
-                                   Variant="Variant.Outlined"
-                                   StartIcon="@Icons.Material.Filled.Edit"
-                                   Color="Color.Info"
-                                   OnClick="@(async () => await OpenEditDialog(space))">
-                            Editar
+                                   Style="background-color: #55479c; color: white;"
+                                   Variant="Variant.Filled"
+                                   StartIcon="@Icons.Material.Filled.CalendarMonth">
+                            Reservar
                         </MudButton>
-                        <MudButton Size="Size.Small"
-                                   Class="mx-1 phone-button"
-                                   Variant="Variant.Outlined"
-                                   StartIcon="@Icons.Material.Filled.Delete"
-                                   Color="Color.Error"
-                                   OnClick="@(async () => await DeleteSpace(space.Id))">
-                            Remover
-                        </MudButton>
-                        <MudButton Size="Size.Small"
-                                   Class="mx-2 phone-button"
-                                   Variant="Variant.Outlined"
-                                   StartIcon="@Icons.Material.Filled.Assignment"
-                                   Color="Color.Warning"
-                                   OnClick="@(async () => await OpenBookingDialog(space))">
-                            Agendamentos
-                        </MudButton>
+                        @if (_user is not null)
+                        {
+                            @if (_user.Role is UserRoleEnum.Manager)
+                            {
+                                <MudButton Size="Size.Small"
+                                           Class="mx-1 phone-button"
+                                           Variant="Variant.Outlined"
+                                           StartIcon="@Icons.Material.Filled.Edit"
+                                           Color="Color.Info"
+                                           OnClick="@(async () => await OpenEditDialog(space))">
+                                    Editar
+                                </MudButton>
+                                <MudButton Size="Size.Small"
+                                           Class="mx-1 phone-button"
+                                           Variant="Variant.Outlined"
+                                           StartIcon="@Icons.Material.Filled.Delete"
+                                           Color="Color.Error"
+                                           OnClick="@(async () => await DeleteSpace(space.Id))">
+                                    Remover
+                                </MudButton>
+                                <MudButton Size="Size.Small"
+                                           Class="mx-2 phone-button"
+                                           Variant="Variant.Outlined"
+                                           StartIcon="@Icons.Material.Filled.Assignment"
+                                           Color="Color.Warning"
+                                           OnClick="@(async () => await OpenBookingDialog(space))">
+                                    Agendamentos
+                                </MudButton>
+                            }
+                        }
+
                     </MudCardActions>
                 </MudCard>
             }
