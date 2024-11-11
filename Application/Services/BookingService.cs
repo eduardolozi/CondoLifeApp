@@ -40,7 +40,7 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
             FinalDate = x.FinalDate,
             UserId = x.UserId,
             Username = x.User.Name
-        }).ToList();
+        }).OrderBy(x => x.InitialDate).ToList();
     }
 
     public void Create(Booking booking)
