@@ -13,6 +13,8 @@ namespace Domain.Models {
         public string? PhotoUrl { get; set; }
 
         public bool Availability { get; set; }
+        
+        public double? BookingPrice { get; set; }
 
         public int CondominiumId {  get; set; }
 

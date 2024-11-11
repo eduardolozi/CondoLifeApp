@@ -7,18 +7,18 @@
 
 <PageTitle>Login</PageTitle>
 
-<MudGrid Class="d-flex flex-column align-items-center mt-5" Justify="Justify.FlexStart" Style="height: 100vh; padding-bottom:8rem;">
+<MudGrid Class="d-flex flex-column align-items-center mt-0" Justify="Justify.FlexStart" Style="height: 100vh; padding-bottom:8rem;">
     <MudItem Class="d-flex flex-column align-items-center"
              xs="5"
              sm="3">
 
         <MudPaper Class="d-flex flex-column align-items-center pt-6"
                   Width="180%"
-                  Elevation="5">
+                  Elevation="1">
 
             <MudText Class="mb-8"
-                     Typo="Typo.h5"
-                     Style="color: #48a239; font-weight: bold">
+                     Typo="Typo.h4"
+                     Style="color: #0A0A0A; font-weight: bold">
                 Seja bem vindo!
             </MudText>
 
@@ -49,8 +49,8 @@
             </MudContainer>
 
             <MudButton Class="mb-7 w-75"
+                       Style="border-radius: 20px; background-color: #019863; color: white"
                        ButtonType="ButtonType.Submit"
-                       Color="Color.Success"
                        Variant="Variant.Filled"
                        Size="Size.Large"
                        OnClick="SubmitLogin">

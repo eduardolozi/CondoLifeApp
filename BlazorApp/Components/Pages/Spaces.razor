@@ -67,10 +67,16 @@ else
                     </MudCardHeader>
                     <MudCardContent Style="padding-top: 0 !important;"
                                     Class="d-flex flex-row justify-content-between">
-                        <MudText Typo="Typo.h5"
-                                 Class="fw-bold">
-                            @space.Name
-                        </MudText>
+                        <div class="d-flex flex-column justify-content-center align-items-start">
+                            <MudText Typo="Typo.h5"
+                                     Class="fw-bold">
+                                @space.Name
+                            </MudText>
+                            <MudText Typo="Typo.subtitle1"
+                                     Class="fw-bold">
+                                Valor da reserva: R$ @(space.BookingPrice ?? 0)
+                            </MudText>
+                        </div>
                         <MudChip T="string"
                                  Class="mb-2"
                                  Size="Size.Small"
@@ -197,7 +203,8 @@ else
                                                 Name = space.Name,
                                                 Availability = space.Availability,
                                                 Photo = space.Photo,
-                                                PhotoUrl = space.PhotoUrl
+                                                PhotoUrl = space.PhotoUrl,
+                                                BookingPrice = space.BookingPrice
                                             }
             }
         };

@@ -37,13 +37,13 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
     public void Create(Booking booking)
     {
         bookingValidator.ValidateAndThrow(booking);
-        if (booking.Status != BookingStatusEnum.Pending)
+        if (booking.Status != BookingStatusEnum.Pending || booking.Status != BookingStatusEnum.AwaitingPayment)
         {
             var statusError = new List<ValidationFailure>
             {
                 new()
                 {
-                    ErrorMessage = "O status de uma reserva criada deve ser pendente."
+                    ErrorMessage = "O status de uma reserva criada deve ser pendente ou aguardando pagamento."
                 }
             };
             
