@@ -50,7 +50,7 @@
                                  Class="mb-2"
                                  Size="Size.Small"
                                  Color="@(booking.Status is BookingStatusEnum.Confirmed ? Color.Success : Color.Warning)">
-                            @booking.Status
+                            @(booking.Status.GetEnumDescription<BookingStatusEnum>())
                         </MudChip>
                     </div>
                 }

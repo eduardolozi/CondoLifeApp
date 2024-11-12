@@ -1,4 +1,6 @@
-﻿namespace BlazorApp.Models;
+﻿using BlazorApp.Enums;
+
+namespace BlazorApp.Models;
 
 public class Booking
 {

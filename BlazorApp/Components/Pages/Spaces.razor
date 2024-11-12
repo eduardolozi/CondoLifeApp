@@ -87,7 +87,8 @@ else
                                    Class="mx-2 phone-button"
                                    Style="background-color: #55479c; color: white;"
                                    Variant="Variant.Filled"
-                                   StartIcon="@Icons.Material.Filled.CalendarMonth">
+                                   StartIcon="@Icons.Material.Filled.CalendarMonth"
+                                   Disabled="@(!space.Availability)">
                             Reservar
                         </MudButton>
                         @if (_user is not null)
