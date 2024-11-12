@@ -47,7 +47,7 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
     public void Create(Booking booking)
     {
         bookingValidator.ValidateAndThrow(booking);
-        if (booking.Status != BookingStatusEnum.Pending || booking.Status != BookingStatusEnum.AwaitingPayment)
+        if (booking.Status != BookingStatusEnum.Pending && booking.Status != BookingStatusEnum.AwaitingPayment)
         {
             var statusError = new List<ValidationFailure>
             {
