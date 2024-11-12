@@ -1,6 +1,8 @@
-﻿@layout Layout.MainLayout
+﻿@using BlazorApp.DTOs
+@layout Layout.MainLayout
 @inject UserService UserService
 @inject IDialogService DialogService
+@inject PageHelper PageHelper
 
 <style>
     .dialog {
@@ -94,6 +96,22 @@
 
     async Task Submit()
     {
+        try
+        {
+            await PageHelper.ShowBusy(ref _isLoading, async () =>
+            {
+                await UserService.ChangeRole(new ChangeUserRoleDTO
+                {
+                    UserId = User.Id,
+                    Role = User.Role
+                });
+            });
+        }
+        catch (Exception e)
+        {
+            await DialogService.ShowMessageBox("Erro!", e.Message, "Ok");
+        }
         
+        MudDialog.Close(DialogResult.Ok(true));
     }
 }

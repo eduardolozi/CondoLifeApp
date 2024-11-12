@@ -1,7 +1,9 @@
 ﻿@page "/Users"
 @using BlazorApp.Components.Pages.Dialogs
 @inject UserService UserService
+@inject AuthService AuthService
 @inject IDialogService DialogService
+@inject PageHelper PageHelper
 
 <PageTitle>Usuários</PageTitle>
 
@@ -32,11 +34,17 @@
 
 @code {
     List<User>? _users = [];
+    bool _isLoading;
+    User? _user = new User();
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _users = await UserService.GetAll();
+            _user = await AuthService.GetUserByClaims();
+            _users = await UserService.GetAll(new UserFilter
+            {
+                CondominiumId = _user!.CondominiumId
+            });
             StateHasChanged();
         }
     }
@@ -59,5 +67,17 @@
         };
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
         var dialog = await DialogService.ShowAsync<UserViewDialog>("Visualização do usuário", parameters, options);
+        var result = await dialog.Result;
+        if (result.Data is true)
+        {
+            await PageHelper.ShowBusy(ref _isLoading, async () =>
+            {
+                _users = await UserService.GetAll(new UserFilter
+                {
+                    CondominiumId = user.CondominiumId
+                });
+            });
+            StateHasChanged();
+        }
     }
 }

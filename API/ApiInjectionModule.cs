@@ -49,7 +49,8 @@ namespace API {
         {
             services.AddAuthorizationBuilder()
                 .AddPolicy("AdminOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"))
-                .AddPolicy("ManagerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Manager"));
+                .AddPolicy("ManagerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Manager"))
+                .AddPolicy("AdminOrManagerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin", "Manager"));
         }
 
 

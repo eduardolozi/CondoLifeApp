@@ -4,6 +4,7 @@ using Application.Interfaces;
 using Application.Services;
 using BlazorApp.Models;
 using Domain.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Photo = Domain.Models.Photo;
 using User = Domain.Models.User;
@@ -99,5 +100,13 @@ namespace API.Controllers {
 			userService.DeleteAll();
 			return NoContent();
 		}
-	}
+
+        [Authorize(Policy = "AdminOrManagerOnly")]
+        [HttpPatch("{id}/change-role")]
+        public NoContentResult ChangeRole([FromRoute] int id, [FromBody] ChangeUserRoleDTO changeRole)
+        {
+            userService.ChangeUserRole(changeRole);
+            return NoContent();
+        }
+    }
 }

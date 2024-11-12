@@ -1,12 +1,17 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
+using BlazorApp.DTOs;
 using BlazorApp.Models;
 using BlazorApp.Utils;
+using Blazored.LocalStorage;
 
 namespace BlazorApp.Services {
 	public class UserService {
 		private readonly HttpClient _httpClient;
-		public UserService(HttpClient httpClient) {
+		private readonly ILocalStorageService _localStorage;
+		public UserService(HttpClient httpClient, ILocalStorageService localStorage) {
 			_httpClient = httpClient;
+			_localStorage = localStorage;
 		}
 
 		public async Task<List<User>?> GetAll(UserFilter? filter = null)
@@ -75,6 +80,15 @@ namespace BlazorApp.Services {
 			{
 				throw new Exception(ex.Message, ex);
 			}
+		}
+
+		public async Task ChangeRole(ChangeUserRoleDTO changeUserRole)
+		{
+			var accessToken = await _localStorage.GetItemAsStringAsync("accessToken");
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+			var response = await _httpClient.PatchAsJsonAsync($"{changeUserRole.UserId}/change-role", changeUserRole);
+			if(!response.IsSuccessStatusCode)
+				await response.HandleResponseError();
 		}
 	}
 }

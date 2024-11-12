@@ -206,5 +206,13 @@ namespace Application.Services {
             }
             dbContext.SaveChanges();
         }
+
+        public void ChangeUserRole(ChangeUserRoleDTO changeUserRole)
+        {
+            var user = dbContext.Users.FirstOrDefault(x => x.Id == changeUserRole.UserId)
+                ?? throw new ResourceNotFoundException("Usuário não encontrado.");
+            user.Role = changeUserRole.Role;
+            dbContext.SaveChanges();
+        }
     }
 }
