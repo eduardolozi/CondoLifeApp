@@ -88,7 +88,8 @@ else
                                    Style="background-color: #55479c; color: white;"
                                    Variant="Variant.Filled"
                                    StartIcon="@Icons.Material.Filled.CalendarMonth"
-                                   Disabled="@(!space.Availability)">
+                                   Disabled="@(!space.Availability)"
+                                   OnClick="async () => await OpenRegisterBookingDialog(space.Id)">
                             Reservar
                         </MudButton>
                         @if (_user is not null)
@@ -241,6 +242,16 @@ else
             {x => x.SpaceId, space.Id}
         };
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
-        var dialog = await DialogService.ShowAsync<SpaceBookingDialog>($"Agendamentos {space.Name}", parameters, options);
+        await DialogService.ShowAsync<SpaceBookingDialog>($"Agendamentos {space.Name}", parameters, options);
+    }
+
+    async Task OpenRegisterBookingDialog(int id)
+    {
+        var parameters = new DialogParameters<RegisterBookingDialog>
+        {
+            {x => x.SpaceId, id}
+        };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<RegisterBookingDialog>($"Reservar", parameters, options);
     }
 }
