@@ -1,76 +1,47 @@
 ﻿@page "/RegisterBookingDialog"
 <style>
     .dialog {
-        width: 50%;
+        width: 30%;
     }
 
-    .dialog-content {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-    }
-    
     .dates-content {
         padding-left: 0;
+        padding-right: 0;
         display: flex;
         flex-direction: column;
         align-items: start;
         justify-content: center;
-        width: 50%;
+        width: 100%;
     }
     
     .text-field {
-        width: 50%;
+        width: 100%;
     }
     
-    @@media (max-width: 760px) {
-        .dialog {
-            width: 85%;
-        }
+    .mud-select {
+        width: 100%;
     }
     
     @@media (max-width: 1170px) {
-        .dialog-content {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: start;
-        }
-        
-        .dates-content {
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: start;
-            justify-content: center;
-            width: 100%;
-        }
-        
-        .text-field {
-            margin-top: 1rem;
-            width: 100%;
-        }
-        
-        .mud-select {
-            width: 100%;
+        .dialog {
+            width: 60%;
         }
     }
+    
+    
 </style>
 
 <MudDialog Class="dialog">
     <DialogContent>
-        <MudContainer Class="dialog-content mb-4">
-            <MudContainer Class="dates-content">
-                <MudDatePicker Label="Dia da reserva" @bind-Date="_date" ShowToolbar="false" Class="w-100"/>
-                <MudSelect T="string" Variant="Variant.Outlined" Label="Horário de início">
-                    @* <MudSelectItem Value="">09</MudSelectItem> *@
-                </MudSelect>
-                <MudSelect T="string" Variant="Variant.Outlined" Label="Horário de término">
-                    @* <MudSelectItem Value="09">09</MudSelectItem> *@
-                </MudSelect>
-            </MudContainer>
-            <MudTextField Placeholder="Observação" Variant="Variant.Outlined" Class="text-field" Lines="8" T="string"></MudTextField>
+        <MudContainer Class="dates-content mb-4">
+            <MudDatePicker Label="Dia da reserva" @bind-Date="_date" ShowToolbar="false" Class="w-100 mb-2"/>
+            <MudSelect Class="mb-2" T="string" Variant="Variant.Outlined" Label="Horário de início" AdornmentIcon="@Icons.Material.Outlined.Timer" icon>
+                @* <MudSelectItem Value="">09</MudSelectItem> *@
+            </MudSelect>
+            <MudSelect T="string" Variant="Variant.Outlined" Label="Horário de término" AdornmentIcon="@Icons.Material.Outlined.Timer">
+                @* <MudSelectItem Value="09">09</MudSelectItem> *@
+            </MudSelect>
+            <MudTextField Placeholder="Observação" Variant="Variant.Outlined" Class="text-field mt-3" Lines="4" T="string"></MudTextField>
         </MudContainer>
         <MudButton Class="w-100" Variant="Variant.Filled" Size="Size.Small" Style="background-color: #146c43; color: white">Reservar</MudButton>
     </DialogContent>
