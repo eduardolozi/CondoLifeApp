@@ -12,12 +12,13 @@ namespace Application.Validators {
             RuleLevelCascadeMode = CascadeMode.Stop;
             
             RuleFor(x => x)
-                .Must(IsUserAlreadyBookedInSpace).WithMessage("Não é possível fazer outra reserva no mesmo espaço quando já existe uma reserva cadastrada.")
-                .Must(IsSpaceAvailable).WithMessage("Espaço indisponível: não é possível fazer a reserva.")
-                .Must(InitialDateTimeMustBeAvailable).WithMessage("Já existe uma reserva para este horário")
-                .Must(x => x.FinalDate > x.InitialDate).WithMessage("A data final deve ser maior que a data inicial.")
+                .Must(x => x.InitialDate.Date > DateTime.Today.Date).WithMessage("A reserva deve ser feita com pelo menos um dia de antecedência")
+                .Must(x => x.FinalDate > x.InitialDate).WithMessage("O horário de termino deve ser maior que o horário de início.")
                 .Must(x => x.FinalDate < x.InitialDate.AddDays(1)).WithMessage("Os horários da reserva devem ser no mesmo dia.")
-                .Must(x => x.FinalDate.Hour is <= 22 and >= 10).WithMessage("O horário da reserva deve finalizar até 22:00");
+                .Must(x => x.FinalDate.Hour is <= 22 and >= 10).WithMessage("O horário da reserva deve finalizar até 22:00")
+                .Must(InitialDateTimeMustBeAvailable).WithMessage("Já existe uma reserva para este horário")
+                .Must(IsSpaceAvailable).WithMessage("Espaço indisponível: não é possível fazer a reserva.")
+                .Must(IsUserAlreadyBookedInSpace).WithMessage("Não é possível fazer outra reserva no mesmo espaço quando já existe uma reserva cadastrada.");
 
             RuleFor(x => x.InitialDate)
                 .NotEmpty().WithMessage("A data inicial deve ser informada")

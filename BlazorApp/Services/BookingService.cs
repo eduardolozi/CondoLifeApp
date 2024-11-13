@@ -44,4 +44,12 @@ public class BookingService(HttpClient httpClient)
             throw new Exception(e.Message, e);
         }
     }
+
+    public async Task Add(Booking booking)
+    {
+        var response = await httpClient.PostAsJsonAsync(string.Empty, booking);
+
+        if (!response.IsSuccessStatusCode)
+            await response.HandleResponseError();
+    }
 }

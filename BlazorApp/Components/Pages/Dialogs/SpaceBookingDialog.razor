@@ -28,7 +28,7 @@
             {
                 @foreach (var booking in _bookings)
                 {
-                    <div class="d-flex flex-row align-items-start justify-content-start w-100 mb-3" style="padding-bottom: 6px; border-bottom-width: 1px; border-color: rgba(189,186,186,0.29)">
+                    <div class="d-flex flex-row align-items-start justify-content-start w-100 mb-3" style="background-color: rgba(189,186,186,0.16); padding: 6px 6px 6px 12px; border-radius: 8px">
                         <div class="d-flex flex-column justify-content-center align-items-start">
                             <MudText Typo="Typo.body1" Class="fw-bold">Morador:</MudText>
                             <MudText Class="mb-2" Typo="Typo.body2">@booking.Username</MudText>
@@ -60,7 +60,6 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
     [Parameter] public int SpaceId { get; set; }
     List<Booking>? _bookings = []; 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -73,10 +72,5 @@
             });
             StateHasChanged();
         }
-    }
-
-    async Task Submit()
-    {
-        
     }
 }
