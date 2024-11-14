@@ -8,7 +8,7 @@ using Shared.DTOs;
 
 namespace Worker.BackgroundServices;
 
-public class NotificationBackgroundService(RabbitService rabbitService, IHubNotifier hubNotifier) : BackgroundService
+public class NotificationBackgroundService(RabbitService rabbitService, IServiceProvider serviceProvider) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -29,7 +29,7 @@ public class NotificationBackgroundService(RabbitService rabbitService, IHubNoti
                             Body = notification.Message.Body,
                             Link = notification.Message.Link
                         };
-                        
+                        var hubNotifier = serviceProvider.GetRequiredService<IHubNotifier>();
                         await hubNotifier.SendNotificationToAdmin(notificationPayload);
                     }
                     

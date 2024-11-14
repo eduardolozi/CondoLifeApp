@@ -1,5 +1,4 @@
 ﻿@page "/espacos"
-@using BlazorApp.Components.Pages.Dialogs
 @layout Layout.MainLayout
 @inject SpaceService SpaceService
 @inject AuthService AuthService
@@ -143,6 +142,23 @@ else
     List<Space> _spaces = [];
     bool _isLoading = true;
     User? _user;
+    private HubConnection _hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7031/notificationHub")
+            .Build();
+
+        _hubConnection.On<NotificationPayloadDTO>("SendNotificationToAdmin", async (message) =>
+        {
+            await DialogService.ShowMessageBox(message.Header, message.Body);
+        });
+
+        await _hubConnection.StartAsync();
+    }
+
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
