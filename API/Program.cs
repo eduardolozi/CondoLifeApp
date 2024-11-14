@@ -38,6 +38,6 @@ app.UseExceptionHandler();
 
 app.MapControllers();
 
-app.MapHub<EmailNotificationHub>("/emailNotificationHub");
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

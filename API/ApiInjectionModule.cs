@@ -52,7 +52,5 @@ namespace API {
                 .AddPolicy("ManagerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Manager"))
                 .AddPolicy("AdminOrManagerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin", "Manager"));
         }
-
-
     } 
 }

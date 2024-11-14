@@ -4,11 +4,12 @@ using Domain.Models.Filters;
 using FluentValidation;
 using FluentValidation.Results;
 using Infraestructure;
+using Infraestructure.Rabbit;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
-public class BookingService(CondoLifeContext dbContext, AbstractValidator<Booking> bookingValidator)
+public class BookingService(CondoLifeContext dbContext, AbstractValidator<Booking> bookingValidator, RabbitService rabbitService)
 {
     public List<Booking> GetAll(BookingFilter? filter)
     {
@@ -62,5 +63,17 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
         
         dbContext.Booking.Add(booking);
         dbContext.SaveChanges();
+
+        var username = dbContext.Users.AsNoTracking().First(x => x.Id == booking.UserId);
+        var notification = new Notification
+        {
+            NotificationType = NotificationTypeEnum.BookingCreated,
+            Message = new NotificationPayload
+            {
+                Header = "Uma nova reserva foi solicitada!",
+                Body = $"{username} solicitou uma reserva."
+            }
+        };
+        rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
     }
 }

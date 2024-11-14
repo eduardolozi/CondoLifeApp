@@ -6,5 +6,6 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddInfraServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddHostedService<EmailBackgroundService>();
+builder.Services.AddHostedService<NotificationBackgroundService>();
 var host = builder.Build();
 host.Run();
