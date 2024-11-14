@@ -3,10 +3,12 @@ using Domain.Enums;
 using Domain.Models;
 using Infraestructure.Rabbit;
 using Newtonsoft.Json;
+using Shared;
+using Shared.DTOs;
 
 namespace Worker.BackgroundServices;
 
-public class NotificationBackgroundService(RabbitService rabbitService) : BackgroundService
+public class NotificationBackgroundService(RabbitService rabbitService, IHubNotifier hubNotifier) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -21,7 +23,14 @@ public class NotificationBackgroundService(RabbitService rabbitService) : Backgr
 
                     if (notification.NotificationType is NotificationTypeEnum.BookingCreated)
                     {
+                        var notificationPayload = new NotificationPayloadDTO
+                        {
+                            Header = notification.Message.Header,
+                            Body = notification.Message.Body,
+                            Link = notification.Message.Link
+                        };
                         
+                        await hubNotifier.SendNotificationToAdmin(notificationPayload);
                     }
                     
                     rabbitService.Ack(e.DeliveryTag);

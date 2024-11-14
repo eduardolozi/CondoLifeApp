@@ -1,12 +1,13 @@
 ﻿using System.Security.Claims;
 using BlazorApp.Enums;
 using Microsoft.AspNetCore.SignalR;
+using Shared.DTOs;
 
 namespace API.Hubs;
 
 public interface INotificationHub
 {
-    public Task ReceiveCreatedBookingNotification(string message);
+    public Task SendNotificationToAdmin(NotificationPayloadDTO message);
 }
 
 public class NotificationHub : Hub<INotificationHub>
@@ -19,10 +20,5 @@ public class NotificationHub : Hub<INotificationHub>
             await Groups.AddToGroupAsync(Context.ConnectionId, nameof(UserRoleEnum.Manager));
         }
         await base.OnConnectedAsync();
-    }
-
-    public async Task SendCreatedBookingNotification(string message)
-    {
-        await Clients.Group(nameof(UserRoleEnum.Manager)).ReceiveCreatedBookingNotification(message);
     }
 }
