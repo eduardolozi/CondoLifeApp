@@ -18,6 +18,9 @@ namespace BlazorApp.Services {
 		{
 			try
 			{
+				var accessToken = await _localStorage.GetItemAsStringAsync("accessToken");
+				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+				
 				var queryParams = string.Empty;
 				if (filter is not null)
 				{
@@ -71,6 +74,8 @@ namespace BlazorApp.Services {
 		{
 			try
 			{
+				var accessToken = await _localStorage.GetItemAsStringAsync("accessToken");
+				_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 				var response = await _httpClient.PatchAsJsonAsync($"{user.Id}", user);
 				response.EnsureSuccessStatusCode();
 				var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();

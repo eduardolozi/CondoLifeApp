@@ -11,6 +11,7 @@ namespace API.Controllers;
 [ApiController]
 public class SpaceController(SpaceService spaceService) : ControllerBase
 {
+    [Authorize]
     [HttpGet]
     public IActionResult GetAll([FromQuery] SpaceFilter? filter = null)
     {
@@ -18,6 +19,7 @@ public class SpaceController(SpaceService spaceService) : ControllerBase
         return spaces.HasValue() ? Ok(spaces) : NotFound();
     }
     
+    [Authorize]
     [HttpGet("{id}")]
     public IActionResult GetAll([FromRoute] int id)
     {
@@ -25,13 +27,14 @@ public class SpaceController(SpaceService spaceService) : ControllerBase
         return space.HasValue() ? Ok(space) : NotFound();
     }
     
+    [Authorize]
     [HttpGet("{id}/photo")]
     public IActionResult GetSpacePhoto([FromRoute] int id)
     {
         var photo = spaceService.GetSpacePhoto(id);
         return Ok(photo);
     }
-
+    
     [HttpPost]
     [Authorize(Policy = "ManagerOnly")]
     public NoContentResult Add([FromBody] Space space)

@@ -3,9 +3,11 @@ using System.Security.Cryptography;
 using API.Handlers;
 using API.Hubs;
 using API.Hubs.Services;
+using Domain.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
-using Shared;
 
 namespace API {
     public static class ApiInjectionModule {
@@ -18,8 +20,6 @@ namespace API {
             services.AddProblemDetails();
             services.AddSignalR();
             services.AddExceptionHandler<ExceptionHandler>();
-            services.AddScoped<EmailNotificationHub>();
-            services.AddScoped<IHubNotifier, HubNotifier>();
         }
 
         private static void ConfigureAuthentication(this IServiceCollection services) {

@@ -1,6 +1,6 @@
-﻿namespace BlazorApp.DTOs;
+﻿namespace BlazorApp.Models;
 
-public class NotificationPayloadDTO
+public class NotificationPayload
 {
     public string Header { get; set; }
     public string Body { get; set; }

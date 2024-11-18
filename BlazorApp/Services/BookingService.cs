@@ -1,15 +1,19 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using BlazorApp.Models;
 using BlazorApp.Utils;
+using Blazored.LocalStorage;
 
 namespace BlazorApp.Services;
 
-public class BookingService(HttpClient httpClient)
+public class BookingService(HttpClient httpClient, ILocalStorageService localStorage)
 {
     public async Task<List<Booking>?> GetBookings(BookingFilter? filter = null)
     {
         try
         {
+            var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var queryParams = string.Empty;
             if (filter != null)
             {
@@ -47,6 +51,8 @@ public class BookingService(HttpClient httpClient)
 
     public async Task Add(Booking booking)
     {
+        var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var response = await httpClient.PostAsJsonAsync(string.Empty, booking);
 
         if (!response.IsSuccessStatusCode)

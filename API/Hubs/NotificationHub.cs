@@ -1,15 +1,17 @@
 ﻿using System.Security.Claims;
 using BlazorApp.Enums;
+using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Shared.DTOs;
 
 namespace API.Hubs;
 
 public interface INotificationHub
 {
-    public Task SendNotificationToAdmin(NotificationPayloadDTO message);
+    public Task SendNotificationToAdmin(NotificationPayload message);
 }
 
+[Authorize]
 public class NotificationHub : Hub<INotificationHub>
 {
     public override async Task OnConnectedAsync()
@@ -18,6 +20,7 @@ public class NotificationHub : Hub<INotificationHub>
         if (roleClaim.Value == nameof(UserRoleEnum.Manager))
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, nameof(UserRoleEnum.Manager));
+            var group = Groups;
         }
         await base.OnConnectedAsync();
     }

@@ -55,6 +55,7 @@ namespace API.Controllers {
             return Ok();
         }
 
+        [Authorize]
         [HttpPatch("{id}")]
         public IActionResult Update([FromRoute] int id, [FromBody] User user) { 
             userService.Update(id, user);
@@ -89,12 +90,14 @@ namespace API.Controllers {
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public NoContentResult Delete([FromRoute] int id) {
             userService.Delete(id);
             return NoContent();
         }
 
+        [Authorize]
 		[HttpDelete("all")]
 		public NoContentResult DeleteAll() {
 			userService.DeleteAll();

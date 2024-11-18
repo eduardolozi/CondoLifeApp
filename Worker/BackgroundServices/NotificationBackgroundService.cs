@@ -1,10 +1,9 @@
 ﻿using System.Text;
+using API.Hubs.Services;
 using Domain.Enums;
 using Domain.Models;
 using Infraestructure.Rabbit;
 using Newtonsoft.Json;
-using Shared;
-using Shared.DTOs;
 
 namespace Worker.BackgroundServices;
 
@@ -23,20 +22,16 @@ public class NotificationBackgroundService(RabbitService rabbitService, IService
 
                     if (notification.NotificationType is NotificationTypeEnum.BookingCreated)
                     {
-                        var notificationPayload = new NotificationPayloadDTO
-                        {
-                            Header = notification.Message.Header,
-                            Body = notification.Message.Body,
-                            Link = notification.Message.Link
-                        };
-                        var hubNotifier = serviceProvider.GetRequiredService<IHubNotifier>();
-                        await hubNotifier.SendNotificationToAdmin(notificationPayload);
+                        using var scope = serviceProvider.CreateScope();
+                        var hubNotifier = scope.ServiceProvider.GetRequiredService<HubNotifier>();
+                        await hubNotifier.SendNotificationToAdmin(notification.Message);
                     }
                     
                     rabbitService.Ack(e.DeliveryTag);
                 }
-                catch (Exception) {
+                catch (Exception ex) {
                     rabbitService.Nack(e.DeliveryTag, false);
+                    throw new Exception(ex.Message, ex);
                 }
             };
             await Task.Delay(1000, stoppingToken);

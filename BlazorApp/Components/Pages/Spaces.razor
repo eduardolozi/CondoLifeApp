@@ -4,6 +4,7 @@
 @inject AuthService AuthService
 @inject IDialogService DialogService
 @inject PageHelper PageHelper
+@inject IJSRuntime JSRuntime
 
 <style>
     .space-card {
@@ -143,21 +144,7 @@ else
     bool _isLoading = true;
     User? _user;
     private HubConnection _hubConnection;
-
-    protected override async Task OnInitializedAsync()
-    {
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl("https://localhost:7031/notificationHub")
-            .Build();
-
-        _hubConnection.On<NotificationPayloadDTO>("SendNotificationToAdmin", async (message) =>
-        {
-            await DialogService.ShowMessageBox(message.Header, message.Body);
-        });
-
-        await _hubConnection.StartAsync();
-    }
-
+    string token;
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -168,8 +155,23 @@ else
                 _user = await AuthService.GetUserByClaims();
                 await GetSpaces();
             });
+            
+            token = await JSRuntime.InvokeAsync<string>("getToken");
             StateHasChanged();
         }
+        _hubConnection = new HubConnectionBuilder()
+        .WithUrl("https://localhost:7031/notificationHub", options =>
+        {
+            options.Headers.Add("Authorization", $"Bearer {token}");
+        })
+        .Build();
+
+        _hubConnection.On<NotificationPayload>("SendNotificationToAdmin", async (message) =>
+        {
+            await DialogService.ShowMessageBox(message.Header, message.Body);
+        });
+
+        await _hubConnection.StartAsync();
     }
 
     async Task GetSpaces()

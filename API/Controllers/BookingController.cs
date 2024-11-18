@@ -1,6 +1,7 @@
 ﻿using Application.Services;
 using Domain.Models;
 using Domain.Models.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -9,6 +10,7 @@ namespace API.Controllers;
 [ApiController]
 public class BookingController(BookingService bookingService) : ControllerBase
 {
+    [Authorize]
     [HttpGet]
     public IActionResult GetAll([FromQuery] BookingFilter? filter = null)
     {
@@ -16,6 +18,7 @@ public class BookingController(BookingService bookingService) : ControllerBase
         return bookings.Any() ? Ok(bookings) : NoContent();
     }
 
+    [Authorize]
     [HttpPost]
     public IActionResult Add([FromBody] Booking booking)
     {

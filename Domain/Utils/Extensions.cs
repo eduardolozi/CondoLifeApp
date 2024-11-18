@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Http;
 
 namespace Domain.Utils {
     public static class Extensions {
@@ -10,6 +11,16 @@ namespace Domain.Utils {
         }
         public static bool IsEmpty<T>(this List<T> list) {
             return list.Count == 0;
+        }
+
+        public static bool ContainsSignalRHub(this string path)
+        {
+            var hubPaths = new HashSet<string>
+            {
+                "notificationHub",
+            };
+            
+            return hubPaths.Contains(path);
         }
     }
 }
