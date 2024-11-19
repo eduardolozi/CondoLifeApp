@@ -10,6 +10,8 @@ namespace Infraestructure {
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Space> Space { get; set; } 
         public DbSet<Booking> Booking { get; set; } 
+        public DbSet<Notification> Notification { get; set; } 
+        public DbSet<NotificationPayload> NotificationPayload { get; set; } 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             //env
