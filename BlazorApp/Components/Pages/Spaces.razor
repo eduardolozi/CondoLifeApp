@@ -5,6 +5,7 @@
 @inject IDialogService DialogService
 @inject PageHelper PageHelper
 @inject IJSRuntime JSRuntime
+@inject ISnackbar Snackbar
 
 <style>
     .space-card {
@@ -166,9 +167,20 @@ else
             })
             .WithAutomaticReconnect()
             .Build();
-            _hubConnection.On<NotificationPayload>("AdminReceiveNotification", async (message) =>
+            _hubConnection.On<NotificationPayload>("AdminReceiveNotification", (message) =>
             {
-                await DialogService.ShowMessageBox(message.Header, message.Body);
+                Snackbar.Clear();
+                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                Snackbar.Add
+                (
+                    @<div>
+                        <h5>@message.Header</h5>
+                        <ul>
+                            <li>@message.Body</li>
+                        </ul>
+                    </div>,
+                    Severity.Info
+                );
             });
             await _hubConnection.StartAsync();
         }
