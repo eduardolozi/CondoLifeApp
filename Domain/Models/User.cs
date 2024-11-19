@@ -35,5 +35,8 @@ namespace Domain.Models {
 
         [JsonIgnore]
         public Condominium? Condominium { get; set; }
+
+        [JsonIgnore] 
+        public List<Notification> Notifications { get; set; } = [];
     }
 }

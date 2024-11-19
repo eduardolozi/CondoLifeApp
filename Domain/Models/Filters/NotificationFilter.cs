@@ -1,6 +1,6 @@
 ﻿using Domain.Enums;
 
-namespace Application.Services;
+namespace Domain.Models.Filters;
 
 public class NotificationFilter
 {

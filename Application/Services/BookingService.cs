@@ -1,4 +1,5 @@
 ﻿using Domain.Enums;
+using Domain.Exceptions;
 using Domain.Models;
 using Domain.Models.Filters;
 using Domain.Utils;
@@ -68,8 +69,13 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
         var user = dbContext.Users.AsNoTracking().First(x => x.Id == booking.UserId);
         var block = user.Block.HasValue() ? $"-{user.Block}" : string.Empty;
         var userApartment = $"{user.Apartment}{block}";
+        
+        var condoManager = dbContext.Users.AsNoTracking().FirstOrDefault(x => x.Role == UserRoleEnum.Manager)
+            ?? throw new ResourceNotFoundException("Não foi encontrado síndico no condomínio.");
+        
         var notification = new Notification
         {
+            UserId = condoManager.Id,
             UserToken = token,
             NotificationType = NotificationTypeEnum.BookingCreated,
             Message = new NotificationPayload

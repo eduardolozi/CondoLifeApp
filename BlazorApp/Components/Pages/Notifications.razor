@@ -1,5 +1,9 @@
 ﻿@page "/notificacoes"
 @layout Layout.MainLayout
+@inject NotificationService NotificationService
+@inject PageHelper PageHelper
+@inject AuthService AuthService
+@inject IDialogService DialogService
 
 <PageTitle>Notificações</PageTitle>
 
@@ -10,29 +14,73 @@
     <MudButton Style="color: white; border-radius: 20px; border-color: white !important;" Variant="Variant.Outlined" Size="Size.Medium">Comunicados Gerais</MudButton>
     <MudButton Style="color: white; border-radius: 20px; border-color: white !important;" Variant="Variant.Outlined" Size="Size.Medium">Financeiro</MudButton>
 </MudContainer>
-<MudContainer Class="mt-5 h-75 w-50 mx-auto d-flex flex-column justify-content-start px-0">
-    <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="border-radius: 8px 8px 0 0; background-color: rgba(0, 162, 121, 0.22); border-bottom-width: 1px; border-color: #6c757d">
-        <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText>
-        <MudText Typo="Typo.body2">Eduardo Lozano fez o pagamento da reserva no espaço: Churrasqueira</MudText>
+@if (_isLoading)
+{
+    <div class="w-100 mt-5 d-flex flex-row justify-content-center align-items-center">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </div>
+}
+else
+{
+    <MudContainer Class="mt-5 h-75 w-50 mx-auto d-flex flex-column justify-content-start px-0">
+        @foreach (var notification in _notifications)
+        {
+            <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(189,186,186,0.16); border-bottom-width: 1px; border-color: #6c757d">
+                <MudText Typo="Typo.body1" Class="fw-bolder">@notification.Message.Header</MudText>
+                <MudText Typo="Typo.body2">@notification.Message.Body</MudText>
+            </MudContainer>
+        }
+        @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="border-radius: 8px 8px 0 0; background-color: rgba(0, 162, 121, 0.22); border-bottom-width: 1px; border-color: #6c757d"> *@
+        @*     <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText> *@
+        @*     <MudText Typo="Typo.body2">Eduardo Lozano fez o pagamento da reserva no espaço: Churrasqueira</MudText> *@
+        @* </MudContainer> *@
+        @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(0, 162, 121, 0.22); border-bottom-width: 1px; border-color: #6c757d"> *@
+        @*     <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText> *@
+        @*     <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText> *@
+        @* </MudContainer> *@
+        @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(189,186,186,0.16); border-bottom-width: 1px; border-color: #6c757d"> *@
+        @*     <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText> *@
+        @*     <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText> *@
+        @* </MudContainer> *@
+        @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(189,186,186,0.16); border-bottom-width: 1px; border-color: #6c757d"> *@
+        @*     <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText> *@
+        @*     <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText> *@
+        @* </MudContainer> *@
+        @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(189,186,186,0.16); border-bottom-width: 1px; border-color: #6c757d"> *@
+        @*     <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText> *@
+        @*     <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText> *@
+        @* </MudContainer> *@
     </MudContainer>
-    <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(0, 162, 121, 0.22); border-bottom-width: 1px; border-color: #6c757d">
-        <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText>
-        <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText>
-    </MudContainer>
-    <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(189,186,186,0.16); border-bottom-width: 1px; border-color: #6c757d">
-        <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText>
-        <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText>
-    </MudContainer>
-    <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(189,186,186,0.16); border-bottom-width: 1px; border-color: #6c757d">
-        <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText>
-        <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText>
-    </MudContainer>
-    <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(189,186,186,0.16); border-bottom-width: 1px; border-color: #6c757d">
-        <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText>
-        <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText>
-    </MudContainer>
-</MudContainer>
+}
+
+    
 
 @code {
+    List<Notification> _notifications = [];
+    bool _isLoading = true;
+    User? _user;
     
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await PageHelper.ShowBusy(ref _isLoading, async () =>
+            {
+                try
+                {
+                    _user = await AuthService.GetUserByClaims();
+                    _notifications = await NotificationService.GetAll(new NotificationFilter
+                    {
+                        UserId = _user.Id
+                    });
+                }
+                catch (Exception e)
+                {
+                    await DialogService.ShowMessageBox("Usuário não autorizado.", e.Message);
+                }
+            });
+            StateHasChanged();
+        }
+    }
+ 
 }

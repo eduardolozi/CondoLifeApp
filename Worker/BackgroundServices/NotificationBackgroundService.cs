@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using Application.Services;
 using Domain.Enums;
 using Domain.Models;
 using Infraestructure.Rabbit;
@@ -8,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Worker.BackgroundServices;
 
-public class NotificationBackgroundService(RabbitService rabbitService, IHttpClientFactory httpClientFactory) : BackgroundService
+public class NotificationBackgroundService(RabbitService rabbitService, IHttpClientFactory httpClientFactory, IServiceProvider serviceProvider) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -28,7 +29,10 @@ public class NotificationBackgroundService(RabbitService rabbitService, IHttpCli
                         var response = await httpClient.PostAsJsonAsync("https://localhost:7031/api/Notification/notify-admin", notification.Message);
                         response.EnsureSuccessStatusCode();
                     }
-                    
+
+                    using var scope = serviceProvider.CreateScope();
+                    var notificationService = scope.ServiceProvider.GetRequiredService<NotificationService>();
+                    notificationService.Insert(notification);
                     rabbitService.Ack(e.DeliveryTag);
                 }
                 catch (Exception ex) {

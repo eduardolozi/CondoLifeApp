@@ -15,6 +15,7 @@ namespace Application {
             services.AddScoped<CondominiumService>();
             services.AddScoped<SpaceService>();
             services.AddScoped<BookingService>();
+            services.AddScoped<NotificationService>();
 
             services.AddScoped<AbstractValidator<Space>, SpaceValidator>();
             services.AddScoped<AbstractValidator<Booking>, BookingValidator>();

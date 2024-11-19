@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using System.Security.Authentication;
+using Microsoft.JSInterop;
 using MudBlazor;
 
 namespace BlazorApp.Utils;
@@ -17,6 +18,10 @@ public class PageHelper
         {
             isLoading = true;
             return action();
+        }
+        catch (Exception ex)
+        {
+            throw new AuthenticationException("Usuário não autenticado! Faça o login para poder continuar.");
         }
         finally
         {

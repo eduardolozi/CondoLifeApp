@@ -35,6 +35,9 @@ builder.Services.AddHttpClient<SpaceService>(client => {
 builder.Services.AddHttpClient<BookingService>(client => {
 	client.BaseAddress = new Uri("https://localhost:7031/api/Booking/");
 });
+builder.Services.AddHttpClient<NotificationService>(client => {
+	client.BaseAddress = new Uri("https://localhost:7031/api/Notification/");
+});
 
 var app = builder.Build();
 

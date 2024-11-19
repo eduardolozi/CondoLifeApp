@@ -22,7 +22,6 @@ public class SpaceService
     {
         try
         {
-            
             var queryParameters = string.Empty;
             if (filter.CondominiumId != null) {
                 queryParameters += $"?filter.CondominiumId={filter.CondominiumId}";
