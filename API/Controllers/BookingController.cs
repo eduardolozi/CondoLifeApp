@@ -22,7 +22,9 @@ public class BookingController(BookingService bookingService) : ControllerBase
     [HttpPost]
     public IActionResult Add([FromBody] Booking booking)
     {
-        bookingService.Create(booking);
+        var authorizationHeader = HttpContext.Request.Headers.Authorization.ToString();
+        var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+        bookingService.Create(booking, token);
         return Ok();
     }
 }

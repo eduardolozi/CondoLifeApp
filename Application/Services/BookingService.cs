@@ -1,6 +1,7 @@
 ﻿using Domain.Enums;
 using Domain.Models;
 using Domain.Models.Filters;
+using Domain.Utils;
 using FluentValidation;
 using FluentValidation.Results;
 using Infraestructure;
@@ -45,7 +46,7 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
         }).OrderBy(x => x.InitialDate).ToList();
     }
 
-    public void Create(Booking booking)
+    public void Create(Booking booking, string token)
     {
         bookingValidator.ValidateAndThrow(booking);
         if (booking.Status != BookingStatusEnum.Pending && booking.Status != BookingStatusEnum.AwaitingPayment)
@@ -64,14 +65,17 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
         dbContext.Booking.Add(booking);
         dbContext.SaveChanges();
 
-        var username = dbContext.Users.AsNoTracking().First(x => x.Id == booking.UserId);
+        var user = dbContext.Users.AsNoTracking().First(x => x.Id == booking.UserId);
+        var block = user.Block.HasValue() ? $"-{user.Block}" : string.Empty;
+        var userApartment = $"{user.Apartment}{block}";
         var notification = new Notification
         {
+            UserToken = token,
             NotificationType = NotificationTypeEnum.BookingCreated,
             Message = new NotificationPayload
             {
                 Header = "Uma nova reserva foi solicitada!",
-                Body = $"{username} solicitou uma reserva."
+                Body = $"{user.Name} (apto. {userApartment}) solicitou uma reserva."
             }
         };
         rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);

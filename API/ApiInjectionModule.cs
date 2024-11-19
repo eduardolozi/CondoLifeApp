@@ -6,6 +6,7 @@ using API.Hubs.Services;
 using Domain.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,8 +19,13 @@ namespace API {
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddProblemDetails();
+            services.AddResponseCompression(options =>
+            {
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
+            });
             services.AddSignalR();
             services.AddExceptionHandler<ExceptionHandler>();
+            services.AddScoped<EmailNotificationHub>();
         }
 
         private static void ConfigureAuthentication(this IServiceCollection services) {

@@ -36,7 +36,7 @@
             </NavLink>
         </div>
         
-        @if (_user.Role is UserRoleEnum.Manager)
+        @if (_user.Role is UserRoleEnum.Manager || _user.Role is UserRoleEnum.Counselor)
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="espacos">

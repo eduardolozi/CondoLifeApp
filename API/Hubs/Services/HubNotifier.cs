@@ -9,6 +9,7 @@ public class HubNotifier(IHubContext<NotificationHub, INotificationHub> hubConte
     public async Task SendNotificationToAdmin(NotificationPayload message)
     {
         var group = hubContext.Clients.Group(nameof(UserRoleEnum.Manager));
-        await hubContext.Clients.Group(nameof(UserRoleEnum.Manager)).SendNotificationToAdmin(message);
+        // await hubContext.Clients.Group(nameof(UserRoleEnum.Manager)).SendNotificationToAdmin(message);
+        await hubContext.Clients.All.AdminReceiveNotification(message);
     }
 }

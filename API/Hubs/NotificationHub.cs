@@ -8,7 +8,7 @@ namespace API.Hubs;
 
 public interface INotificationHub
 {
-    public Task SendNotificationToAdmin(NotificationPayload message);
+    public Task AdminReceiveNotification(NotificationPayload message);
 }
 
 [Authorize]

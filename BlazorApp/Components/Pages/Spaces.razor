@@ -158,20 +158,20 @@ else
             
             token = await JSRuntime.InvokeAsync<string>("getToken");
             StateHasChanged();
+            
+            _hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7031/notificationHub", options =>
+            {
+                options.Headers.Add("Authorization", $"Bearer {token}");
+            })
+            .WithAutomaticReconnect()
+            .Build();
+            _hubConnection.On<NotificationPayload>("AdminReceiveNotification", async (message) =>
+            {
+                await DialogService.ShowMessageBox(message.Header, message.Body);
+            });
+            await _hubConnection.StartAsync();
         }
-        _hubConnection = new HubConnectionBuilder()
-        .WithUrl("https://localhost:7031/notificationHub", options =>
-        {
-            options.Headers.Add("Authorization", $"Bearer {token}");
-        })
-        .Build();
-
-        _hubConnection.On<NotificationPayload>("SendNotificationToAdmin", async (message) =>
-        {
-            await DialogService.ShowMessageBox(message.Header, message.Body);
-        });
-
-        await _hubConnection.StartAsync();
     }
 
     async Task GetSpaces()
