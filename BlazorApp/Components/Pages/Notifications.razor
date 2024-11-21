@@ -59,33 +59,13 @@
             @foreach (var notification in _notifications)
             {
                 <MudContainer Class="mb-2 w-100 d-flex flex-column align-items-start py-3 notification" Style="@($"border-radius: 6px; background-color: {(notification.IsRead ? "rgba(189,186,186,0.16)" : "rgba(172, 247, 255, 0.77)")}; border-width: 1px; border-color: #6E6D6D28")" @onclick="() => OpenNotification(notification)">
-                    <MudText Typo="Typo.body1" Class="fw-bolder">@notification.Message.Header</MudText>
-                    <MudText Typo="Typo.body2">@notification.Message.Body</MudText>
-                    <div class="d-flex flex-row w-100 justify-content-end mt-3 pe-0">
+                    <div class="d-flex flex-row w-100 justify-content-between pe-0">
+                        <MudText Typo="Typo.body1" Class="fw-bolder">@notification.Message.Header</MudText>
                         <MudText Typo="Typo.caption" Style="color: #bdbaba">@notification.CreatedAt.GetElapsedTime()</MudText>
                     </div>
+                    <MudText Typo="Typo.body2">@notification.Message.Body</MudText>
                 </MudContainer>
             }
-            @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="border-radius: 8px 8px 0 0; background-color: rgba(0, 162, 121, 0.22); border-bottom-width: 1px; border-color: #6c757d"> *@
-            @*     <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText> *@
-            @*     <MudText Typo="Typo.body2">Eduardo Lozano fez o pagamento da reserva no espaço: Churrasqueira</MudText> *@
-            @* </MudContainer> *@
-            @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(0, 162, 121, 0.22); border-bottom-width: 1px; border-color: #6c757d"> *@
-            @*     <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText> *@
-            @*     <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText> *@
-            @* </MudContainer> *@
-            @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(189,186,186,0.16); border-bottom-width: 1px; border-color: #6c757d"> *@
-            @*     <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText> *@
-            @*     <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText> *@
-            @* </MudContainer> *@
-            @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(189,186,186,0.16); border-bottom-width: 1px; border-color: #6c757d"> *@
-            @*     <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText> *@
-            @*     <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText> *@
-            @* </MudContainer> *@
-            @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="background-color: rgba(189,186,186,0.16); border-bottom-width: 1px; border-color: #6c757d"> *@
-            @*     <MudText Typo="Typo.body1" Class="fw-bolder">Nova reserva feita</MudText> *@
-            @*     <MudText Typo="Typo.body2">Icaro Carneiro solicitou uma reserva no espaço: Piscina</MudText> *@
-            @* </MudContainer> *@
         </MudContainer>
     }
 </MudContainer>
