@@ -1,0 +1,76 @@
+﻿@layout Layout.MainLayout
+@inject BookingService BookingService
+@inject IDialogService DialogService
+
+<style>
+    .dialog {
+        width: 50%;
+    }
+    
+    @@media (max-width: 760px) {
+        .dialog {
+            width: 85%;
+        }
+    }
+</style>
+
+<MudDialog Class="dialog">
+    <DialogContent>
+        <MudContainer Class="d-flex flex-column w-100">
+            @if (_bookings is null)
+            {
+                <MudContainer Class="d-flex flex-column justify-content-center align-items-center">
+                    <MudIcon Icon="@Icons.Material.Outlined.EventBusy"></MudIcon>                
+                    <MudText>Não há agendamentos para o espaço.</MudText>
+                </MudContainer>
+            }
+            else
+            {
+                @foreach (var booking in _bookings)
+                {
+                    <div class="d-flex flex-row align-items-start justify-content-start w-100 mb-3" style="background-color: rgba(189,186,186,0.16); padding: 6px 6px 6px 12px; border-radius: 8px">
+                        <div class="d-flex flex-column justify-content-center align-items-start">
+                            <MudText Typo="Typo.body1" Class="fw-bold">Morador:</MudText>
+                            <MudText Class="mb-2" Typo="Typo.body2">@booking.Username</MudText>
+                            <div class="d-flex flex-row justify-content-between align-items-center">
+                                <div class="d-flex flex-column justify-content-center align-items-start me-4">
+                                    <MudText Typo="Typo.body1" Class="fw-bold">Data:</MudText>
+                                    <MudText Class="mb-2" Typo="Typo.body2">@($"{booking.InitialDate.Day}/{booking.InitialDate.Month}")</MudText>
+                                </div>
+                                <div class="d-flex flex-column justify-content-center align-items-start">
+                                    <MudText Typo="Typo.body1" Class="fw-bold">Horário:</MudText>
+                                    <MudText Class="mb-2" Typo="Typo.body2">@($"{booking.InitialDate.Hour}h - {booking.FinalDate.Hour}h")</MudText>
+                                </div>
+                            </div>
+                            <MudText Typo="Typo.body1" Class="fw-bold">Observação:</MudText>
+                            <MudText Class="mb-2" Typo="Typo.body2">@booking.Description</MudText>
+                        </div>
+                        <MudSpacer></MudSpacer>
+                        <MudChip T="string"
+                                 Class="mb-2"
+                                 Size="Size.Small"
+                                 Color="@(booking.Status is BookingStatusEnum.Confirmed ? Color.Success : Color.Warning)">
+                            @(booking.Status.GetEnumDescription<BookingStatusEnum>())
+                        </MudChip>
+                    </div>
+                }
+            }
+        </MudContainer>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [Parameter] public int SpaceId { get; set; }
+    List<Booking>? _bookings = []; 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _bookings = await BookingService.GetBookings(new BookingFilter
+            {
+                SpaceId = SpaceId
+            });
+            StateHasChanged();
+        }
+    }
+}

@@ -1,20 +1,35 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
+﻿using System.ComponentModel;
+using BlazorApp.Models;
 
 namespace BlazorApp.Utils {
 	public static class Extensions {
-		public static MultipartFormDataContent? ToFormFile(this IBrowserFile browserFile) {
-			if (browserFile is null)
+		public static async Task HandleResponseError(this HttpResponseMessage response)
+		{
+			var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+			if (problemDetails != null)
+				throw new ApplicationException(problemDetails.Detail);
+			else
+				response.EnsureSuccessStatusCode();
+		}
+
+		public static string? GetEnumDescription<T>(this T enumValue)
+		{
+			if (!typeof(T).IsEnum || enumValue == null)
 				return null;
 
-			try {
-				var fileContent = new MultipartFormDataContent();
-				using var content = new StreamContent(browserFile.OpenReadStream(browserFile.Size));
-				content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(browserFile.ContentType);
-				fileContent.Add(content, "Photo", browserFile.Name);
-				return fileContent;
-			} catch(Exception e) {
-				throw new Exception(e.Message, e);
+			var description = enumValue.ToString();
+			var fieldInfo = enumValue.GetType().GetField(enumValue.ToString()!);
+
+			if (fieldInfo != null)
+			{
+				var attrs = fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
+				if (attrs != null && attrs.Length > 0)
+				{
+					description = ((DescriptionAttribute)attrs[0]).Description;
+				}
 			}
+
+			return description;
 		}
 	}
 }

@@ -21,12 +21,24 @@ namespace Infraestructure {
                     Type = ExchangeType.Direct,
                     IsAutoDelete = false,
                     IsDurable = true,
+                },
+                new() {
+                    Name = RabbitConstants.NOTIFICATION_EXCHANGE,
+                    Type = ExchangeType.Direct,
+                    IsAutoDelete = false,
+                    IsDurable = true,
                 }
             };
 
             var queues = new List<RabbitQueue> {
                 new() {
                     Name = RabbitConstants.EMAIL_QUEUE,
+                    IsAutoDelete = false,
+                    IsDurable = true,
+                    IsExclusive = false
+                },
+                new() {
+                    Name = RabbitConstants.NOTIFICATION_QUEUE,
                     IsAutoDelete = false,
                     IsDurable = true,
                     IsExclusive = false
@@ -38,6 +50,11 @@ namespace Infraestructure {
                     ExchangeName = RabbitConstants.EMAIL_EXCHANGE,
                     QueueName = RabbitConstants.EMAIL_QUEUE,
                     RoutingKey = RabbitConstants.EMAIL_ROUTING_KEY
+                },
+                new() {
+                    ExchangeName = RabbitConstants.NOTIFICATION_EXCHANGE,
+                    QueueName = RabbitConstants.NOTIFICATION_QUEUE,
+                    RoutingKey = RabbitConstants.NOTIFICATION_ROUTING_KEY
                 }
             };
             rabbitService.DeclareExchanges(exchanges);

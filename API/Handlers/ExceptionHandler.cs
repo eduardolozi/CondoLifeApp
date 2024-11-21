@@ -1,4 +1,5 @@
 ﻿using Domain.Exceptions;
+using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,13 @@ namespace API.Handlers {
                     Detail = rn.Message,
                     Status = StatusCodes.Status404NotFound,
                     Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.4"
+                },
+                ValidationException ve => new ProblemDetails
+                {
+                    Title = "Bad Request",
+                    Detail = string.Join("\n", ve.Errors.Select(e => e.ErrorMessage)),
+                    Status = StatusCodes.Status400BadRequest,
+                    Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1"
                 },
                 _ => new ProblemDetails {
                     Title = "Server Error",

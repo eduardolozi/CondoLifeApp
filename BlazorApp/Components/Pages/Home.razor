@@ -5,10 +5,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
 <style type="text/css">
-    .title {
-        font-weight: 300;
-    }
-
     .app-bar {
         display: flex;
         background-color: white;
@@ -28,27 +24,47 @@
         margin-right: 6px;
     }
 
+    .login-button {
+        color: white;
+    }
+    
     .login-button:hover {
         background-color: #b9ffa4 !important;
+    }
+    
+    .main-container {
+        display: flex;
+        flex-direction: row;
+        margin-left: auto;
+        margin-right: auto;
+        width: 75%;
+    }
+    
+    .main-image {
+        border-radius: 6px;
+        width: 50%;
+        height: 50vh
     }
 
     .main-content {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
+        align-items: start;
+        width: 50%;
+        margin-left: 1rem;
     }
 
     .main-text {
-        font-size: 2.5em;
-        font-weight: normal;
+        font-weight: bold;
         color: #000;
         line-height: 1.2;
 
     }
 
     .highlight-text {
-        color: #72BF78;
+        font-weight: bold;
+        color: #019863;
     }
 
     .subtext {
@@ -57,12 +73,11 @@
 
     .register-button {
         margin-top: 2rem;
-        width: 20%;
-        background-color: #00a82d !important;
+        width: 100%;
+        background-color: #019863 !important;
     }
 
     .resources {
-        margin-top: 6rem;
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
@@ -74,13 +89,40 @@
         align-items: center;
         width: 25%;
         flex: 1 1 22%;
-        margin: 10px;
+        margin: 10px 12px 0 0;
     }
 
     .title-card {
         margin-top: 0;
         font-weight: bold;
         color: #333333;
+    }
+    
+    @@media (max-width: 1235px) and (min-width: 1000px) {
+        .main-image {
+            border-radius: 6px;
+            width: 60%;
+            height: 60vh
+        }
+    }
+    
+    @@media (max-width: 1000px) {
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            margin-left: auto;
+            margin-right: auto;
+            width: 75%;
+        }
+        
+        .main-image {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .main-content {
+            width: 100%;
+        }
     }
 
     @@media (max-width: 850px) {
@@ -92,7 +134,7 @@
         .register-button {
             margin-top: 2rem;
             width: 50%;
-            background-color: #00a82d !important;
+            background-color: #019863 !important;
         }
 
         .resource-card {
@@ -105,13 +147,30 @@
         }
     }
 
-    @@media (max-width: 500px) {
+    @@media (max-width: 505px) {
+        .main-container {
+            width: 100%;
+        }        
+        
+        .main-image {
+            margin-top: -39px;
+            border-radius: 0;
+            width: 100%;
+            height: 15vh;
+        }
+        
+        .main-text {
+            font-size: 3rem;    
+        }
+        
         .main-content {
+            width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin: -2rem 2rem 0 2rem;
+            margin: 0 auto;
+            padding: 0 44px;
         }
 
         .subtext {
@@ -120,12 +179,12 @@
 
         .register-button {
             margin-top: 2rem;
-            width: 70%;
-            background-color: #00a82d !important;
+            width: 100%;
+            background-color: #019863 !important;
         }
 
         .resources {
-            margin: 3rem 0;
+            margin: 1rem 0;
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
@@ -145,7 +204,7 @@
 <PageTitle>Condolife</PageTitle>
 
 <MudGrid>
-    <MudItem Class="mb-20" xs="12">
+    <MudItem Class="mb-10 border-1" Style="border-color: rgba(189,186,186,0.29)" xs="12">
         <MudToolBar Elevation="0" Class="app-bar" >
             <MudText Typo="Typo.h5"
                      Align="Align.Center"
@@ -154,9 +213,9 @@
                 Condolife
             </MudText>
             <MudSpacer />
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Dark"
-                       IconColor="Color.Dark"
+            <MudButton Variant="Variant.Filled"
+                       Style="background-color: #019863 !important;"
+                       IconColor="Color.Surface"
                        EndIcon="@Icons.Material.Rounded.Login"
                        OnClick="NavigateToLogin"
                        Class="login-button">
@@ -166,57 +225,92 @@
     </MudItem>
 </MudGrid>
 
-<div class="main-content">
-    <MudText Class="main-text" Typo="Typo.h3" Style="color: #333333">
-        Faça parte da sua <span class="highlight-text">Comunidade!</span>
-    </MudText>
-    <MudText Class="subtext" 
-             Typo="Typo.h6">
-        Te ajudamos a simplificar a vida no condomínio, conectando você ao que realmente importa.
-    </MudText>
-    <MudButton Class="register-button"
-               Size="Size.Large"
-               Variant="Variant.Filled"
-               Color="Color.Success"
-                OnClick="NavigateToRegister">
-        Registre-se agora
-    </MudButton>
+<div class="main-container">
+    <MudImage Src="/main1.jpg" Style="" Class="main-image me-5"></MudImage>
+    <div class="main-content">
+        <MudText Class="main-text" Typo="Typo.h2" Style="color: #333333; width: 100%">
+            Faça parte da sua <span class="highlight-text">Comunidade!</span>
+        </MudText>
+        <MudText Class="subtext"
+                 Typo="Typo.h6"
+                 Style="width: 100%">
+            Te ajudamos a simplificar a vida no condomínio, conectando você ao que realmente importa.
+        </MudText>
+        <MudButton Class="register-button"
+                   Style="border-radius: 20px;"
+                   Size="Size.Large"
+                   Variant="Variant.Filled"
+                   Color="Color.Success"
+                   OnClick="NavigateToRegister">
+            Registre-se agora
+        </MudButton>
+    </div>
 </div>
 
-<div class="resources">
-    <MudCard Class="resource-card" Elevation="0">
-        <MudCardMedia Image="/post.gif" Height="200" Style="width: 50%;"></MudCardMedia>
-        <MudCardContent Class="py-0">
-            <MudText Typo="Typo.body1" Class="title-card">
-                Veja os conteúdos do seu condomínio
-            </MudText>
-        </MudCardContent>
-    </MudCard>
-    <MudCard Class="resource-card" Elevation="0">
-        <MudCardMedia Image="/receipt.gif" Height="200" Style="width: 50%;"></MudCardMedia>
-        <MudCardContent Class="py-0">
-            <MudText Typo="Typo.body1" Class="title-card">
-                Gerencie e pague seus boletos
-            </MudText>
-        </MudCardContent>
-    </MudCard>
-    <MudCard Class="resource-card" Elevation="0">
-        <MudCardMedia Image="/voting.gif" Height="200" Style="width: 50%;"></MudCardMedia>
-        <MudCardContent Class="py-0">
-            <MudText Typo="Typo.body1" Class="title-card">
-                Participe das votações rapidamente
-            </MudText>
-        </MudCardContent>
-    </MudCard>
-    <MudCard Class="resource-card" Elevation="0">
-        <MudCardMedia Image="/upcoming.gif" Height="200" Style="width: 50%;"></MudCardMedia>
-        <MudCardContent Class="py-0">
-            <MudText Typo="Typo.body1" Class="title-card">
-                Reserve espaços e serviços com facilidade
-            </MudText>
-        </MudCardContent>
-    </MudCard>
+
+<div class="d-flex flex-column align-items-start w-75 mx-auto mt-15 mb-6">
+    <MudText Typo="Typo.h3" Class="fw-bold">
+        Soluções para cada necessidade
+    </MudText>
+    <MudText Typo="Typo.subtitle1">
+        Descubra como o Condolife pode transformar a gestão do seu condomínio.
+    </MudText>
+    <div class="resources">
+        <MudCard Class="resource-card border-1" Style="border-color: rgba(158,139,139,0.29)" Elevation="0">
+            <MudCardHeader Class="w-100 d-flex flex-row justify-content-start">
+                <MudImage Src="/post.gif" Style="width: 60px; height: 60px"></MudImage>
+            </MudCardHeader>
+            <MudCardContent Class="py-0 mb-3">
+                <MudText Typo="Typo.subtitle1" Class="title-card">
+                    Veja os conteúdos do seu condomínio
+                </MudText>
+                <MudText Typo="Typo.body2" Style="color: #33cccc">
+                    Acesso fácil às informações e documentos importantes.
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+        <MudCard Class="resource-card border-1" Style="border-color: rgba(158,139,139,0.29)" Elevation="0">
+            <MudCardHeader Class="w-100 d-flex flex-row justify-content-start">
+                <MudImage Src="/receipt.gif" Style="width: 60px; height: 60px"></MudImage>
+            </MudCardHeader>
+            <MudCardContent Class="py-0 mb-3">
+                <MudText Typo="Typo.subtitle1" Class="title-card">
+                    Gerencie e pague seus boletos
+                </MudText>
+                <MudText Typo="Typo.body2" Style="color: #33cccc">
+                    Pagamentos simples e seguros em poucos cliques.
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+        <MudCard Class="resource-card border-1" Style="border-color: rgba(158,139,139,0.29)" Elevation="0">
+            <MudCardHeader Class="w-100 d-flex flex-row justify-content-start">
+                <MudImage Src="/voting.gif" Style="width: 60px; height: 60px"></MudImage>
+            </MudCardHeader>
+            <MudCardContent Class="py-0 mb-3">
+                <MudText Typo="Typo.subtitle1" Class="title-card">
+                    Participe das votações rapidamente
+                </MudText>
+                <MudText Typo="Typo.body2" Style="color: #33cccc">
+                    Vote nas questões do seu condomínio de qualquer lugar.
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+        <MudCard Class="resource-card border-1" Style="border-color: rgba(158,139,139,0.29)" Elevation="0">
+            <MudCardHeader Class="w-100 d-flex flex-row justify-content-start">
+                <MudImage Src="/upcoming.gif" Style="width: 60px; height: 60px"></MudImage>
+            </MudCardHeader>
+            <MudCardContent Class="py-0 mb-3">
+                <MudText Typo="Typo.subtitle1" Class="title-card">
+                    Reserve espaços e serviços
+                </MudText>
+                <MudText Typo="Typo.body2" Style="color: #33cccc">
+                    Agendamento online de áreas comuns e serviços disponíveis.
+                </MudText>
+            </MudCardContent>
+        </MudCard>
+    </div>
 </div>
+
 
 @code {
     void NavigateToLogin() {

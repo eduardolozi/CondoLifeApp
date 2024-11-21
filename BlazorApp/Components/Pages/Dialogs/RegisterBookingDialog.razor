@@ -1,0 +1,93 @@
+﻿@inject BookingService BookingService
+@inject IDialogService DialogService
+
+<style>
+    .dialog {
+        width: 30%;
+    }
+
+    .dates-content {
+        padding-left: 0;
+        padding-right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .text-field {
+        width: 100%;
+    }
+    
+    .mud-select {
+        width: 100%;
+    }
+    
+    @@media (max-width: 1170px) {
+        .dialog {
+            width: 60%;
+        }
+    }
+</style>
+
+<MudDialog Class="dialog">
+    <DialogContent>
+        <MudContainer Class="dates-content mb-4">
+            <MudDatePicker IsDateDisabledFunc="@(dt => dt.Date <= DateTime.Today)" Variant="Variant.Outlined" Label="Dia da reserva" @bind-Date="_date" ShowToolbar="false" Class="w-100 mb-2"/>
+            <MudSelect @bind-Value="_initialHour" Class="mb-2" Variant="Variant.Outlined" Label="Horário de início" AdornmentIcon="@Icons.Material.Outlined.Timer" icon>
+                @foreach (var hour in _hours)
+                {
+                    <MudSelectItem Value="@hour">@($"{hour}h")</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect @bind-Value="_finalHour" Variant="Variant.Outlined" Label="Horário de término" AdornmentIcon="@Icons.Material.Outlined.Timer">
+                @foreach (var hour in _hours)
+                {
+                    <MudSelectItem Value="@hour">@($"{hour}h")</MudSelectItem>
+                }
+            </MudSelect>
+            <MudTextField @bind-Value="_booking.Description" Placeholder="Observação" Variant="Variant.Outlined" Class="text-field mt-3" Lines="4" T="string"></MudTextField>
+        </MudContainer>
+        <MudButton Class="w-100" Variant="Variant.Filled" Size="Size.Small" Style="background-color: #146c43; color: white" OnClick="Submit">Reservar</MudButton>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int SpaceId { get; set; }
+    [Parameter] public int UserId { get; set; }
+    [Parameter] public double? BookingPrice { get; set; }
+    Booking _booking = new();
+    List<string> _hours = ["10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22"];
+    private DateTime? _date = DateTime.Today;
+    string _initialHour = string.Empty;
+    string _finalHour = string.Empty;
+    
+    async Task Submit()
+    {
+        try
+        {
+            if (_date is null) throw new Exception("Preencha a data da reserva");
+            var dateOnly = new DateOnly(_date.Value.Year, _date.Value.Month, _date.Value.Day);
+            var initialTime = new TimeOnly(int.Parse(_initialHour), 0, 0);
+            var finalTime = new TimeOnly(int.Parse(_finalHour), 0, 0);
+
+            _booking.SpaceId = SpaceId;
+            _booking.UserId = UserId;
+            _booking.InitialDate = new DateTime(dateOnly, initialTime);
+            _booking.FinalDate = new DateTime(dateOnly, finalTime);
+            if (BookingPrice is not null)
+                _booking.Status = BookingPrice is 0 ? BookingStatusEnum.Pending : BookingStatusEnum.AwaitingPayment;
+            else
+                _booking.Status = BookingStatusEnum.Pending;
+            
+            await BookingService.Add(_booking);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBox("Erro!", ex.Message, "Ok");
+        }
+    }
+}

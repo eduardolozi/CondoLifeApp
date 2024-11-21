@@ -4,13 +4,8 @@ using Infraestructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services {
-    public class VerificationTokenService {
-        private readonly CondoLifeContext _dbContext;
-        public VerificationTokenService(CondoLifeContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
+    public class VerificationTokenService(CondoLifeContext dbContext)
+    {
         public VerificationToken CreateVerificationToken(User user) {
             var verificationToken = new VerificationToken {
                 Value = Guid.NewGuid().ToString(),
@@ -20,14 +15,14 @@ namespace Application.Services {
                 User = user
             };
 
-            _dbContext.VerificationTokens.Add(verificationToken);
-            _dbContext.SaveChanges();
+            dbContext.VerificationTokens.Add(verificationToken);
+            dbContext.SaveChanges();
 
             return verificationToken;
         }
 
         public VerificationToken? GetVerificationTokenWithUser(string token) {
-            return _dbContext.VerificationTokens.Include(x => x.User).FirstOrDefault(x => x.Value == token);
+            return dbContext.VerificationTokens.Include(x => x.User).FirstOrDefault(x => x.Value == token);
         }
 
         public void HandleVerificationEmail(VerificationToken token) {

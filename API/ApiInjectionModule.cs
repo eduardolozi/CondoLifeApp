@@ -1,10 +1,14 @@
-﻿using API.Handlers;
-using API.Hubs;
-using Domain.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Security.Cryptography;
+using API.Handlers;
+using API.Hubs;
+using API.Hubs.Services;
+using Domain.Utils;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API {
     public static class ApiInjectionModule {
@@ -15,6 +19,10 @@ namespace API {
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddProblemDetails();
+            services.AddResponseCompression(options =>
+            {
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
+            });
             services.AddSignalR();
             services.AddExceptionHandler<ExceptionHandler>();
             services.AddScoped<EmailNotificationHub>();
@@ -46,11 +54,13 @@ namespace API {
             });
         }
 
-        private static void AddPolicies(this IServiceCollection services) {
+        private static void AddPolicies(this IServiceCollection services)
+        {
             services.AddAuthorizationBuilder()
-                .AddPolicy("AdminOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
+                .AddPolicy("Admin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"))
+                .AddPolicy("Manager", policy => policy.RequireClaim(ClaimTypes.Role, "Manager"))
+                .AddPolicy("AdminOrManager", policy => policy.RequireClaim(ClaimTypes.Role, "Admin", "Manager"))
+                .AddPolicy("ManagerOrSubmanager", policy => policy.RequireClaim(ClaimTypes.Role, "Manager", "Submanager"));
         }
-
-
     } 
 }

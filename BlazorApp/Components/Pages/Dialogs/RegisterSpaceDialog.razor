@@ -1,0 +1,108 @@
+﻿@layout Layout.MainLayout
+@inject SpaceService SpaceService
+@inject IDialogService DialogService
+
+<style>
+    .dialog {
+        width: 50%;
+    }
+    
+    @@media (max-width: 760px) {
+        .dialog {
+            width: 85%;
+        }
+    }
+</style>
+
+<MudDialog Class="dialog">
+    <DialogContent>
+        <MudContainer Class="w-100 flex-column align-items-start">
+            <MudTextField @bind-Value="Space.Name"
+                          Placeholder="Nome do espaço"
+                          Variant="Variant.Outlined"
+                          Style="width: 100%"
+                          Class="mb-3"
+                          Required="true"
+                          RequiredError="Obrigatório">
+            </MudTextField>
+            <MudTextField @bind-Value="Space.BookingPrice"
+                          Mask="@(new PatternMask("000"))"
+                          Placeholder="Valor da reserva (opcional)"
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.Start" AdornmentText="R$"
+                          Style="width: 100%">
+            </MudTextField>
+            <MudImage Class="mt-4 mb-2" Elevation="1" Style="width: 100%;" Height="300"  Src="@(Space.Photo is null ? null : $"data:image/png;base64,{Space.Photo.ContentBase64}")"></MudImage>
+            <MudFileUpload Class="mb-4" T="IBrowserFile" FilesChanged="UploadImage" Accept=".png, .jpg">
+                <ActivatorContent>
+                    <MudContainer Class="d-flex flex-row p-0">
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Success"
+                                   StartIcon="@Icons.Material.Filled.CloudUpload"
+                                   Style="width: 100%">
+                            Selecione a foto
+                        </MudButton>
+                    </MudContainer>
+                </ActivatorContent>
+            </MudFileUpload>
+            <MudText Class="fw-bold">Disponibilidade</MudText>
+            <MudSwitch @bind-Value="Space.Availability"
+                       ThumbIcon="@(Space.Availability ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)"
+                       ThumbIconColor="@(Space.Availability ? Color.Success : Color.Error)">
+            </MudSwitch>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Style="background-color: #019863; color: white"
+                   Variant="Variant.Filled"
+                   OnClick="Submit"
+                   Class="mb-2 me-2">
+            Salvar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int CondominiumId { get; set; }
+    [Parameter] public Space Space { get; set; } = new();
+    
+    private async Task Submit()
+    {
+        
+        try
+        {
+            if (Space.Name is null)
+            {
+                throw new Exception("O nome deve ser preenchido.");
+            }
+            
+            Space.CondominiumId = CondominiumId;
+
+            if (Space.Id != 0)
+                await SpaceService.Update(Space);
+            else
+                await SpaceService.Add(Space);
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception e)
+        {
+            await DialogService.ShowMessageBox("Erro!", e.Message, "Ok");
+        }
+    } 
+    
+    async Task UploadImage(IBrowserFile file)
+    {
+        using var memoryStream = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(memoryStream);
+        var fileBytes = memoryStream.ToArray();
+        Space.Photo = new Photo
+        {
+            ContentBase64 = Convert.ToBase64String(fileBytes),
+            ContentType = file.ContentType,
+            FileName = file.Name
+        };
+        StateHasChanged();
+    }
+}

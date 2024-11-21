@@ -11,7 +11,7 @@ namespace Domain.Models {
         public required string Email { get; set; }
         
         [NotMapped]
-        public required string Password { get; set; }
+        public string? Password { get; set; }
 
         [JsonIgnore]
         public string? PasswordHash { get; set; } = null!;
@@ -27,7 +27,7 @@ namespace Domain.Models {
         public string? Block {  get; set; }
 
         [NotMapped]
-        public UserPhoto? Photo { get; set; }
+        public Photo? Photo { get; set; }
 
         public string? PhotoUrl { get; set; }
 
@@ -35,5 +35,8 @@ namespace Domain.Models {
 
         [JsonIgnore]
         public Condominium? Condominium { get; set; }
+
+        [JsonIgnore] 
+        public List<Notification> Notifications { get; set; } = [];
     }
 }

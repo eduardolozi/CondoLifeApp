@@ -1,0 +1,83 @@
+﻿@page "/Users"
+@layout Layout.MainLayout
+@inject UserService UserService
+@inject AuthService AuthService
+@inject IDialogService DialogService
+@inject PageHelper PageHelper
+
+<PageTitle>Usuários</PageTitle>
+
+<MudTable Items="_users" Hover="true" Class="mt-10">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Usuários</MudText>
+        <MudSpacer />
+        <MudTextField T="string" Placeholder="Pesquisar" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Nome</MudTh>
+        <MudTh>Apartamento</MudTh>
+        <MudTh>Cargo</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nome">@context.Name</MudTd>
+        <MudTd DataLabel="Apartamento">@($"{context.Apartment}{(string.IsNullOrEmpty(context.Block) ? string.Empty : $"-{context.Block}")}")</MudTd>
+        <MudTd DataLabel="Cargo">@(context.Role.GetEnumDescription<UserRoleEnum>())</MudTd>
+        <MudTd Class="d-flex flex-row justify-content-end">
+            <MudButton Variant="Variant.Outlined" Color="Color.Info" Size="Size.Small" OnClick="@(async () => await OpenUserDialog(@context))">Visualizar</MudButton>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager HideRowsPerPage="true" HidePageNumber="true"/>
+    </PagerContent>
+</MudTable>
+
+
+@code {
+    List<User>? _users = [];
+    bool _isLoading;
+    User? _user = new User();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _user = await AuthService.GetUserByClaims();
+            _users = await UserService.GetAll(new UserFilter
+            {
+                CondominiumId = _user!.CondominiumId
+            });
+            StateHasChanged();
+        }
+    }
+
+    async Task OpenUserDialog(User user)
+    {
+        var parameters = new DialogParameters<UserViewDialog>
+        {
+            {x => x.User, new User
+            {
+                Apartment = user.Apartment,
+                Block = user.Block,
+                Name = user.Name,
+                Role = user.Role,
+                Id = user.Id,
+                Email = user.Email,
+                PhotoUrl = user.PhotoUrl,
+                CondominiumId = user.CondominiumId,
+            }}
+        };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<UserViewDialog>("Visualização do usuário", parameters, options);
+        var result = await dialog.Result;
+        if (result.Data is true)
+        {
+            await PageHelper.ShowBusy(ref _isLoading, async () =>
+            {
+                _users = await UserService.GetAll(new UserFilter
+                {
+                    CondominiumId = user.CondominiumId
+                });
+            });
+            StateHasChanged();
+        }
+    }
+}

@@ -1,5 +1,6 @@
 using BlazorApp.Components;
 using BlazorApp.Services;
+using BlazorApp.Utils;
 using Blazored.LocalStorage;
 using MudBlazor.Services;
 
@@ -12,6 +13,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
 
+builder.Services.AddScoped<PageHelper>();
 builder.Services.AddHttpClient<LocationService>((client) => {
     //env
     client.BaseAddress = new Uri("https://www.universal-tutorial.com/api/");
@@ -26,6 +28,15 @@ builder.Services.AddHttpClient<CondominiumService>(client => {
 });
 builder.Services.AddHttpClient<AuthService>(client => {
 	client.BaseAddress = new Uri("https://localhost:7031/api/Auth/");
+});
+builder.Services.AddHttpClient<SpaceService>(client => {
+	client.BaseAddress = new Uri("https://localhost:7031/api/Space/");
+});
+builder.Services.AddHttpClient<BookingService>(client => {
+	client.BaseAddress = new Uri("https://localhost:7031/api/Booking/");
+});
+builder.Services.AddHttpClient<NotificationService>(client => {
+	client.BaseAddress = new Uri("https://localhost:7031/api/Notification/");
 });
 
 var app = builder.Build();

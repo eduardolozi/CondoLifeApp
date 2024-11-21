@@ -82,7 +82,7 @@
 				<MudText>Tipo de usuário:</MudText>
 				<MudRadioGroup @bind-Value="user.Role">
 					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Resident">Morador comum</MudRadio>
-					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Counselor">Conselheiro</MudRadio>
+					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Submanager">Subíndico</MudRadio>
 					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Manager">Síndico</MudRadio>
 				</MudRadioGroup>
 				<MudFileUpload Class="mt-3 mb-5" T="IBrowserFile" FilesChanged="@UploadFiles" Accept=".png, .jpg">
@@ -232,7 +232,7 @@
 		using var memoryStream = new MemoryStream();
 		await file.OpenReadStream().CopyToAsync(memoryStream);
 		var fileBytes = memoryStream.ToArray();
-		user.Photo = new UserPhoto();
+		user.Photo = new Photo();
 		user.Photo.ContentBase64 = Convert.ToBase64String(fileBytes);
 		user.Photo.FileName = file.Name;
 		user.Photo.ContentType = file.ContentType;
@@ -303,8 +303,8 @@
 		try {
 			isLoading = true;
 			user.CondominiumId = _condo.Id;
-			await userService.CreateUser(user);
-			await DialogService.ShowMessageBox("Conta criada com sucesso!", "Conta criada com sucesso! Enviamos um e-mail de verificação. Confirme seu cadastro para poder acessar sua conta.", "OK");
+			await userService.Create(user);
+			await DialogService.ShowMessageBox("Conta criada com sucesso!", "Enviamos um e-mail de verificação. Confirme seu cadastro para poder acessar sua conta.", "OK");
 			Navigation.NavigateTo("");
 		}
 		finally {

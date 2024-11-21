@@ -1,5 +1,8 @@
 ﻿using Application.Interfaces;
 using Application.Services;
+using Application.Validators;
+using Domain.Models;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application {
@@ -10,6 +13,12 @@ namespace Application {
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<VerificationTokenService>();
             services.AddScoped<CondominiumService>();
-		}
+            services.AddScoped<SpaceService>();
+            services.AddScoped<BookingService>();
+            services.AddScoped<NotificationService>();
+
+            services.AddScoped<AbstractValidator<Space>, SpaceValidator>();
+            services.AddScoped<AbstractValidator<Booking>, BookingValidator>();
+        }
     }
 }
