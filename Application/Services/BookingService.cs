@@ -114,7 +114,8 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 Header = "Uma nova reserva foi solicitada!",
                 Body = $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}."
             },
-            BookingId = booking.Id
+            BookingId = booking.Id,
+            CreatedAt = DateTime.Now
         };
         rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
     }
@@ -147,7 +148,8 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                     Header = "A sua reserva foi aprovada!",
                     Body = $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}."
                 },
-                BookingId = booking.Id
+                BookingId = booking.Id,
+                CreatedAt = DateTime.Now
             };
             rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
         }

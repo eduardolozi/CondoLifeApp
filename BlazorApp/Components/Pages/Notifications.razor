@@ -61,6 +61,9 @@
                 <MudContainer Class="mb-2 w-100 d-flex flex-column align-items-start py-3 notification" Style="@($"border-radius: 6px; background-color: {(notification.IsRead ? "rgba(189,186,186,0.16)" : "rgba(172, 247, 255, 0.77)")}; border-width: 1px; border-color: #6E6D6D28")" @onclick="() => OpenNotification(notification)">
                     <MudText Typo="Typo.body1" Class="fw-bolder">@notification.Message.Header</MudText>
                     <MudText Typo="Typo.body2">@notification.Message.Body</MudText>
+                    <div class="d-flex flex-row w-100 justify-content-end mt-3 pe-0">
+                        <MudText Typo="Typo.caption" Style="color: #bdbaba">@notification.CreatedAt.GetElapsedTime()</MudText>
+                    </div>
                 </MudContainer>
             }
             @* <MudContainer Class="m-0 w-100 d-flex flex-column align-items-start py-3" Style="border-radius: 8px 8px 0 0; background-color: rgba(0, 162, 121, 0.22); border-bottom-width: 1px; border-color: #6c757d"> *@

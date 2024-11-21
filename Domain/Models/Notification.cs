@@ -12,5 +12,6 @@ namespace Domain.Models {
         public int UserId { get; set; }
         public int? BookingId { get; set; }
         public bool IsRead { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
