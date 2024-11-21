@@ -22,11 +22,18 @@ public class NotificationBackgroundService(RabbitService rabbitService, IHttpCli
                     var notification = JsonConvert.DeserializeObject<Notification>(body)
                         ?? throw new NullReferenceException("Error deserializing notification.");
 
+                    var httpClient = httpClientFactory.CreateClient();
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", notification.UserToken);
+                    
                     if (notification.NotificationType is NotificationTypeEnum.BookingCreated)
                     {
-                        var httpClient = httpClientFactory.CreateClient();
-                        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", notification.UserToken);
-                        var response = await httpClient.PostAsJsonAsync("https://localhost:7031/api/Notification/notify-admin", notification.Message);
+                        var response = await httpClient.PostAsJsonAsync("https://localhost:7031/api/Notification/notify-admin", notification);
+                        response.EnsureSuccessStatusCode();
+                    }
+                    
+                    if (notification.NotificationType is NotificationTypeEnum.BookingApproved)
+                    {
+                        var response = await httpClient.PostAsJsonAsync("https://localhost:7031/api/Notification/notify-user", notification);
                         response.EnsureSuccessStatusCode();
                     }
 

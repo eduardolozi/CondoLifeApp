@@ -6,8 +6,8 @@ namespace BlazorApp.Enums {
 	public enum UserRoleEnum {
 		[Description("Morador")]
 		Resident,
-		[Description("Conselheiro")]
-		Counselor,
+		[Description("Subsíndico")]
+		Submanager,
 		[Description("Síndico")]
 		Manager,
 		[Description("Administrador")]

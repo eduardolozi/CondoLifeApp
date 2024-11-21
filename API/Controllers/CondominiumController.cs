@@ -23,21 +23,21 @@ namespace API.Controllers {
         }
 
         [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "Admin")]
         public CreatedResult Create([FromBody] Condominium condominium) {
             condominiumService.Insert(condominium);
             return Created();
         }
 
         [HttpPatch("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "Admin")]
         public NoContentResult Update([FromRoute] int id, [FromBody] Condominium condominium) {
             condominiumService.Update(id, condominium);
             return NoContent();
         }
         
         [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "Admin")]
         public NoContentResult Delete([FromRoute] int id) {
             condominiumService.Delete(id);
             return NoContent();

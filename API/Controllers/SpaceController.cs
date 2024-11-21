@@ -36,7 +36,7 @@ public class SpaceController(SpaceService spaceService) : ControllerBase
     }
     
     [HttpPost]
-    [Authorize(Policy = "ManagerOnly")]
+    [Authorize(Policy = "Manager")]
     public NoContentResult Add([FromBody] Space space)
     {
         spaceService.Insert(space);
@@ -44,7 +44,7 @@ public class SpaceController(SpaceService spaceService) : ControllerBase
     }
 
     [HttpPatch("{id}")]
-    [Authorize(Policy = "ManagerOnly")]
+    [Authorize(Policy = "Manager")]
     public NoContentResult Update([FromRoute] int id, [FromBody] Space space)
     {
         spaceService.Update(id, space);
@@ -52,7 +52,7 @@ public class SpaceController(SpaceService spaceService) : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Policy = "ManagerOnly")]
+    [Authorize(Policy = "Manager")]
     public NoContentResult Delete([FromRoute] int id)
     {
         spaceService.Delete(id);

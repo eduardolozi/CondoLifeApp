@@ -1,4 +1,7 @@
-﻿using Domain.Enums;
+﻿using System.Globalization;
+using Application.DTOs;
+using BlazorApp.Components.Pages;
+using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
 using Domain.Models.Filters;
@@ -47,6 +50,31 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
         }).OrderBy(x => x.InitialDate).ToList();
     }
 
+    public BookingDetailsDTO GetById(int id)
+    {
+        var booking = dbContext
+            .Booking
+            .AsNoTracking()
+            .Include(x => x.User)
+            .Include(x => x.Space)
+            .FirstOrDefault(x => x.Id == id)
+            ?? throw new ResourceNotFoundException("Reserva não encontrada.");
+
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("pt-BR");
+        return new BookingDetailsDTO
+        {
+            Id = booking.Id,
+            Description = booking.Description,
+            Username = booking.User!.Name,
+            UserId = booking.UserId,
+            UserPhotoUrl = booking.User.PhotoUrl,
+            Apartment = $"{booking.User.Apartment} {(booking.User.Block.HasValue() ? booking.User.Block : string.Empty)}",
+            Status = booking.Status,
+            Date = $"{booking.InitialDate.ToShortDateString()} - {booking.InitialDate.Hour}:00 às {booking.FinalDate.Hour}:00",
+            SpaceName = booking.Space!.Name
+        };
+    }
+
     public void Create(Booking booking, string token)
     {
         bookingValidator.ValidateAndThrow(booking);
@@ -66,24 +94,65 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
         dbContext.Booking.Add(booking);
         dbContext.SaveChanges();
 
-        var user = dbContext.Users.AsNoTracking().First(x => x.Id == booking.UserId);
+        var user = dbContext.Users.AsNoTracking().Include(x => x.Condominium).First(x => x.Id == booking.UserId);
         var block = user.Block.HasValue() ? $"-{user.Block}" : string.Empty;
         var userApartment = $"{user.Apartment}{block}";
         
         var condoManager = dbContext.Users.AsNoTracking().FirstOrDefault(x => x.Role == UserRoleEnum.Manager)
             ?? throw new ResourceNotFoundException("Não foi encontrado síndico no condomínio.");
         
+        var space = dbContext.Space.AsNoTracking().FirstOrDefault(x => x.Id == booking.SpaceId)
+            ?? throw new ResourceNotFoundException("Não foi encontrado esse espaço no condomínio.");
+        
         var notification = new Notification
         {
+            CondominiumName = user.Condominium!.Name,
             UserId = condoManager.Id,
             UserToken = token,
             NotificationType = NotificationTypeEnum.BookingCreated,
             Message = new NotificationPayload
             {
                 Header = "Uma nova reserva foi solicitada!",
-                Body = $"{user.Name} (apto. {userApartment}) solicitou uma reserva."
-            }
+                Body = $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}."
+            },
+            BookingId = booking.Id
         };
         rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
+    }
+
+    public void ApproveBooking(int id, string token)
+    {
+        var booking = dbContext.Booking.Find(id)
+            ?? throw new ResourceNotFoundException("A reserva não foi encontrada.");
+
+        if (booking.Status == BookingStatusEnum.Pending)
+        {
+            booking.Status = BookingStatusEnum.Confirmed;
+            dbContext.SaveChanges();
+            
+            var space = dbContext
+                .Space
+                .AsNoTracking()
+                .Include(x => x.Condominium)
+                .FirstOrDefault(x => x.Id == booking.SpaceId)
+                ?? throw new ResourceNotFoundException("Não foi encontrado esse espaço no condomínio.");
+            
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("pt-BR");
+            
+            var notification = new Notification
+            {
+                CondominiumName = space.Condominium!.Name,
+                UserId = booking.UserId,
+                UserToken = token,
+                NotificationType = NotificationTypeEnum.BookingApproved,
+                Message = new NotificationPayload
+                {
+                    Header = "A sua reserva foi aprovada!",
+                    Body = $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}."
+                },
+                BookingId = booking.Id
+            };
+            rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
+        }
     }
 }

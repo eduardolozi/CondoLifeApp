@@ -49,6 +49,7 @@ namespace Application.Services {
             var signinCredentials = new SigningCredentials(rsaKey, SecurityAlgorithms.RsaSha256);
 
             var claims = new List<Claim> {
+                new (ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new ("Id", user.Id.ToString()),
                 new (ClaimTypes.Name, user.Name),
                 new (ClaimTypes.Email, user.Email),

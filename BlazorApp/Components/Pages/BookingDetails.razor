@@ -1,0 +1,113 @@
+﻿@page "/reserva/{Id:int}"
+@layout Layout.MainLayout
+@inject BookingService BookingService
+@inject PageHelper PageHelper
+@inject UserService UserService
+@inject IDialogService DialogService
+@inject AuthService AuthService
+
+<PageTitle>Detalhes da reserva</PageTitle>
+
+<MudContainer Class="d-flex flex-column align-items-start mt-5">
+    @if (_isLoading)
+    {
+        <div class="w-100 mt-5 d-flex flex-row justify-content-center align-items-center">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else
+    {
+        <MudText Class="fw-bolder mb-4" Typo="Typo.h4">Detalhes da reserva</MudText>
+        <MudContainer Class="pb-5 d-flex flex-column align-items-start w-100" Style="background: rgba(189,186,186,0.16); border-radius: 10px">
+            <MudText Class="fw-bold mt-5 mb-5" Style="border-bottom-width: 1px; border-color: #c6c8cc" Typo="Typo.h5">Solicitante da reserva</MudText>
+            <MudContainer Class="ps-0 ms-0 d-flex flex-row justify-content-start align-items-center">
+                <MudImage Elevation="5" Style="width: 150px; height: 150px; border-radius: 50%;" Src="@_base64Image"></MudImage>
+                <MudContainer Class="ms-1 d-flex flex-column align-items-start justify-content-around">
+                    <MudText Class="fw-bolder" Typo="Typo.h6">@_booking.Username</MudText>
+                    <MudText Typo="Typo.body1">Apto. @_booking.Apartment</MudText>
+                </MudContainer>
+            </MudContainer>
+        </MudContainer>
+
+        <MudContainer Class="mt-5 pb-5 d-flex flex-column align-items-start w-100" Style="background: rgba(189,186,186,0.16); border-radius: 10px">
+            <MudText Class="fw-bold mt-5 mb-5" Style="border-bottom-width: 1px; border-color: #c6c8cc" Typo="Typo.h5">Status da reserva</MudText>
+            <MudContainer Class="ps-0 ms-0 d-flex flex-row justify-content-start align-items-center">
+                <MudIcon Icon="@_statusIcon" Color="_statusColor"></MudIcon>
+                <MudText Typo="Typo.body1" Class="ms-2 fw-bold" Color="_statusColor">@_booking.Status.GetEnumDescription()</MudText>
+            </MudContainer>
+            <MudContainer Class="mt-3 ps-0 ms-0 d-flex flex-row justify-content-start align-items-center">
+                <MudIcon Icon="@Icons.Material.Rounded.CalendarMonth"></MudIcon>
+                <MudText Typo="Typo.body1" Class="ms-2 fw-bold">@_booking.Date</MudText>
+            </MudContainer>
+            <MudContainer Class="mt-3 ps-0 ms-0 d-flex flex-row justify-content-start align-items-center">
+                <MudIcon Icon="@Icons.Material.Rounded.AccountBalance"></MudIcon>
+                <MudText Typo="Typo.body1" Class="ms-2 fw-bold">@_booking.SpaceName</MudText>
+            </MudContainer>
+        </MudContainer>
+        
+        <MudContainer Class="mt-5 pb-5 d-flex flex-column align-items-start w-100" Style="background: rgba(189,186,186,0.16); border-radius: 10px">
+            <MudText Class="fw-bold mt-5 mb-5" Style="border-bottom-width: 1px; border-color: #c6c8cc" Typo="Typo.h5">Observação da reserva</MudText>
+            <MudText Typo="Typo.body1">@_booking.Description</MudText>
+        </MudContainer>
+        
+        @if (_booking!.Status is BookingStatusEnum.Pending && (_user!.Role is UserRoleEnum.Manager or UserRoleEnum.Submanager))
+        {
+            <MudContainer Class="my-3 d-flex flex-row justify-content-end pe-0">
+                <MudButton Variant="Variant.Filled" Style="background-color: #18b66c; color: white" OnClick="ApproveBooking">Aprovar reserva</MudButton>
+            </MudContainer>  
+        }
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    bool _isLoading = true;
+    BookingDetailsDTO? _booking;
+    string _base64Image = string.Empty;
+    Color _statusColor;
+    string _statusIcon;
+    User? _user;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await PageHelper.ShowBusy(ref _isLoading, async () =>
+            {
+                _user = await AuthService.GetUserByClaims();
+                _booking = await BookingService.GetBooking(Id);
+                _statusColor = _booking!.Status is BookingStatusEnum.Confirmed ? Color.Success : Color.Warning;
+                _statusIcon = _booking.Status switch
+                {
+                    BookingStatusEnum.Confirmed => Icons.Material.Rounded.CheckCircle,
+                    BookingStatusEnum.Pending => Icons.Material.Rounded.PendingActions,
+                    BookingStatusEnum.AwaitingPayment => Icons.Material.Rounded.Payment,
+                    BookingStatusEnum.Canceled => Icons.Material.Rounded.Cancel,
+                    _ => string.Empty
+                };
+                var param = string.IsNullOrEmpty(_booking.UserPhotoUrl) ? $"{_booking.UserId}/photo" : _booking.UserPhotoUrl; 
+                var photo = await UserService.GetPhoto(param);
+                if (photo is not null)
+                {
+                    _base64Image = string.IsNullOrEmpty(photo.ContentBase64) ? "/blank-profile-picture.png" : $"data:image/png;base64,{photo.ContentBase64}";
+                }
+            });
+            StateHasChanged();
+        }
+    }
+
+    async Task ApproveBooking()
+    {
+        try
+        {
+            await BookingService.ApproveBooking(_booking.Id);
+            await DialogService.ShowMessageBox("Reserva aprovada com sucesso!", "A reserva foi aprovada, o morador receberá uma notificação avisando a aprovação.");
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await DialogService.ShowMessageBox("Não foi possível aprovar a reserva...", e.Message);
+
+        }
+    }
+}

@@ -57,9 +57,10 @@ namespace API {
         private static void AddPolicies(this IServiceCollection services)
         {
             services.AddAuthorizationBuilder()
-                .AddPolicy("AdminOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"))
-                .AddPolicy("ManagerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Manager"))
-                .AddPolicy("AdminOrManagerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "Admin", "Manager"));
+                .AddPolicy("Admin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"))
+                .AddPolicy("Manager", policy => policy.RequireClaim(ClaimTypes.Role, "Manager"))
+                .AddPolicy("AdminOrManager", policy => policy.RequireClaim(ClaimTypes.Role, "Admin", "Manager"))
+                .AddPolicy("ManagerOrSubmanager", policy => policy.RequireClaim(ClaimTypes.Role, "Manager", "Submanager"));
         }
     } 
 }

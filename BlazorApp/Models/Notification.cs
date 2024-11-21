@@ -9,4 +9,5 @@ public class Notification
     public NotificationPayload Message { get; set; }
         
     public int UserId { get; set; }
+    public int? BookingId { get; set; }
 }

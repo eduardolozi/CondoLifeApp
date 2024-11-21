@@ -51,7 +51,6 @@ namespace API.Controllers {
         [HttpGet("verify-email")]
         public OkResult VerifyEmail([FromQuery] string verificationToken) {
             var id = userService.VerifyEmail(verificationToken);
-            //await _emailNotificationHub.NotifyRegistrationVerification(id.ToString());
             return Ok();
         }
 
@@ -80,7 +79,6 @@ namespace API.Controllers {
         [HttpGet("confirm-password-change")]
         public OkResult ConfirmPasswordChange([FromQuery] string verificationToken) {
             var id = userService.ConfirmPasswordChange(verificationToken);
-            //await _emailNotificationHub.NotifyPasswordReset(id.ToString());
             return Ok();
         }
 
@@ -104,7 +102,7 @@ namespace API.Controllers {
 			return NoContent();
 		}
 
-        [Authorize(Policy = "AdminOrManagerOnly")]
+        [Authorize(Policy = "AdminOrManager")]
         [HttpPatch("{id}/change-role")]
         public NoContentResult ChangeRole([FromRoute] int id, [FromBody] ChangeUserRoleDTO changeRole)
         {

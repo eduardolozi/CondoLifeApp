@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using BlazorApp.DTOs;
 using BlazorApp.Models;
 using BlazorApp.Utils;
 using Blazored.LocalStorage;
@@ -49,11 +50,35 @@ public class BookingService(HttpClient httpClient, ILocalStorageService localSto
         }
     }
 
+    public async Task<BookingDetailsDTO?> GetBooking(int bookingId)
+    {
+        var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        var response = await httpClient.GetAsync($"{bookingId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            await response.HandleResponseError();
+        }        
+        
+        return await response.Content.ReadFromJsonAsync<BookingDetailsDTO>();
+    }
+
     public async Task Add(Booking booking)
     {
         var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var response = await httpClient.PostAsJsonAsync(string.Empty, booking);
+
+        if (!response.IsSuccessStatusCode)
+            await response.HandleResponseError();
+    }
+
+    public async Task ApproveBooking(int bookingId)
+    {
+        var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var response = await httpClient.PatchAsync($"{bookingId}/accept-booking", null);
 
         if (!response.IsSuccessStatusCode)
             await response.HandleResponseError();

@@ -30,7 +30,7 @@ public class NotificationService(CondoLifeContext dbContext)
                 query = query.Where(x => x.NotificationType == filter.NotificationType);
         }
         
-        return query.ToList();
+        return query.OrderByDescending(x => x.Id).ToList();
     }
 
     public Notification? GetById(int id)

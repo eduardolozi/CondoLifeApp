@@ -82,7 +82,7 @@
 				<MudText>Tipo de usuário:</MudText>
 				<MudRadioGroup @bind-Value="user.Role">
 					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Resident">Morador comum</MudRadio>
-					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Counselor">Conselheiro</MudRadio>
+					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Submanager">Subíndico</MudRadio>
 					<MudRadio Color="Color.Primary" Value="@UserRoleEnum.Manager">Síndico</MudRadio>
 				</MudRadioGroup>
 				<MudFileUpload Class="mt-3 mb-5" T="IBrowserFile" FilesChanged="@UploadFiles" Accept=".png, .jpg">

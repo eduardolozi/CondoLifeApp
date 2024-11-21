@@ -16,9 +16,18 @@ public class NotificationController(IHubContext<NotificationHub, INotificationHu
 {
     [Authorize]
     [HttpPost("notify-admin")]
-    public async Task<IActionResult> NotifyAdmin([FromBody] NotificationPayload payload)
+    public async Task<IActionResult> NotifyAdmin([FromBody] Notification notification)
     {
-        await hubContext.Clients.Group(nameof(UserRoleEnum.Manager)).AdminReceiveNotification(payload);
+        await hubContext.Clients.Group($"{nameof(UserRoleEnum.Manager)}-{notification.CondominiumName}").AdminReceiveNotification(notification.Message);
+        
+        return Ok();
+    }
+    
+    [Authorize]
+    [HttpPost("notify-user")]
+    public async Task<IActionResult> NotifyUser([FromBody] Notification notification)
+    {
+        await hubContext.Clients.User(notification.UserId.ToString()).UserReceiveNotification(notification.Message);
         
         return Ok();
     }
