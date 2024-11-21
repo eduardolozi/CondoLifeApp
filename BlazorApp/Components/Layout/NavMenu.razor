@@ -16,6 +16,14 @@
         background-color: #105444 !important;
     }
 
+    .mud-nav-link-expand-icon {
+        color: white !important;
+    }
+
+    .mud-nav-link:not(.mud-nav-link-disabled) .mud-nav-link-icon.mud-nav-link-icon-default {
+        color: white !important;
+    }
+
 </style>
 
 <div class="top-row ps-3 navbar navbar-dark fundo-logo pt-0 ps-0 mb-2">
@@ -28,7 +36,7 @@
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable sidebar" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
+    <MudNavMenu class="flex-column">
         <div class="nav-item ms-0 px-3">
             <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="inicial" Match="NavLinkMatch.All">
                 <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Home"></MudIcon> Página Inicial
@@ -43,11 +51,18 @@
         
         @if (_user.Role is UserRoleEnum.Manager || _user.Role is UserRoleEnum.Submanager)
         {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="espacos">
-                    <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.AccountBalance"></MudIcon> Espaços
-                </NavLink>
-            </div>
+            <MudNavGroup Style="color: white" class="nav-item px-3 pb-2" Title="Reservas e Espaços" Icon="@Icons.Material.Outlined.AccountBalance">
+                <div class="nav-item px-3 py-0">
+                    <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="espacos">
+                        <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.AccountBalance"></MudIcon> Espaços
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3 py-0">
+                    <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="minhas-reservas">
+                        <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Workspaces"></MudIcon> Minhas Reservas
+                    </NavLink>
+                </div>
+            </MudNavGroup>
             
             <div class="nav-item px-3">
                 <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="users">
@@ -61,7 +76,7 @@
                 <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Notifications"></MudIcon> Notificações
             </NavLink>
         </div>
-    </nav>
+    </MudNavMenu>
 </div>
 
 @code
