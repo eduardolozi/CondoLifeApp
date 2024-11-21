@@ -1,7 +1,9 @@
+using System.Globalization;
 using BlazorApp.Components;
 using BlazorApp.Services;
 using BlazorApp.Utils;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Localization;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,6 +42,19 @@ builder.Services.AddHttpClient<NotificationService>(client => {
 });
 
 var app = builder.Build();
+
+var defaultCulture = new CultureInfo("pt-BR");
+CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
+
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(defaultCulture),
+    SupportedCultures = new[] { defaultCulture },
+    SupportedUICultures = new[] { defaultCulture }
+};
+
+app.UseRequestLocalization(localizationOptions);
 
 if (!app.Environment.IsDevelopment()) {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);

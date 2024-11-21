@@ -39,4 +39,12 @@ public class NotificationController(IHubContext<NotificationHub, INotificationHu
         var notifications = notificationService.Get(filter);
         return notifications.HasValue() ? Ok(notifications) : NotFound();
     }
+
+    [Authorize]
+    [HttpPatch("{userId}/mark-as-readed")]
+    public IActionResult MarkAsReaded([FromRoute] int userId, [FromQuery] int firstOpenNotificationId)
+    {
+        notificationService.MarkAsReaded(userId, firstOpenNotificationId);
+        return Ok();
+    }
 }

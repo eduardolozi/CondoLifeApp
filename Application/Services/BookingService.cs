@@ -60,7 +60,6 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
             .FirstOrDefault(x => x.Id == id)
             ?? throw new ResourceNotFoundException("Reserva não encontrada.");
 
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("pt-BR");
         return new BookingDetailsDTO
         {
             Id = booking.Id,
@@ -136,8 +135,6 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 .Include(x => x.Condominium)
                 .FirstOrDefault(x => x.Id == booking.SpaceId)
                 ?? throw new ResourceNotFoundException("Não foi encontrado esse espaço no condomínio.");
-            
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("pt-BR");
             
             var notification = new Notification
             {

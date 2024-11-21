@@ -41,4 +41,20 @@ public class NotificationService(CondoLifeContext dbContext)
             .AsNoTracking()
             .FirstOrDefault(x => x.Id == id);
     }
+
+    public void MarkAsReaded(int userId, int firstOpenNotificationId)
+    {
+        var notifications = dbContext.Notification
+            .Where(x => x.UserId == userId && x.Id >= firstOpenNotificationId && !x.IsRead)
+            .ToList();
+
+        if (notifications.Any())
+        {
+            foreach (var notification in notifications)
+            {
+                notification.IsRead = true;
+            }
+            dbContext.SaveChanges();
+        }
+    }
 }

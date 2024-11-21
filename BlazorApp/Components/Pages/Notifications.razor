@@ -58,7 +58,7 @@
         <MudContainer Class="mt-5 h-75 w-50 d-flex flex-column justify-content-start px-0 notification-container">
             @foreach (var notification in _notifications)
             {
-                <MudContainer Class="mb-2 w-100 d-flex flex-column align-items-start py-3 notification" Style="border-radius: 6px; background-color: rgba(189,186,186,0.16); border-width: 1px; border-color: #6E6D6D28" @onclick="() => OpenNotification(notification)">
+                <MudContainer Class="mb-2 w-100 d-flex flex-column align-items-start py-3 notification" Style="@($"border-radius: 6px; background-color: {(notification.IsRead ? "rgba(189,186,186,0.16)" : "rgba(172, 247, 255, 0.77)")}; border-width: 1px; border-color: #6E6D6D28")" @onclick="() => OpenNotification(notification)">
                     <MudText Typo="Typo.body1" Class="fw-bolder">@notification.Message.Header</MudText>
                     <MudText Typo="Typo.body2">@notification.Message.Body</MudText>
                 </MudContainer>
@@ -112,6 +112,12 @@
                 }
             });
             StateHasChanged();
+            
+            var firstOpenNotification = _notifications.OrderBy(x => x.Id).FirstOrDefault(x => x.IsRead == false);
+            if (firstOpenNotification is not null)
+            {
+                await NotificationService.MarkNotificationsAsReaded(_user!.Id, firstOpenNotification.Id);
+            }
         }
     }
 
