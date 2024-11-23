@@ -1,0 +1,91 @@
+﻿@page "/minhas-reservas"
+@layout Layout.MainLayout
+@inject AuthService AuthService
+@inject  IDialogService DialogService
+@inject  BookingService BookingService
+@inject PageHelper PageHelper
+@inject NavigationManager Navigation
+
+<style>
+    .booking-container {
+        background-color: rgba(189,186,186,0.16);
+        transition: background-color 0.3s ease-in;
+    }
+    
+    .booking-container:hover {
+        cursor: pointer;
+        background-color: rgba(159, 158, 158, 0.35);
+    }
+</style>
+
+<PageTitle>Minhas reservas</PageTitle>
+
+<MudContainer Class="w-100 d-flex flex-column mt-5">
+    @if (_isLoading)
+    {
+        <div class="w-100 mt-5 d-flex flex-row justify-content-center align-items-center">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else
+    {
+        <MudText Class="fw-bolder mb-4" Typo="Typo.h4">Minhas reservas</MudText>
+
+        @if (_bookings is not null)
+        {
+            @foreach (var booking in _bookings)
+            {
+                <MudContainer Class="booking-container mb-4 w-100 d-flex flex-row justify-content-between align-content-center" 
+                              Style="padding: 6px 6px 6px 12px; border-radius: 10px;"
+                              @onclick="() => OpenBookingDetails(booking.Id)">
+                    <MudContainer Class="d-flex flex-column justify-content-around align-items-start">
+                        <MudText Class="fw-bolder" Typo="Typo.body1">@booking.SpaceName</MudText>
+                        <MudText>@($"{booking.InitialDate.ToShortDateString()} - {booking.InitialDate.Hour}:00 às {booking.FinalDate.Hour}:00")</MudText>
+                    </MudContainer>
+                    <MudChip T="string"
+                             Class="mb-2"
+                             Size="Size.Small"
+                             Color="@(booking.Status is BookingStatusEnum.Confirmed ? Color.Success : Color.Warning)">
+                        @booking.Status.GetEnumDescription()
+                    </MudChip>
+                </MudContainer>
+            }   
+        }
+        
+    }
+    
+</MudContainer>
+
+@code {
+    User _user;
+    bool _isLoading = true;
+    List<Booking>? _bookings = [];
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _user = await AuthService.GetUserByClaims()
+                        ?? throw new Exception("Usuário não autenticado. Por favor, faça login.");
+
+                await PageHelper.ShowBusy(ref _isLoading, async () =>
+                {
+                    _bookings = await BookingService.GetBookings(new BookingFilter { UserId = _user.Id });
+                });
+                
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await DialogService.ShowMessageBox("Erro!", ex.Message);
+            }            
+        }
+    }
+
+    void OpenBookingDetails(int id)
+    {
+        Navigation.NavigateTo($"reserva/{id}");
+    }
+}

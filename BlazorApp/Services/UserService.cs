@@ -32,7 +32,10 @@ namespace BlazorApp.Services {
 						queryParams += $"filter.Username={filter.Username}&";
                 
 					if (filter.Role.HasValue)
-						queryParams += $"filter.Role={filter.Role}";
+						queryParams += $"filter.Role={filter.Role}&";
+					
+					if (filter.OnlyEmailVerified.HasValue)
+						queryParams += $"filter.OnlyEmailVerified={filter.OnlyEmailVerified}";
 				}
 				var response = await _httpClient.GetAsync(queryParams);
 				if (!response.IsSuccessStatusCode)

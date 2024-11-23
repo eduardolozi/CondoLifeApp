@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using Application.DTOs;
-using BlazorApp.Components.Pages;
+﻿using Application.DTOs;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
@@ -18,7 +16,7 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
 {
     public List<Booking> GetAll(BookingFilter? filter)
     {
-        var query = dbContext.Booking.AsNoTracking().Include(x => x.User).AsQueryable();
+        var query = dbContext.Booking.AsNoTracking().Include(x => x.User).Include(x => x.Space).AsQueryable();
         if (filter != null)
         {
             if (filter.SpaceId.HasValue)
@@ -41,12 +39,14 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
         {
             Id = x.Id,
             SpaceId = x.SpaceId,
+            SpaceName = x.Space.Name,
             Status = x.Status,
             InitialDate = x.InitialDate,
             FinalDate = x.FinalDate,
             UserId = x.UserId,
             Username = x.User.Name,
-            Description = x.Description
+            Description = x.Description,
+            
         }).OrderBy(x => x.InitialDate).ToList();
     }
 

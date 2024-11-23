@@ -1,6 +1,6 @@
 ﻿using API.Hubs;
 using Application.Services;
-using BlazorApp.Enums;
+using Domain.Enums;
 using Domain.Models;
 using Domain.Models.Filters;
 using Domain.Utils;

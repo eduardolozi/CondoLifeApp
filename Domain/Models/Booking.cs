@@ -26,5 +26,8 @@ namespace Domain.Models {
         
         [JsonIgnore]
         public Space? Space { get; set; }
+        
+        [NotMapped]
+        public string? SpaceName { get; set; }
     }
 }
