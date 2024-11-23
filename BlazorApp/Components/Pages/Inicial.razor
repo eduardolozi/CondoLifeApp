@@ -1,42 +1,9 @@
 ﻿@page "/inicial"
 @layout Layout.MainLayout
-@* @inject IJSRuntime JSRuntime *@
-@* @inject ISnackbar Snackbar *@
 
 <PageTitle>Página Inicial</PageTitle>
 
 
 @code {
-    @* HubConnection _hubConnection; *@
-    @* *@
-    @* protected override async Task OnAfterRenderAsync(bool firstRender) *@
-    @* { *@
-    @*     if (firstRender) *@
-    @*     { *@
-    @*         var token = await JSRuntime.InvokeAsync<string>("getToken"); *@
-    @*         _hubConnection = new HubConnectionBuilder() *@
-    @*             .WithUrl("https://localhost:7031/notificationHub", options => *@
-    @*             { *@
-    @*                 options.Headers.Add("Authorization", $"Bearer {token}"); *@
-    @*             }) *@
-    @*             .WithAutomaticReconnect() *@
-    @*             .Build(); *@
-    @*         _hubConnection.On<NotificationPayload>("UserReceiveNotification", (message) => *@
-    @*         { *@
-    @*             Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight; *@
-    @*             Snackbar.Add *@
-    @*             ( *@
-    @*                 @<div> *@
-    @*                     <h5>@message.Header</h5> *@
-    @*                     <ul> *@
-    @*                         <li>@message.Body</li> *@
-    @*                     </ul> *@
-    @*                 </div>, *@
-    @*                 Severity.Info *@
-    @*             ); *@
-    @*         }); *@
-    @*         await _hubConnection.StartAsync(); *@
-    @*     } *@
-    @* } *@
-
+    
 }

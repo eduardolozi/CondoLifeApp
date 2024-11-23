@@ -1,4 +1,6 @@
-﻿<style>
+﻿@inject NavigationManager Navigation
+
+<style>
     .link-sidebar {
         font-family: 'Roboto';
     }
@@ -23,12 +25,16 @@
     .mud-nav-link:not(.mud-nav-link-disabled) .mud-nav-link-icon.mud-nav-link-icon-default {
         color: white !important;
     }
+    
+    .logo:hover {
+        cursor: pointer;
+    }
 
 </style>
 
 <div class="top-row ps-3 navbar navbar-dark fundo-logo pt-0 ps-0 mb-2">
     <div class="container-fluid d-flex flex-row justify-content-start pt-0">
-        <img src="/logo-condolife.png" style="width: 40px; height: 40px;" />
+        <img class="logo" src="/logo-condolife.png" style="width: 40px; height: 40px;" @onclick="NavigateToInitialPage"/>
         <p class="text-white fw-bold ms-2 pt-5 fs-4">Condolife</p>
     </div>
 </div>
@@ -92,6 +98,11 @@
             _user = await _authService.GetUserByClaims();
             StateHasChanged();
         }
+    }
+
+    void NavigateToInitialPage()
+    {
+        Navigation.NavigateTo("inicial");
     }
 }
 
