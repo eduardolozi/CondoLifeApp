@@ -1,4 +1,6 @@
-﻿@inject NavigationManager Navigation
+﻿@using Microsoft.AspNetCore.Authentication
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
 
 <style>
     .link-sidebar {
@@ -44,8 +46,8 @@
 <div class="nav-scrollable sidebar" onclick="document.querySelector('.navbar-toggler').click()">
     <MudNavMenu class="flex-column">
         <div class="nav-item ms-0 px-3">
-            <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="inicial" Match="NavLinkMatch.All">
-                <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Home"></MudIcon> Página Inicial
+            <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="feed" Match="NavLinkMatch.All">
+                <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Diversity1"></MudIcon> Comunidade
             </NavLink>
         </div>
 
@@ -95,14 +97,22 @@
     {
         if (firstRender)
         {
-            _user = await _authService.GetUserByClaims();
-            StateHasChanged();
+            try
+            {
+                _user = await _authService.GetUserByClaims();
+                StateHasChanged();
+            }
+            catch (AuthenticationFailureException ex)
+            {
+                var result = await DialogService.ShowMessageBox("Erro!", ex.Message);
+                Navigation.NavigateTo("login");
+            }
         }
     }
 
     void NavigateToInitialPage()
     {
-        Navigation.NavigateTo("inicial");
+        Navigation.NavigateTo("feed");
     }
 }
 

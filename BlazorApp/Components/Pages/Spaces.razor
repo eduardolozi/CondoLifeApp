@@ -1,11 +1,11 @@
 ﻿@page "/espacos"
+@using Microsoft.AspNetCore.Authentication
 @layout Layout.MainLayout
 @inject SpaceService SpaceService
 @inject AuthService AuthService
 @inject IDialogService DialogService
 @inject PageHelper PageHelper
-@inject IJSRuntime JSRuntime
-@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
 
 <style>
     .space-card {
@@ -144,44 +144,26 @@ else
     List<Space> _spaces = [];
     bool _isLoading = true;
     User? _user;
-    // private HubConnection _hubConnection;
-    // string token;
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await PageHelper.ShowBusy(ref _isLoading, async () =>
+            try
             {
-                _user = await AuthService.GetUserByClaims();
-                await GetSpaces();
-            });
-            
+                await PageHelper.ShowBusy(ref _isLoading, async () =>
+                {
+                    _user = await AuthService.GetUserByClaims();
+                    await GetSpaces();
+                });
+            }
+            catch (AuthenticationFailureException ex)
+            {
+                await DialogService.ShowMessageBox("Erro!", ex.Message);
+                Navigation.NavigateTo("login");
+            }
+
             StateHasChanged();
-            
-            @* token = await JSRuntime.InvokeAsync<string>("getToken"); *@
-            @* _hubConnection = new HubConnectionBuilder() *@
-            @* .WithUrl("https://localhost:7031/notificationHub", options => *@
-            @* { *@
-            @*     options.Headers.Add("Authorization", $"Bearer {token}"); *@
-            @* }) *@
-            @* .WithAutomaticReconnect() *@
-            @* .Build(); *@
-            @* _hubConnection.On<NotificationPayload>("AdminReceiveNotification", (message) => *@
-            @* { *@
-            @*     Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight; *@
-            @*     Snackbar.Add *@
-            @*     ( *@
-            @*         @<div> *@
-            @*             <h5>@message.Header</h5> *@
-            @*             <ul> *@
-            @*                 <li>@message.Body</li> *@
-            @*             </ul> *@
-            @*         </div>, *@
-            @*         Severity.Info *@
-            @*     ); *@
-            @* }); *@
-            @* await _hubConnection.StartAsync(); *@
         }
     }
 

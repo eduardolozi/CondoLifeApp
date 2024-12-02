@@ -117,7 +117,7 @@
             await LocalStorage.SetItemAsStringAsync("accessToken", result.AccessToken!);
             await LocalStorage.SetItemAsStringAsync("refreshToken", result.RefreshToken!);
             
-            Navigation.NavigateTo("inicial");
+            Navigation.NavigateTo("feed");
         }
         catch (Exception ex)
         {

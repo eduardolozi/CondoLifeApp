@@ -22,7 +22,6 @@ namespace Domain.Models {
         [JsonIgnore]
         public List<Comment> Comments { get; set; } = [];
         
-        [JsonIgnore]
         [NotMapped]
         public List<Photo> Photos { get; set; } = [];
         

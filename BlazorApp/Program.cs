@@ -3,6 +3,7 @@ using BlazorApp.Components;
 using BlazorApp.Services;
 using BlazorApp.Utils;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Localization;
 using MudBlazor.Services;
 
@@ -10,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
 builder.Services.AddMemoryCache();
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();

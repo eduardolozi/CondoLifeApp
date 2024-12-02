@@ -32,6 +32,7 @@ public class SpaceService
             if (filter.Name != null) {
                 queryParameters += $"&filter.Name={filter.Name}";
             }
+
             var accessToken = await _localStorage.GetItemAsStringAsync("accessToken");
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await _httpClient.GetFromJsonAsync<List<Space>>(queryParameters);

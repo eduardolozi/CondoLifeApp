@@ -1,6 +1,8 @@
 ﻿@inherits LayoutComponentBase
 @inject IJSRuntime JSRuntime
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
 <MudPopoverProvider />
 <MudThemeProvider />
 <MudDialogProvider />
@@ -37,44 +39,47 @@
         if (firstRender)
         {
             var token = await JSRuntime.InvokeAsync<string>("getToken");
-            _hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:7031/notificationHub", options =>
+            if (!string.IsNullOrEmpty(token))
+            {
+                _hubConnection = new HubConnectionBuilder()
+                    .WithUrl("https://localhost:7031/notificationHub", options =>
+                    {
+                        options.Headers.Add("Authorization", $"Bearer {token}");
+                    })
+                    .WithAutomaticReconnect()
+                    .Build();
+                
+                
+                _hubConnection.On<NotificationPayload>("AdminReceiveNotification", (message) =>
                 {
-                    options.Headers.Add("Authorization", $"Bearer {token}");
-                })
-                .WithAutomaticReconnect()
-                .Build();
-            
-            
-            _hubConnection.On<NotificationPayload>("AdminReceiveNotification", (message) =>
-            {
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add
-                (
-                    @<div>
-                        <h5>@message.Header</h5>
-                        <ul>
-                            <li>@message.Body</li>
-                        </ul>
-                    </div>,
-                    Severity.Info
-                );
-            });
-            _hubConnection.On<NotificationPayload>("UserReceiveNotification", (message) =>
-            {
-                Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-                Snackbar.Add
-                (
-                    @<div>
-                        <h5>@message.Header</h5>
-                        <ul>
-                            <li>@message.Body</li>
-                        </ul>
-                    </div>,
-                    Severity.Info
-                );
-            });
-            await _hubConnection.StartAsync();
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add
+                    (
+                        @<div>
+                            <h5>@message.Header</h5>
+                            <ul>
+                                <li>@message.Body</li>
+                            </ul>
+                        </div>,
+                        Severity.Info
+                    );
+                });
+                _hubConnection.On<NotificationPayload>("UserReceiveNotification", (message) =>
+                {
+                    Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Add
+                    (
+                        @<div>
+                            <h5>@message.Header</h5>
+                            <ul>
+                                <li>@message.Body</li>
+                            </ul>
+                        </div>,
+                        Severity.Info
+                    );
+                });
+                await _hubConnection.StartAsync();
+            }
         }
     }
 }
