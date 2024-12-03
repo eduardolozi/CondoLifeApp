@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
-public class BookingService(CondoLifeContext dbContext, AbstractValidator<Booking> bookingValidator, RabbitService rabbitService)
+public class BookingService(CondoLifeContext dbContext, AbstractValidator<Booking> bookingValidator, RabbitService rabbitService, NotificationService notificationService)
 {
     public List<Booking> GetAll(BookingFilter? filter)
     {
@@ -130,6 +130,7 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
     public void Delete(int id)
     {
         dbContext.Booking.Where(x => x.Id == id).ExecuteDelete();
+        notificationService.DeleteBookingNotifications(id);
         dbContext.SaveChanges();
     }
 

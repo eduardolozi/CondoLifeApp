@@ -14,6 +14,12 @@ public class NotificationService(CondoLifeContext dbContext)
         dbContext.SaveChanges();
     }
 
+    public void DeleteBookingNotifications(int bookingId)
+    {
+        dbContext.Notification.Where(x => x.BookingId == bookingId).ExecuteDelete();
+        dbContext.SaveChanges();
+    }
+
     public List<Notification>? Get(NotificationFilter? filter = null)
     {
         var query = dbContext

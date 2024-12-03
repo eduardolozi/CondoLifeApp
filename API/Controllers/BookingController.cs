@@ -38,7 +38,7 @@ public class BookingController(BookingService bookingService) : ControllerBase
     
     [Authorize]
     [HttpDelete("{id}")]
-    public IActionResult Add([FromRoute] int id)
+    public IActionResult Delete([FromRoute] int id)
     {
         bookingService.Delete(id);
         return Ok();
