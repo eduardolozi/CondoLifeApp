@@ -4,6 +4,7 @@ using BlazorApp.DTOs;
 using BlazorApp.Models;
 using BlazorApp.Utils;
 using Blazored.LocalStorage;
+using Microsoft.JSInterop;
 
 namespace BlazorApp.Services;
 
@@ -15,6 +16,7 @@ public class BookingService(HttpClient httpClient, ILocalStorageService localSto
         {
             var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            
             var queryParams = string.Empty;
             if (filter != null)
             {
@@ -79,6 +81,16 @@ public class BookingService(HttpClient httpClient, ILocalStorageService localSto
         var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var response = await httpClient.PatchAsync($"{bookingId}/accept-booking", null);
+
+        if (!response.IsSuccessStatusCode)
+            await response.HandleResponseError();
+    }
+
+    public async Task DeleteBooking(int bookingId)
+    {
+        var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var response = await httpClient.DeleteAsync($"{bookingId}");
 
         if (!response.IsSuccessStatusCode)
             await response.HandleResponseError();

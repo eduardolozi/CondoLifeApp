@@ -24,19 +24,24 @@
     @if (_isLoading)
     {
         <div class="w-100 mt-5 d-flex flex-row justify-content-center align-items-center">
-            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
         </div>
     }
     else
     {
         <MudText Class="fw-bolder mb-4" Typo="Typo.h4">Minhas reservas</MudText>
+        
+        <MudContainer Class="d-flex flex-row h-100 justify-content-start ps-0 mb-4 ">
+            <MudButton OnClick="SelectFutureBookings" Variant="Variant.Outlined" Class="me-5" Color="@_futureButtonColor">Futuras</MudButton>
+            <MudButton OnClick="SelectCompletedBookings" Variant="Variant.Outlined" Color="@_completedButtonColor">Concluídas</MudButton>
+        </MudContainer>
 
         @if (_bookings is not null)
         {
             @foreach (var booking in _bookings)
             {
-                <MudContainer Class="booking-container mb-4 w-100 d-flex flex-row justify-content-between align-content-center" 
-                              Style="padding: 6px 6px 6px 12px; border-radius: 10px;"
+                <MudContainer Class="booking-container mb-4 w-100 d-flex flex-row justify-content-between align-content-center"
+                              Style="padding: 6px 6px 6px 2px; border-radius: 3px; border-width: 1px; border-color: rgba(15,15,15,0.4)"
                               @onclick="() => OpenBookingDetails(booking.Id)">
                     <MudContainer Class="d-flex flex-column justify-content-around align-items-start">
                         <MudText Class="fw-bolder" Typo="Typo.body1">@booking.SpaceName</MudText>
@@ -49,11 +54,11 @@
                         @booking.Status.GetEnumDescription()
                     </MudChip>
                 </MudContainer>
-            }   
+            }
         }
-        
+
     }
-    
+
 </MudContainer>
 
 @code {
@@ -72,7 +77,7 @@
 
                 await PageHelper.ShowBusy(ref _isLoading, async () =>
                 {
-                    _bookings = await BookingService.GetBookings(new BookingFilter { UserId = _user.Id });
+                    await SelectFutureBookings();
                 });
                 
                 StateHasChanged();
@@ -87,5 +92,32 @@
     void OpenBookingDetails(int id)
     {
         Navigation.NavigateTo($"reserva/{id}");
+    }
+
+
+    Color _futureButtonColor = Color.Default;
+    Color _completedButtonColor = Color.Default;
+    async Task SelectFutureBookings()
+    {
+        _futureButtonColor = Color.Success;
+        _completedButtonColor = Color.Default;
+        _isLoading = true;
+        await PageHelper.ShowBusy(ref _isLoading, async () =>
+        {
+            _bookings = await BookingService.GetBookings(new BookingFilter { UserId = _user.Id, InitialDate = DateTime.UtcNow});
+        });
+        StateHasChanged();
+    }
+
+    async Task SelectCompletedBookings()
+    {
+        _futureButtonColor = Color.Default;
+        _completedButtonColor = Color.Success;
+        _isLoading = true;
+        await PageHelper.ShowBusy(ref _isLoading, async () =>
+        {
+            _bookings = await BookingService.GetBookings(new BookingFilter { UserId = _user.Id, FinalDate = DateTime.UtcNow});
+        });
+        StateHasChanged();
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 
 namespace Domain.Utils {
@@ -13,14 +14,10 @@ namespace Domain.Utils {
             return list.Count == 0;
         }
 
-        public static bool ContainsSignalRHub(this string path)
+        public static DateTime FormatDateToBrazilianPattern(this DateTime date)
         {
-            var hubPaths = new HashSet<string>
-            {
-                "notificationHub",
-            };
-            
-            return hubPaths.Contains(path);
+            var formatedDate = date.ToString("MM/dd/yyyy HH:mm:ss");
+            return DateTime.Parse(formatedDate, new CultureInfo("pt-br"));
         }
     }
 }

@@ -41,7 +41,12 @@
                     <MudText Typo="Typo.subtitle1">Gerencie suas informações pessoais e dados do apartamento.</MudText>
                 </MudCardHeader>
                 <MudCardContent Style="width: 100%" Class="d-flex flex-column align-items-center">
-                    <MudImage Elevation="5" Style="width: 150px; height: 150px; border-radius: 50%;" Src="@_base64Image"></MudImage>
+                    @if (_photoIsLoading){
+                        <MudProgressCircular Color="Color.Primary" Style="width: 75px; height: 75px" Indeterminate="true" />
+                    }
+                    else {
+                        <MudImage Elevation="5" Style="width: 150px; height: 150px; border-radius: 50%;" Src="@_base64Image"></MudImage>
+                    }
                     <MudFileUpload Class="mt-3 mb-5" T="IBrowserFile" FilesChanged="UploadImage" Accept=".png, .jpg">
                         <ActivatorContent>
                             <MudContainer Class="d-flex flex-row p-0">
@@ -105,6 +110,7 @@
     [Inject] private AuthService _authService { get; set; }
     string _base64Image = string.Empty;
     User? _user = new User();
+    bool _photoIsLoading = true;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -112,11 +118,12 @@
             _user = await _authService.GetUserByClaims();
             if (_user is not null)
             {
-                var param = string.IsNullOrEmpty(_user.PhotoUrl) ? $"{_user.Id}/photo" : _user.PhotoUrl; 
+                var param = string.IsNullOrEmpty(_user.PhotoUrl) ? $"{_user.Id}/photo" : _user.PhotoUrl;
                 var photo = await userService.GetPhoto(param);
                 if (photo is not null)
                 {
                     _base64Image = string.IsNullOrEmpty(photo.ContentBase64) ? "/blank-profile-picture.png" : $"data:image/png;base64,{photo.ContentBase64}";
+                    _photoIsLoading = false;
                     StateHasChanged();
                 }
             }

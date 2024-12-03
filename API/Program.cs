@@ -19,19 +19,6 @@ builder.Services.AddCors(options => {
 });
 var app = builder.Build();
 
-var defaultCulture = new CultureInfo("pt-BR");
-CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
-CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
-
-var localizationOptions = new RequestLocalizationOptions
-{
-	DefaultRequestCulture = new RequestCulture(defaultCulture),
-	SupportedCultures = new[] { defaultCulture },
-	SupportedUICultures = new[] { defaultCulture }
-};
-
-app.UseRequestLocalization(localizationOptions);
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
     app.UseSwagger();

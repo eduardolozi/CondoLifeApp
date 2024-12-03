@@ -34,7 +34,7 @@ namespace BlazorApp.Utils {
 		
 		public static string GetElapsedTime(this DateTime sentDateTime)
 		{
-			var now = DateTime.Now;
+			var now = DateTime.UtcNow;
 			var timeSpan = now - sentDateTime;
 
 			if (timeSpan.TotalMinutes < 1)

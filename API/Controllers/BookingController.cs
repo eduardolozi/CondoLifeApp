@@ -35,7 +35,15 @@ public class BookingController(BookingService bookingService) : ControllerBase
         bookingService.Create(booking, token);
         return Ok();
     }
-
+    
+    [Authorize]
+    [HttpDelete("{id}")]
+    public IActionResult Add([FromRoute] int id)
+    {
+        bookingService.Delete(id);
+        return Ok();
+    }
+    
     [Authorize(Policy = "ManagerOrSubmanager")]
     [HttpPatch("{id}/accept-booking")]
     public IActionResult ApproveBooking([FromRoute] int id)

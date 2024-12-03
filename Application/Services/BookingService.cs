@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using System.Globalization;
+using Application.DTOs;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
@@ -26,10 +27,16 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 query = query.Where(x => x.Status == filter.Status);
 
             if (filter.InitialDate.HasValue)
-                query = query.Where(x => x.InitialDate >= filter.InitialDate);
+            {
+                filter.InitialDate.Value.FormatDateToBrazilianPattern();
+                query = query.Where(x => x.InitialDate >= filter.InitialDate.Value.FormatDateToBrazilianPattern());
+            }
 
             if (filter.FinalDate.HasValue)
-                query = query.Where(x => x.FinalDate <= filter.FinalDate);
+            {
+                filter.FinalDate.Value.FormatDateToBrazilianPattern();
+                query = query.Where(x => x.FinalDate <= filter.FinalDate.Value.FormatDateToBrazilianPattern());
+            }
 
             if (filter.UserId.HasValue)
                 query = query.Where(x => x.UserId == filter.UserId);
@@ -115,9 +122,15 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 Body = $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}."
             },
             BookingId = booking.Id,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.UtcNow
         };
         rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
+    }
+
+    public void Delete(int id)
+    {
+        dbContext.Booking.Where(x => x.Id == id).ExecuteDelete();
+        dbContext.SaveChanges();
     }
 
     public void ApproveBooking(int id, string token)
@@ -149,7 +162,7 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                     Body = $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}."
                 },
                 BookingId = booking.Id,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
             rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
         }
