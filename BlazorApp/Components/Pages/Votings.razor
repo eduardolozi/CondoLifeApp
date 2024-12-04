@@ -1,0 +1,45 @@
+﻿@page "/votacoes"
+@layout Layout.MainLayout
+
+<PageTitle>Votações</PageTitle>
+
+<MudContainer Class="w-100 d-flex flex-column mt-5">
+    <MudText Class="fw-bolder mb-4" Typo="Typo.h4">Votações em andamento</MudText>
+    
+    <MudContainer Class="mb-5 w-100 d-flex flex-column justify-content-around align-items-start" Style="padding: 18px 20px 12px 20px; border-radius: 3px; border-width: 1px; border-color: rgba(15,15,15,0.15)">
+        <MudText Typo="Typo.h5" Class="fw-bold">Implantar portaria eletrônica</MudText>
+        <MudContainer Class="d-flex flex-row justify-content-start px-0 mb-3 mt-1">
+            <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small"></MudIcon>
+            <MudText Class="px-1 pb-1" Typo="Typo.body2" Style="color: rgba(58,58,58,0.8)">11/12/2024 - 18/12/2024</MudText>
+        </MudContainer>
+        <MudText Class="mb-5" Typo="Typo.body2">Atualmente nossas portarias contam com os porteiros, no entanto, recebemos a sugestão de alguns moradores sobre a implantação de portarias eletrônicas.</MudText>
+        <MudContainer Class="d-flex flex-row justify-content-between align-items-center px-0">
+            <MudContainer Class="d-flex flex-row justify-content-start align-items-center px-0">
+                <MudIcon Icon="@Icons.Material.Outlined.Group"></MudIcon>
+                <MudText Class="px-1" Style="color: rgba(58,58,58,0.8);" Typo="Typo.body1">34</MudText>
+            </MudContainer>
+            <MudButton Class="shadow-none" Variant="Variant.Outlined" Color="Color.Info" Size="Size.Large">Votar</MudButton>
+        </MudContainer>
+    </MudContainer>
+    
+    <MudContainer Class="w-100 d-flex flex-column justify-content-around align-items-start" Style="padding: 18px 20px 12px 20px; border-radius: 3px; border-width: 1px; border-color: rgba(15,15,15,0.15)">
+        <MudText Typo="Typo.h5" Class="fw-bold">Criação de academia</MudText>
+        <MudContainer Class="d-flex flex-row justify-content-start px-0 mb-3 mt-1">
+            <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small"></MudIcon>
+            <MudText Class="px-1 pb-1" Typo="Typo.body2" Style="color: rgba(58,58,58,0.8)">20/11/2024 - 10/12/2024</MudText>
+        </MudContainer>
+        <MudText Class="mb-5" Typo="Typo.body2">Em busca de modernizar e melhorar a qualidade de vida e lazer dos moradores. Propomos a construção de uma academia, pelos estudos realizados será adicionado ao boleto de condomínio 50 reais por morador nos próximos 3 meses.</MudText>
+        <MudContainer Class="d-flex flex-row justify-content-between align-items-center px-0">
+            <MudContainer Class="d-flex flex-row justify-content-start align-items-center px-0">
+                <MudIcon Icon="@Icons.Material.Outlined.Group"></MudIcon>
+                <MudText Class="px-1" Style="color: rgba(58,58,58,0.8);" Typo="Typo.body1">81</MudText>
+            </MudContainer>
+            <MudButton Class="shadow-none" Variant="Variant.Outlined" Color="Color.Info" Size="Size.Large">Votar</MudButton>
+        </MudContainer>
+    </MudContainer>
+    
+</MudContainer>
+
+@code {
+    
+}

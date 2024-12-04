@@ -42,7 +42,7 @@
                 </MudCardHeader>
                 <MudCardContent Style="width: 100%" Class="d-flex flex-column align-items-center">
                     @if (_photoIsLoading){
-                        <MudProgressCircular Color="Color.Primary" Style="width: 75px; height: 75px" Indeterminate="true" />
+                        <MudProgressCircular Color="Color.Primary" Style="width: 50px; height: 50px" Indeterminate="true" />
                     }
                     else {
                         <MudImage Elevation="5" Style="width: 150px; height: 150px; border-radius: 50%;" Src="@_base64Image"></MudImage>
