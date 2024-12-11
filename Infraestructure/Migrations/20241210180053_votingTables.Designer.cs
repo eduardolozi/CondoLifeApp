@@ -4,6 +4,7 @@ using Infraestructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(CondoLifeContext))]
-    partial class CondoLifeContextModelSnapshot : ModelSnapshot
+    [Migration("20241210180053_votingTables")]
+    partial class votingTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -431,9 +434,6 @@ namespace Infraestructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CondominiumId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -458,8 +458,6 @@ namespace Infraestructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CondominiumId");
 
                     b.ToTable("Voting");
                 });
@@ -650,15 +648,6 @@ namespace Infraestructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Models.Voting", b =>
-                {
-                    b.HasOne("Domain.Models.Condominium", null)
-                        .WithMany("Votings")
-                        .HasForeignKey("CondominiumId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Domain.Models.VotingOption", b =>
                 {
                     b.HasOne("Domain.Models.Voting", null)
@@ -674,8 +663,6 @@ namespace Infraestructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Users");
-
-                    b.Navigation("Votings");
                 });
 
             modelBuilder.Entity("Domain.Models.Notification", b =>

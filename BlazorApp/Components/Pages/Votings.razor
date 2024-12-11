@@ -1,45 +1,142 @@
 ﻿@page "/votacoes"
 @layout Layout.MainLayout
+@inject PageHelper PageHelper
+@inject VotingService VotingService
+@inject AuthService AuthService
+@inject IDialogService DialogService
+
+<style>
+    .bottom-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .fixed-button {
+        position: fixed;
+        bottom: 20px; 
+        right: 20px;  
+        width: 60px; 
+        height: 60px;
+        background-color: rgb(0, 115, 78); 
+        color: white; 
+        border: none; 
+        border-radius: 50%; 
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); 
+        font-size: 24px;
+        cursor: pointer; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        transition: box-shadow 0.3s;
+        z-index: 1000;
+    }
+
+    .fixed-button:hover {
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3); /
+    }
+    
+    @@media (max-width: 768px) {
+        .bottom-container {
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+        }
+        
+        .voting-button {
+            margin-top: 1rem;
+            width: 100%;
+        }
+    }
+</style>
 
 <PageTitle>Votações</PageTitle>
 
 <MudContainer Class="w-100 d-flex flex-column mt-5">
-    <MudText Class="fw-bolder mb-4" Typo="Typo.h4">Votações em andamento</MudText>
-    
-    <MudContainer Class="mb-5 w-100 d-flex flex-column justify-content-around align-items-start" Style="padding: 18px 20px 12px 20px; border-radius: 3px; border-width: 1px; border-color: rgba(15,15,15,0.15)">
-        <MudText Typo="Typo.h5" Class="fw-bold">Implantar portaria eletrônica</MudText>
-        <MudContainer Class="d-flex flex-row justify-content-start px-0 mb-3 mt-1">
-            <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small"></MudIcon>
-            <MudText Class="px-1 pb-1" Typo="Typo.body2" Style="color: rgba(58,58,58,0.8)">11/12/2024 - 18/12/2024</MudText>
-        </MudContainer>
-        <MudText Class="mb-5" Typo="Typo.body2">Atualmente nossas portarias contam com os porteiros, no entanto, recebemos a sugestão de alguns moradores sobre a implantação de portarias eletrônicas.</MudText>
-        <MudContainer Class="d-flex flex-row justify-content-between align-items-center px-0">
-            <MudContainer Class="d-flex flex-row justify-content-start align-items-center px-0">
-                <MudIcon Icon="@Icons.Material.Outlined.Group"></MudIcon>
-                <MudText Class="px-1" Style="color: rgba(58,58,58,0.8);" Typo="Typo.body1">34</MudText>
+    @if (_isLoading)
+    {
+        <div class="w-100 mt-5 d-flex flex-row justify-content-center align-items-center">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else
+    {
+        <MudText Class="fw-bolder mx-0 px-0" Typo="Typo.h4">Votações em andamento</MudText>
+        
+        @if (_votings.Any())
+        {
+            @foreach (var voting in _votings)
+            {
+                <MudContainer Class="mb-5 w-100 d-flex flex-column justify-content-around align-items-start" Style="padding: 18px 20px 12px 20px; border-radius: 3px; border-width: 1px; border-color: rgba(15,15,15,0.15)">
+                    <MudText Typo="Typo.h5" Class="fw-bold">@voting.Title</MudText>
+                    <MudContainer Class="d-flex flex-row justify-content-start px-0 mb-3 mt-1">
+                        <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small"></MudIcon>
+                        <MudText Class="px-1 pb-1" Typo="Typo.body2" Style="color: rgba(58,58,58,0.8)">11/12/2024 - 18/12/2024</MudText>
+                    </MudContainer>
+                    <MudText Class="mb-5" Typo="Typo.body2">@voting.Description</MudText>
+                    <MudContainer Class="bottom-container px-0">
+                        <MudContainer Class="d-flex flex-row justify-content-start align-items-center px-0">
+                            <MudIcon Icon="@Icons.Material.Outlined.Group"></MudIcon>
+                            <MudText Class="px-1" Style="color: rgba(58,58,58,0.8);" Typo="Typo.body1">@voting.TotalVotes</MudText>
+                        </MudContainer>
+                        @if (_user.Role is not UserRoleEnum.Admin && _user.Role is not UserRoleEnum.Manager)
+                        {
+                            <MudButton Class="voting-button shadow-none" Variant="Variant.Outlined" Color="Color.Info" Size="Size.Large">Votar</MudButton>
+                        }
+                    </MudContainer>
+                </MudContainer>
+            }
+        }
+        else
+        {
+            <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-20">
+                <img src="svg-not-found.svg" alt="Logo" style="width:200px; margin-top: 2rem" />
+                <MudText Class="mt-2" Typo="Typo.h6">Sem votações</MudText>
             </MudContainer>
-            <MudButton Class="shadow-none" Variant="Variant.Outlined" Color="Color.Info" Size="Size.Large">Votar</MudButton>
-        </MudContainer>
-    </MudContainer>
-    
-    <MudContainer Class="w-100 d-flex flex-column justify-content-around align-items-start" Style="padding: 18px 20px 12px 20px; border-radius: 3px; border-width: 1px; border-color: rgba(15,15,15,0.15)">
-        <MudText Typo="Typo.h5" Class="fw-bold">Criação de academia</MudText>
-        <MudContainer Class="d-flex flex-row justify-content-start px-0 mb-3 mt-1">
-            <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small"></MudIcon>
-            <MudText Class="px-1 pb-1" Typo="Typo.body2" Style="color: rgba(58,58,58,0.8)">20/11/2024 - 10/12/2024</MudText>
-        </MudContainer>
-        <MudText Class="mb-5" Typo="Typo.body2">Em busca de modernizar e melhorar a qualidade de vida e lazer dos moradores. Propomos a construção de uma academia, pelos estudos realizados será adicionado ao boleto de condomínio 50 reais por morador nos próximos 3 meses.</MudText>
-        <MudContainer Class="d-flex flex-row justify-content-between align-items-center px-0">
-            <MudContainer Class="d-flex flex-row justify-content-start align-items-center px-0">
-                <MudIcon Icon="@Icons.Material.Outlined.Group"></MudIcon>
-                <MudText Class="px-1" Style="color: rgba(58,58,58,0.8);" Typo="Typo.body1">81</MudText>
-            </MudContainer>
-            <MudButton Class="shadow-none" Variant="Variant.Outlined" Color="Color.Info" Size="Size.Large">Votar</MudButton>
-        </MudContainer>
-    </MudContainer>
-    
+        }
+        
+        @if (_user!.Role is UserRoleEnum.Manager || _user.Role is UserRoleEnum.Admin)
+        {
+            <button class="fixed-button">
+                +
+            </button>
+        }
+    }
 </MudContainer>
 
 @code {
+    private List<Voting> _votings = [];
+    private bool _isLoading = true;
+    private User? _user = new();
+    private DateTime? _baseDate = null;
     
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await PageHelper.ShowBusy(ref _isLoading, async () =>
+            {
+                try
+                {
+                    _user = await AuthService.GetUserByClaims();
+                    _votings = await GetAllVotings(true);
+                }
+                catch (Exception e)
+                {
+                    await DialogService.ShowMessageBox("Erro!", e.Message);
+                }
+            });
+            StateHasChanged();
+        }
+    }
+
+    private Task<List<Voting>> GetAllVotings(bool isOpened)
+    {
+        return VotingService.GetAllVotings(new VotingFilter
+        {
+            CondominiumId = _user!.CondominiumId,
+            IsOpened = true,
+            BaseDate = _baseDate
+        });
+    }
 }

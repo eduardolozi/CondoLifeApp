@@ -13,6 +13,7 @@ namespace Application.Services;
 public class SpaceService(
     CondoLifeContext dbContext,
     IDocumentStore ravenStore,
+    NotificationService notificationService,
     AbstractValidator<Space> spaceValidator)
 {
     private void SavePhoto(Space space)
@@ -73,7 +74,12 @@ public class SpaceService(
 
     public void Delete(int id)
     {
-        var space = GetById(id) ?? throw new ResourceNotFoundException("Espaço não encontrado.");
+        var space = dbContext
+                        .Space
+                        .Include(x => x.Bookings)
+                        .FirstOrDefault(s => s.Id == id)
+                    ?? throw new ResourceNotFoundException("Espaço não encontrado.");
+        
         if (space.PhotoUrl.HasValue())
         {
             using var session = ravenStore.OpenSession();
@@ -81,8 +87,12 @@ public class SpaceService(
             session.Delete(photoId);
             session.SaveChanges();
         }
+
+        if (space.Bookings != null)
+            notificationService.DeleteBookingsNotifications(space.Bookings);
         dbContext.Space.Remove(space);
         dbContext.SaveChanges();
+        
     }
 
     public Space? GetById(int id)

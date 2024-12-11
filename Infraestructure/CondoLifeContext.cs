@@ -15,6 +15,9 @@ namespace Infraestructure {
         public DbSet<Post> Post { get; set; }
         public DbSet<Like> Like { get; set; }
         public DbSet<Comment> Comment { get; set; }
+        public DbSet<Voting> Voting { get; set; }
+        public DbSet<VotingOption> VotingOption { get; set; }
+        public DbSet<Vote> Vote { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             //env

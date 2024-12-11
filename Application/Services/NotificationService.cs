@@ -17,7 +17,16 @@ public class NotificationService(CondoLifeContext dbContext)
     public void DeleteBookingNotifications(int bookingId)
     {
         dbContext.Notification.Where(x => x.BookingId == bookingId).ExecuteDelete();
-        dbContext.SaveChanges();
+    }
+
+    public void DeleteBookingsNotifications(List<Booking> bookings)
+    {
+        if (!bookings.Any()) return;
+        var bookingIds = bookings.Select(x => x.Id).ToList();
+        var notifications = dbContext
+            .Notification
+            .Where(x => x.BookingId.HasValue && bookingIds.Contains(x.BookingId.Value))
+            .ExecuteDelete();
     }
 
     public List<Notification>? Get(NotificationFilter? filter = null)

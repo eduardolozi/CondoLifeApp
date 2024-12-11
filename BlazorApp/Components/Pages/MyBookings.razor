@@ -36,7 +36,7 @@
             <MudButton OnClick="SelectCompletedBookings" Variant="Variant.Outlined" Color="@_completedButtonColor">Concluídas</MudButton>
         </MudContainer>
 
-        @if (_bookings is not null)
+        @if (_bookings.Any())
         {
             @foreach (var booking in _bookings)
             {
@@ -56,6 +56,13 @@
                 </MudContainer>
             }
         }
+        else
+        {
+            <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-20">
+                <img src="svg-not-found.svg" alt="Logo" style="width:200px; margin-top: 2rem" />
+                <MudText Class="mt-2" Typo="Typo.h6">Nenhuma reserva</MudText>
+            </MudContainer>
+        }
 
     }
 
@@ -64,7 +71,7 @@
 @code {
     User _user;
     bool _isLoading = true;
-    List<Booking>? _bookings = [];
+    List<Booking> _bookings = [];
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

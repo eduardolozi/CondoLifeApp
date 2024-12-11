@@ -1,4 +1,5 @@
 ﻿@page "/configuracoes"
+@using System.Net.Mime
 @using Blazored.LocalStorage
 @layout Layout.MainLayout
 @inject UserService userService
@@ -111,6 +112,7 @@
     string _base64Image = string.Empty;
     User? _user = new User();
     bool _photoIsLoading = true;
+    private const long MAX_ALLOWED_SIZE = 8388608;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -132,17 +134,24 @@
 
     async Task UploadImage(IBrowserFile file)
     {
-        using var memoryStream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(memoryStream);
-        var fileBytes = memoryStream.ToArray();
-        _user!.Photo = new Photo
+        try
         {
-            ContentBase64 = Convert.ToBase64String(fileBytes),
-            FileName = file.Name,
-            ContentType = file.ContentType
-        };
-        _base64Image = $"data:image/png;base64,{_user.Photo.ContentBase64}";
-        StateHasChanged();
+            using var memoryStream = new MemoryStream();
+            await file.OpenReadStream(MAX_ALLOWED_SIZE).CopyToAsync(memoryStream);
+            var fileBytes = memoryStream.ToArray();
+            _user!.Photo = new Photo
+            {
+                ContentBase64 = Convert.ToBase64String(fileBytes),
+                FileName = file.Name,
+                ContentType = file.ContentType
+            };
+            _base64Image = $"data:image/png;base64,{_user.Photo.ContentBase64}";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await dialogService.ShowMessageBox("Erro!", "O tamanho do arquivo é maior do que o esperado. Por favor, selecione uma imagem com no máximo 1MB");
+        }
     }
 
     bool _isLoading;

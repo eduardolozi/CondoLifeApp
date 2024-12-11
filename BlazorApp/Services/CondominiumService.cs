@@ -1,12 +1,8 @@
 ﻿using BlazorApp.Models;
 
 namespace BlazorApp.Services {
-	public class CondominiumService {
-		private readonly HttpClient _httpClient;
-		public CondominiumService(HttpClient httpClient) {
-			_httpClient = httpClient;
-		}
-
+	public class CondominiumService(HttpClient httpClient)
+	{
 		public async Task<List<Condominium>?> GetAll(Address address) {
 			var queryParameters = string.Empty;
 
@@ -24,7 +20,7 @@ namespace BlazorApp.Services {
 			}
 
 			try {
-				var condos = await _httpClient.GetFromJsonAsync<List<Condominium>?>(queryParameters);
+				var condos = await httpClient.GetFromJsonAsync<List<Condominium>?>(queryParameters);
 				return condos;
 			}
 			catch (Exception) {

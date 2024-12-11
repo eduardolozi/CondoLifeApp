@@ -10,7 +10,7 @@ namespace BlazorApp.Services;
 
 public class BookingService(HttpClient httpClient, ILocalStorageService localStorage)
 {
-    public async Task<List<Booking>?> GetBookings(BookingFilter? filter = null)
+    public async Task<List<Booking>> GetBookings(BookingFilter? filter = null)
     {
         try
         {
@@ -38,13 +38,14 @@ public class BookingService(HttpClient httpClient, ILocalStorageService localSto
             }
 
             var response = await httpClient.GetAsync(queryParams);
+            
             if (!response.IsSuccessStatusCode)
                 await response.HandleResponseError();
-
             if (response.StatusCode == HttpStatusCode.NoContent)
-                return null;
+                return [];
             
-            return await response.Content.ReadFromJsonAsync<List<Booking>>();
+            var result = await response.Content.ReadFromJsonAsync<List<Booking>>();
+            return result ?? [];
         }
         catch (Exception e)
         {
