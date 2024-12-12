@@ -1,0 +1,195 @@
+﻿@layout Layout.MainLayout
+@inject VotingService VotingService
+@inject IDialogService DialogService
+
+<style>
+    .dialog {
+        width: 50%;
+    }
+
+    @@media (max-width: 1100px) {
+        .dialog {
+            width: 85%;
+        }
+
+        .padding-medium-small-screens {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+            
+    }
+</style>
+
+<MudDialog Class="dialog">
+    <DialogContent>
+        <MudContainer Class="w-100 flex-column align-items-start">
+            <MudStepper OnPreviewInteraction="ValidateStep">
+                <MudStep CompletedStepColor="Color.Success" Title="Informações gerais" HasError="_step1HasError">
+                    <MudTextField @bind-Value="_voting.Title"
+                                  MaxLength="30"
+                                  Placeholder="Título"
+                                  Variant="Variant.Outlined"
+                                  Style="width: 100%"
+                                  Error="_titleError"
+                                  ErrorText="@_titleErrorDescription"
+                                  Class="mb-3">
+                    </MudTextField>
+                    <MudTextField @bind-Value="_voting.Description"
+                                  Placeholder="Observação"
+                                  MaxLength="300"
+                                  Variant="Variant.Outlined"
+                                  Class="text-field mt-3"
+                                  Error="_descriptionError"
+                                  ErrorText="@_descriptionErrorDescription"
+                                  Lines="4">
+                    </MudTextField>
+                    <MudDateRangePicker @bind-DateRange="@_dateRange"
+                                        MinDate="_minDate"
+                                        MaxDate="@_maxDate"
+                                        Margin="Margin.Dense"
+                                        Error="_dateError"
+                                        ErrorText="@_dateErrorDescription"
+                                        Class="mt-3"
+                                        Label="Período da votação"/>
+                </MudStep>
+                <MudStep Class="padding-medium-small-screens" CompletedStepColor="Color.Success" Title="Opções de voto" HasError="_step2HasError">
+                    <MudContainer Class="w-100 px-0 d-flex flex-row justify-content-start align-items-center">
+                        <MudTextField @bind-Value="_votingOption" Style="height: 3rem;" Variant="Variant.Outlined" Placeholder="Digite a opção de voto" Class="w-75"></MudTextField>
+                        <MudButton Class="ms-1" Style="height: 3rem" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Info" OnClick="AddVotingOption">
+                            <MudIcon Icon="@Icons.Material.Filled.Add" Color="Color.Info"></MudIcon>
+                        </MudButton>
+                    </MudContainer>
+                    <MudContainer Class="w-100 px-0 mt-4 flex-column align-items-start justify-content-start">
+                        @foreach (var option in _votingOptions)
+                        {
+                            <MudContainer Class="w-100 py-2 mb-2 d-flex flex-row align-items-center justify-content-between ps-3 pe-0" style="border-width: 1px; border-color: rgba(110,109,109,0.29); border-radius: 8px;">
+                                <MudText Typo="Typo.body1">@option.Name</MudText>
+                                <MudButton Variant="Variant.Text" Size="Size.Small" Class="h-100" Color="Color.Error" OnClick="@(() => DeleteVotingOption(option))">
+                                    <MudIcon Icon="@Icons.Material.Outlined.Delete" Color="Color.Error"></MudIcon>
+                                </MudButton>
+                            </MudContainer>
+                        }
+                    </MudContainer>
+                </MudStep>
+            </MudStepper>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton>
+            <MudButton Style="background-color: #019863; color: white"
+                       Variant="Variant.Filled"
+                       OnClick="Submit"
+                       Disabled="@(_currentStep < 2)"
+                       Class="mb-2 me-2">
+                Salvar
+            </MudButton>
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int CondominiumId { get; set; }
+    private Voting _voting = new();
+    private DateTime? _date = DateTime.Today;
+    private DateRange? _dateRange;
+    private readonly DateTime _minDate = DateTime.Now.Date;
+    private readonly DateTime _maxDate = DateTime.Now.Date.AddDays(14);
+    private bool _step1HasError;
+    private bool _step2HasError;
+    private bool _titleError;
+    private bool _descriptionError;
+    private bool _dateError;
+    private string? _titleErrorDescription;
+    private string? _descriptionErrorDescription;
+    private string? _dateErrorDescription;
+    private int _currentStep;
+    private string _votingOption = string.Empty;
+    private List<VotingOption> _votingOptions = [];
+    
+    private async Task ValidateStep(StepperInteractionEventArgs args)
+    {
+        switch (_currentStep)
+        {
+            case 0:
+                Extensions.ValidateField(_voting.Title, ref _titleError, ref _titleErrorDescription, "Preencha o título.");
+                Extensions.ValidateField(_voting.Description, ref _descriptionError, ref _descriptionErrorDescription, "Preencha a descrição.");
+                Extensions.ValidateField(_dateRange, ref _dateError, ref _dateErrorDescription, "Preencha as datas da votação.");
+
+                _step1HasError = _titleError || _descriptionError || _dateError;
+                if (_step1HasError)
+                {
+                    args.Cancel = true;
+                    break;
+                }
+                _currentStep = 1;
+                StateHasChanged();
+                break;
+            case 1:
+
+                _step2HasError = _votingOptions.Count < 2;
+                if (_step2HasError)
+                {
+                    args.Cancel = true;
+                    await DialogService.ShowMessageBox("Erro!", "Devem ser criadas pelo menos 2 opções!");
+                    break;
+                }
+                _currentStep = args.Action is StepAction.Activate ? 0 : 2;
+                StateHasChanged();
+                break;
+        }
+    }
+
+    private async Task AddVotingOption()
+    {
+        if(string.IsNullOrEmpty(_votingOption))
+            return;
+
+        if (_votingOptions.Exists(x => x.Name.ToLower() == _votingOption.ToLower()))
+        {
+            await DialogService.ShowMessageBox("Erro!", "Essa opção já existe!");
+            return;
+        }
+
+        if (_votingOptions.Count >= 5)
+        {
+            await DialogService.ShowMessageBox("Erro!", "Só podem ser criadas 5 opções!");
+            return;
+        }
+        
+        _votingOptions.Add(new VotingOption
+        {
+            Name = _votingOption,
+            TotalVotes = 0,
+            VotingId = 0
+        });
+        _votingOption = string.Empty;
+        StateHasChanged();
+    }
+
+    private void DeleteVotingOption(VotingOption option)
+    {
+        _votingOptions.Remove(option);
+        StateHasChanged();
+    }
+    
+    private async Task Submit()
+    {
+        try
+        {
+            _voting.InitialDate = (DateTime)_dateRange!.Start!;
+            _voting.FinalDate = (DateTime)_dateRange!.End!;
+            _voting.CondominiumId = CondominiumId;
+            _voting.TotalVotes = 0;
+            _voting.VotingOptions = _votingOptions;
+
+            await VotingService.CreateVoting(_voting);
+            
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBox("Erro!", ex.Message);
+        }
+    }
+}

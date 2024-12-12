@@ -1,0 +1,70 @@
+﻿@page "/votacao/{Id:int}"
+@layout Layout.MainLayout
+@inject PageHelper PageHelper
+@inject VotingService VotingService
+    
+<style>
+    .title-voting {
+        opacity: 0;
+        color: black;
+        text-align: center;
+        font-weight: bold;
+        max-width: 65rem;
+        margin: 0 auto;
+        padding: 2rem;
+        font-size: 1.50rem;
+        animation: fadeIn 2s ease-in-out forwards;
+    }
+    
+    .voting-container {
+        animation: fadeIn 2s ease-in-out forwards;
+    }
+    
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@media (min-width: 768px) {
+        .title-voting {
+            font-size: 1.5rem;
+        }
+    }
+    @@media (min-width: 1024px) {
+        .title-voting {
+            font-size: 1.75rem;
+        }
+    }
+</style>
+
+<PageTitle>Votação</PageTitle>
+
+<h2 class="title-voting">
+    Seja bem vindo(a).
+    Garantimos a confidencialidade e segredo do seu voto.
+    Faça parte da justiça e do futuro do seu condomínio.
+</h2>
+
+<MudContainer Class="voting-container w-100 mt-5 d-flex flex-column align-items-start" Style="background-color: rgba(39,39,39,0.93); border-color: #6C757D4A; border-radius: 12px; border-width: 1px">
+    <MudText Class="fw-bold my-3" Typo="Typo.h5" Style="color: white">Eleição para síndico - 2025</MudText>
+    <MudText Typo="Typo.h6" Class="mb-3" Style="line-height: 1.5rem; color: white">Como as normas e políticas do condomínio especificam, todo ano temos votação para síndico. Portanto, gostaríamos de desejar uma ótima votação aos moradores.</MudText>
+    @* background-color: rgba(39,39,39,0.93); *@
+</MudContainer>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // PageHelper.ShowBusy();
+        }
+        return Task.CompletedTask;
+    }
+
+}

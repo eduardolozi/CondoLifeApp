@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Application.DTOs;
+using Domain.Models;
 using Domain.Models.Filters;
 using Domain.Utils;
 using FluentValidation;
@@ -25,10 +26,21 @@ public class VotingService(CondoLifeContext dbContext, AbstractValidator<Voting>
         return query.ToList();
     }
 
-    public void CreateVoting(Voting voting)
+    public void CreateVoting(CreateVotingDTO votingDto)
     {
+        var voting = new Voting
+        {
+            Id = votingDto.Id,
+            Title = votingDto.Title,
+            Description = votingDto.Description,
+            InitialDate = votingDto.InitialDate,
+            FinalDate = votingDto.FinalDate,
+            TotalVotes = votingDto.TotalVotes,
+            VotingOptions = votingDto.VotingOptions,
+            CondominiumId = votingDto.CondominiumId
+        };
+        
         votingValidator.ValidateAndThrow(voting);
-        voting.TotalVotes = 0;
         dbContext.Voting.Add(voting);
         dbContext.SaveChanges();
     }

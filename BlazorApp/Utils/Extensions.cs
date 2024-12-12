@@ -54,5 +54,33 @@ namespace BlazorApp.Utils {
 
 			return $"{Math.Floor(timeSpan.TotalDays / 365)} anos";
 		}
+
+		public static void ValidateField(object? field, ref bool errorFlag, ref string? errorDescription, string errorMessage)
+		{
+			if (field is null)
+			{
+				errorFlag = true;
+				errorDescription = errorMessage;
+			}
+			else
+			{
+				errorFlag = false;
+				errorDescription = null!;
+			}
+		}
+		
+		public static void ValidateField(string? field, ref bool errorFlag, ref string? errorDescription, string errorMessage)
+		{
+			if (string.IsNullOrEmpty(field))
+			{
+				errorFlag = true;
+				errorDescription = errorMessage;
+			}
+			else
+			{
+				errorFlag = false;
+				errorDescription = null!;
+			}
+		}
 	}
 }

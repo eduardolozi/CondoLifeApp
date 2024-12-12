@@ -10,7 +10,7 @@ namespace Domain.Models {
         public DateTime FinalDate { get; set; }
         public int TotalVotes { get; set; }
         public int CondominiumId { get; set; }
-        [JsonIgnore] public List<VotingOption> VotingOptions { get; set; }
+        [JsonIgnore] public List<VotingOption> VotingOptions { get; set; } = [];
         [Timestamp] [JsonIgnore] public byte[] RowVersion { get; set; }
     }
 }

@@ -1,6 +1,8 @@
-﻿namespace BlazorApp.Models;
+﻿using Domain.Models;
 
-public class Voting
+namespace Application.DTOs;
+
+public class CreateVotingDTO
 {
     public int Id { get; set; }
     public string Title { get; set; }

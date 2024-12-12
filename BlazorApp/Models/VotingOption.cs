@@ -6,4 +6,5 @@ public class VotingOption
     public string Name { get; set; }
     public int VotingId { get; set; }
     public int TotalVotes { get; set; }
+    public List<Vote> Votes { get; set; } = [];
 }

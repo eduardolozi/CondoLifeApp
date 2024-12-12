@@ -7,7 +7,6 @@ namespace Domain.Models {
         public string Name { get; set; }
         public int VotingId { get; set; }
         public int TotalVotes { get; set; }
-        [JsonIgnore] public List<Vote> Votes { get; set; }
-        [Timestamp] [JsonIgnore] byte[] RowVersion { get; set; }
+        [JsonIgnore] public List<Vote> Votes { get; set; } = [];
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.Services;
+﻿using Application.DTOs;
+using Application.Services;
 using Domain.Models;
 using Domain.Models.Filters;
 using Domain.Utils;
@@ -20,8 +21,7 @@ public class VotingController(VotingService votingService) : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "AdminOrManager")]
-    public IActionResult CreateVoting([FromBody] Voting voting)
+    public IActionResult CreateVoting([FromBody] CreateVotingDTO voting)
     {
         votingService.CreateVoting(voting);
         return Ok();
