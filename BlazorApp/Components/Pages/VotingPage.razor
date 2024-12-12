@@ -43,11 +43,20 @@
 
 <PageTitle>Votação</PageTitle>
 
-<h2 class="title-voting">
-    Seja bem vindo(a).
-    Garantimos a confidencialidade e segredo do seu voto.
-    Faça parte da justiça e do futuro do seu condomínio.
-</h2>
+@if (_isLoading)
+{
+    <div class="w-100 vh-100 mt-5 d-flex flex-row justify-content-center align-items-center">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </div>
+}
+else
+{
+    <h2 class="title-voting">
+        Seja bem vindo(a).
+        Garantimos a confidencialidade e segredo do seu voto.
+        Faça parte da justiça e do futuro do seu condomínio.
+    </h2>
+}
 
 <MudContainer Class="voting-container w-100 mt-5 d-flex flex-column align-items-start" Style="background-color: rgb(0,71,50); border-color: #6C757D4A; border-radius: 12px; border-width: 1px">
     <MudText Class="fw-bold my-3" Typo="Typo.h5" Style="color: white">Eleição para síndico - 2025</MudText>
@@ -57,12 +66,16 @@
 
 @code {
     [Parameter] public int Id { get; set; }
-
+    // private Voting _voting = new();
+    private bool _isLoading = true;
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // PageHelper.ShowBusy();
+            PageHelper.ShowBusy(ref _isLoading, async () =>
+            {
+                _voting = await VotingService.GetVotingById(Id);
+            });
         }
         return Task.CompletedTask;
     }
