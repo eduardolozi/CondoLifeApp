@@ -9,4 +9,5 @@ public class VotingFilter
     public DateTime? BaseDate { get; set; }
     public bool IsOpened { get; set; }
     public int PageIndex { get; set; }
+    public int? UserId { get; set; }
 }

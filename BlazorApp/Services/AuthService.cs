@@ -42,6 +42,9 @@ namespace BlazorApp.Services {
                 Condominium = new Condominium { Name = claims.GetValueOrDefault("CondominiumName") },
                 Role = claims.TryGetValue("role", out var role) ? Enum.Parse<UserRoleEnum>(role) : UserRoleEnum.Resident,
                 CondominiumId = claims.TryGetValue("CondominiumId", out var condominiumId) ? Convert.ToInt32(condominiumId) : 0,
+                NotificationLifetime = claims.TryGetValue("NotificationLifetime", out var notificationLifetime) ? Convert.ToInt32(notificationLifetime) : null,
+                NotifyEmail = claims.TryGetValue("NotifyEmail", out var notifyEmail) && Convert.ToBoolean(notifyEmail),
+                NotifyPhone = claims.TryGetValue("NotifyPhone", out var notifyPhone) && Convert.ToBoolean(notifyPhone),
             };
         }
     }

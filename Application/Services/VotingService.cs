@@ -33,18 +33,23 @@ public class VotingService(CondoLifeContext dbContext, AbstractValidator<Voting>
         if (filter.BaseDate.HasValue)
             query = query.Where(x => x.InitialDate >= filter.BaseDate.Value);
         
+        if (filter.UserId.HasValue)
+            query = query.Where(v => !v.VotingOptions.Any(vo => vo.Votes.Any(vote => vote.UserId == filter.UserId)));
+        
         query = filter.IsOpened 
             ? query.Where(x => x.FinalDate > DateTime.UtcNow) 
             : query.Where(x => x.FinalDate <= DateTime.UtcNow);
+
         
         return query.ToList();
     }
 
-    public Voting? GetVotingById(int votingId)
+    public Voting? GetVotingById(int votingId, int userId)
     {
         return dbContext
             .Voting
             .Include(x => x.VotingOptions)
+            .Where(x => !x.VotingOptions.Any(vo => vo.Votes.Any(vote => vote.UserId == userId)))
             .AsNoTracking()
             .FirstOrDefault(x => x.Id == votingId);
     }

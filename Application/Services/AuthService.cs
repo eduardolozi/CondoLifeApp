@@ -58,7 +58,10 @@ namespace Application.Services {
                 new ("Block", user.Block ?? string.Empty),
                 new ("CondominiumName", user.Condominium is null ? string.Empty : user.Condominium.Name),
                 new ("PhotoUrl", user.PhotoUrl ?? string.Empty),
-                new ("CondominiumId", user.CondominiumId.ToString())
+                new ("CondominiumId", user.CondominiumId.ToString()),
+                new ("NotificationLifetime", user.NotificationLifetime is null ? "0" : user.NotificationLifetime.Value.ToString()),
+                new ("NotifyEmail", user.NotifyEmail.ToString()),
+                new ("NotifyPhone", user.NotifyPhone.ToString()),
             };
 
             var tokenOptions = new SecurityTokenDescriptor {

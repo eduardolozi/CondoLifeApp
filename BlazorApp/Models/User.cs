@@ -11,6 +11,9 @@ namespace BlazorApp.Models {
 		public string? PhotoUrl { get; set; }
 		public int? Apartment { get; set; }
 		public string? Block { get; set; }
+		public bool NotifyEmail { get; set; }
+		public bool NotifyPhone { get; set; }
+		public int? NotificationLifetime { get; set; }
 		public int CondominiumId { get; set; }
 		public Condominium? Condominium { get; set; }
 	}
