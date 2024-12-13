@@ -37,6 +37,19 @@
         background-color: rgb(0, 115, 78);
         box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3); /
     }
+
+    .tamanho-tab {
+        width: 100%;
+    }
+
+    .titulo-tab {
+        color: #0f0f0f !important;
+        font-weight: bold;
+    }
+
+    .mud-tab-slider {
+        background: #00a82d !important;
+    }
     
     @@media (max-width: 768px) {
         .bottom-container {
@@ -63,45 +76,86 @@
     }
     else
     {
-        <MudText Class="fw-bolder mx-0 px-0 mb-5" Typo="Typo.h4">Votações em andamento</MudText>
-        
-        @if (_votings.Any())
-        {
-            @foreach (var voting in _votings)
-            {
-                <MudContainer Class="mb-5 w-100 d-flex flex-column justify-content-around align-items-start" Style="padding: 18px 20px 12px 20px; border-radius: 3px; border-width: 1px; border-color: rgba(15,15,15,0.15)">
-                    <MudText Typo="Typo.h5" Class="fw-bold">@voting.Title</MudText>
-                    <MudContainer Class="d-flex flex-row justify-content-start px-0 mb-3 mt-1">
-                        <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small"></MudIcon>
-                        <MudText Class="px-1 pb-1" Typo="Typo.body2" Style="color: rgba(58,58,58,0.8)">11/12/2024 - 18/12/2024</MudText>
-                    </MudContainer>
-                    <MudText Class="mb-5" Typo="Typo.body2">@voting.Description</MudText>
-                    <MudContainer Class="bottom-container px-0">
-                        <MudContainer Class="d-flex flex-row justify-content-start align-items-center px-0">
-                            <MudIcon Icon="@Icons.Material.Outlined.Group"></MudIcon>
-                            <MudText Class="px-1" Style="color: rgba(58,58,58,0.8);" Typo="Typo.body1">@voting.TotalVotes</MudText>
+        <MudTabs OnPreviewInteraction="SelectPanel" Class="my-5 tamanho-tab" Elevation="1" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            <MudTabPanel Text="Em andamento" Class="titulo-tab">
+                <MudText Class="fw-bolder mx-0 px-0 mb-5" Typo="Typo.h4">Votações em andamento</MudText>
+                @if (_votings.Any())
+                {
+                    @foreach (var voting in _votings)
+                    {
+                        <MudContainer Class="mb-5 w-100 d-flex flex-column justify-content-around align-items-start" Style="padding: 18px 20px 12px 20px; border-radius: 3px; border-width: 1px; border-color: rgba(15,15,15,0.15)">
+                            <MudText Typo="Typo.h5" Class="fw-bold">@voting.Title</MudText>
+                            <MudContainer Class="d-flex flex-row justify-content-start px-0 mb-3 mt-1">
+                                <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small"></MudIcon>
+                                <MudText Class="px-1 pb-1" Typo="Typo.body2" Style="color: rgba(58,58,58,0.8)">11/12/2024 - 18/12/2024</MudText>
+                            </MudContainer>
+                            <MudText Class="mb-5" Typo="Typo.body2">@voting.Description</MudText>
+                            <MudContainer Class="bottom-container px-0">
+                                <MudContainer Class="d-flex flex-row justify-content-start align-items-center px-0">
+                                    <MudIcon Icon="@Icons.Material.Outlined.Group"></MudIcon>
+                                    <MudText Class="px-1" Style="color: rgba(58,58,58,0.8);" Typo="Typo.body1">@voting.TotalVotes</MudText>
+                                </MudContainer>
+                                @if (_user.Role is not UserRoleEnum.Admin && _user.Role is not UserRoleEnum.Manager)
+                                {
+                                    <MudButton Class="voting-button shadow-none"
+                                               Variant="Variant.Outlined"
+                                               Color="Color.Info"
+                                               Size="Size.Large"
+                                               OnClick="@(() => NavigateToVotingPage(voting.Id))">
+                                        Votar
+                                    </MudButton>
+                                }
+                            </MudContainer>
                         </MudContainer>
-                        @if (_user.Role is not UserRoleEnum.Admin && _user.Role is not UserRoleEnum.Manager)
-                        {
-                            <MudButton Class="voting-button shadow-none"
-                                       Variant="Variant.Outlined"
-                                       Color="Color.Info"
-                                       Size="Size.Large"
-                                       OnClick="@(() => NavigateToVotingPage(voting.Id))">
-                                Votar
-                            </MudButton>
-                        }
+                    }
+                }
+                else
+                {
+                    <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-20">
+                        <img src="svg-not-found.svg" alt="Logo" style="width:200px; margin-top: 2rem" />
+                        <MudText Class="mt-2" Typo="Typo.h6">Sem votações</MudText>
                     </MudContainer>
-                </MudContainer>
-            }
-        }
-        else
-        {
-            <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-20">
-                <img src="svg-not-found.svg" alt="Logo" style="width:200px; margin-top: 2rem" />
-                <MudText Class="mt-2" Typo="Typo.h6">Sem votações</MudText>
-            </MudContainer>
-        }
+                }
+            </MudTabPanel>
+            <MudTabPanel Text="Encerradas" Class="titulo-tab">
+                <MudText Class="fw-bolder mx-0 px-0 mb-5" Typo="Typo.h4">Votações encerradas</MudText>
+                @if (_closedVotings.Any())
+                {
+                    @foreach (var voting in _closedVotings)
+                    {
+                        <MudContainer Class="mb-5 w-100 d-flex flex-column justify-content-around align-items-start" Style="padding: 18px 20px 12px 20px; border-radius: 3px; border-width: 1px; border-color: rgba(15,15,15,0.15)">
+                            <MudText Typo="Typo.h5" Class="fw-bold">@voting.Title</MudText>
+                            <MudContainer Class="d-flex flex-row justify-content-start px-0 mb-3 mt-1">
+                                <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth" Size="Size.Small"></MudIcon>
+                                <MudText Class="px-1 pb-1" Typo="Typo.body2" Style="color: rgba(58,58,58,0.8)">11/12/2024 - 18/12/2024</MudText>
+                            </MudContainer>
+                            <MudText Class="mb-5" Typo="Typo.body2">@voting.Description</MudText>
+                            <MudContainer Class="bottom-container px-0">
+                                <MudContainer Class="d-flex flex-row justify-content-start align-items-center px-0">
+                                    <MudIcon Icon="@Icons.Material.Outlined.Group"></MudIcon>
+                                    <MudText Class="px-1" Style="color: rgba(58,58,58,0.8);" Typo="Typo.body1">@voting.TotalVotes</MudText>
+                                </MudContainer>
+                                <MudButton Class="voting-button shadow-none"
+                                           Variant="Variant.Outlined"
+                                           Color="Color.Success"
+                                           Size="Size.Large"
+                                           OnClick="@(() => NavigateToVotingDetails(voting.Id))">
+                                    Resultados
+                                </MudButton>
+                        </MudContainer>
+                    </MudContainer>
+                    }
+                }
+                else
+                {
+                    <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-20">
+                        <img src="svg-not-found.svg" alt="Logo" style="width:200px; margin-top: 2rem" />
+                        <MudText Class="mt-2" Typo="Typo.h6">Sem votações</MudText>
+                    </MudContainer>
+                }
+            </MudTabPanel>
+        </MudTabs>
+        
         
         @if (_user!.Role is UserRoleEnum.Manager || _user.Role is UserRoleEnum.Admin)
         {
@@ -114,7 +168,8 @@
 </MudContainer>
 
 @code {
-    private List<Models.Voting> _votings = [];
+    private List<Voting> _votings = [];
+    private List<Voting> _closedVotings = [];
     private bool _isLoading = true;
     private User? _user = new();
     private DateTime? _baseDate = null;
@@ -139,12 +194,20 @@
         }
     }
 
-    private Task<List<Models.Voting>> GetAllVotings(bool isOpened)
+    public async Task SelectPanel(TabInteractionEventArgs args)
     {
-        return VotingService.GetAllVotings(new VotingFilter
+        if (args.PanelIndex == 1 && !_closedVotings.Any())
+        {
+            _closedVotings = await GetAllVotings(false);
+        }
+    }
+
+    private async Task<List<Voting>> GetAllVotings(bool isOpened)
+    {
+        return await VotingService.GetAllVotings(new VotingFilter
         {
             CondominiumId = _user!.CondominiumId,
-            IsOpened = true,
+            IsOpened = isOpened,
             BaseDate = _baseDate
         });
     }
@@ -167,5 +230,10 @@
     private void NavigateToVotingPage(int votingId)
     {
         NavigationManager.NavigateTo($"votacao/{votingId}");
+    }
+
+    private void NavigateToVotingDetails(int votingId)
+    {
+        NavigationManager.NavigateTo($"votacao/{votingId}/detalhes");
     }
 }

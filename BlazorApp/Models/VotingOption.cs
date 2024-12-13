@@ -1,4 +1,6 @@
-﻿namespace BlazorApp.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BlazorApp.Models;
 
 public class VotingOption
 {

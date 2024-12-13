@@ -37,6 +37,28 @@ public class VotingService(HttpClient httpClient, ILocalStorageService localStor
         }
     }
 
+    public async Task<Voting> GetVotingById(int id)
+    {
+        try
+        {
+            var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetAsync($"{id}");
+            
+            if (!response.IsSuccessStatusCode)
+                await response.HandleResponseError();
+            if (response.StatusCode is HttpStatusCode.NoContent)
+                throw new ApplicationException("Esta votação não foi encontrada");
+            
+            return await response.Content.ReadFromJsonAsync<Voting>()
+                ?? throw new ApplicationException("Esta votação não foi encontrada");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message, ex);
+        }
+    }
+
     public async Task CreateVoting(Voting voting)
     {
         try
@@ -44,6 +66,22 @@ public class VotingService(HttpClient httpClient, ILocalStorageService localStor
             var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await httpClient.PostAsJsonAsync(string.Empty, voting);
+            if (!response.IsSuccessStatusCode)
+                await response.HandleResponseError();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message, ex);
+        }
+    }
+
+    public async Task ConfirmVote(Vote vote)
+    {
+        try
+        {
+            var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.PostAsJsonAsync("confirm-vote", vote);
             if (!response.IsSuccessStatusCode)
                 await response.HandleResponseError();
         }

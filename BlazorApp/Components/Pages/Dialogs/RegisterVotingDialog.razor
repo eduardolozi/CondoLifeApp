@@ -26,7 +26,7 @@
             <MudStepper OnPreviewInteraction="ValidateStep">
                 <MudStep CompletedStepColor="Color.Success" Title="Informações gerais" HasError="_step1HasError">
                     <MudTextField @bind-Value="_voting.Title"
-                                  MaxLength="30"
+                                  MaxLength="50"
                                   Placeholder="Título"
                                   Variant="Variant.Outlined"
                                   Style="width: 100%"
@@ -160,8 +160,6 @@
         _votingOptions.Add(new VotingOption
         {
             Name = _votingOption,
-            TotalVotes = 0,
-            VotingId = 0
         });
         _votingOption = string.Empty;
         StateHasChanged();
@@ -180,7 +178,6 @@
             _voting.InitialDate = (DateTime)_dateRange!.Start!;
             _voting.FinalDate = (DateTime)_dateRange!.End!;
             _voting.CondominiumId = CondominiumId;
-            _voting.TotalVotes = 0;
             _voting.VotingOptions = _votingOptions;
 
             await VotingService.CreateVoting(_voting);

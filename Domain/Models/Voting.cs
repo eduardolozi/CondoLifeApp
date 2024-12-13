@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Domain.Models {
@@ -8,9 +9,8 @@ namespace Domain.Models {
         public string Description { get; set; }
         public DateTime InitialDate { get; set; }
         public DateTime FinalDate { get; set; }
-        public int TotalVotes { get; set; }
+        [NotMapped] public int TotalVotes { get; set; }
         public int CondominiumId { get; set; }
-        [JsonIgnore] public List<VotingOption> VotingOptions { get; set; } = [];
-        [Timestamp] [JsonIgnore] public byte[] RowVersion { get; set; }
+        public List<VotingOption> VotingOptions { get; set; } = [];
     }
 }

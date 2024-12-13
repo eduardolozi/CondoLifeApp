@@ -12,7 +12,21 @@ public class VotingService(CondoLifeContext dbContext, AbstractValidator<Voting>
 {
     public List<Voting> GetAllVotings(VotingFilter filter)
     {
-        var query = dbContext.Voting.AsNoTracking().AsQueryable();
+        var query = dbContext
+            .Voting
+            .AsNoTracking()
+            .Select(x => new Voting
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Description = x.Description,
+                InitialDate = x.InitialDate,
+                FinalDate = x.FinalDate,
+                CondominiumId = x.CondominiumId,
+                TotalVotes = x.VotingOptions.SelectMany(vo => vo.Votes).Count(),
+                VotingOptions = x.VotingOptions
+            })
+            .AsQueryable();
         
         query = query.Where(x => x.CondominiumId == filter.CondominiumId);
         
@@ -26,22 +40,25 @@ public class VotingService(CondoLifeContext dbContext, AbstractValidator<Voting>
         return query.ToList();
     }
 
-    public void CreateVoting(CreateVotingDTO votingDto)
+    public Voting? GetVotingById(int votingId)
     {
-        var voting = new Voting
-        {
-            Id = votingDto.Id,
-            Title = votingDto.Title,
-            Description = votingDto.Description,
-            InitialDate = votingDto.InitialDate,
-            FinalDate = votingDto.FinalDate,
-            TotalVotes = votingDto.TotalVotes,
-            VotingOptions = votingDto.VotingOptions,
-            CondominiumId = votingDto.CondominiumId
-        };
-        
+        return dbContext
+            .Voting
+            .Include(x => x.VotingOptions)
+            .AsNoTracking()
+            .FirstOrDefault(x => x.Id == votingId);
+    }
+
+    public void CreateVoting(Voting voting)
+    {
         votingValidator.ValidateAndThrow(voting);
         dbContext.Voting.Add(voting);
+        dbContext.SaveChanges();
+    }
+
+    public void ConfirmVote(Vote vote)
+    {
+        dbContext.Vote.Add(vote);
         dbContext.SaveChanges();
     }
 }

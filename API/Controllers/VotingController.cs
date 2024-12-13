@@ -20,10 +20,25 @@ public class VotingController(VotingService votingService) : ControllerBase
         return votings.Any() ? Ok(votings) : NoContent();
     }
 
+    [HttpGet("{id}")]
+    public IActionResult GetVotingById(int id)
+    {
+        var voting = votingService.GetVotingById(id);
+        return voting is null ? NoContent() : Ok(voting);
+    }
+
     [HttpPost]
-    public IActionResult CreateVoting([FromBody] CreateVotingDTO voting)
+    [Authorize(Policy = "AdminOrManager")]
+    public IActionResult CreateVoting([FromBody] Voting voting)
     {
         votingService.CreateVoting(voting);
+        return Ok();
+    }
+
+    [HttpPost("confirm-vote")]
+    public IActionResult ConfirmVote([FromBody] Vote vote)
+    {
+        votingService.ConfirmVote(vote);
         return Ok();
     }
 }
