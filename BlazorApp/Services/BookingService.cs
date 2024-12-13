@@ -5,6 +5,7 @@ using BlazorApp.Models;
 using BlazorApp.Utils;
 using Blazored.LocalStorage;
 using Microsoft.JSInterop;
+using MudBlazor.Extensions;
 
 namespace BlazorApp.Services;
 
@@ -22,10 +23,10 @@ public class BookingService(HttpClient httpClient, ILocalStorageService localSto
             {
                 queryParams += "?";
                 if (filter.FinalDate.HasValue)
-                    queryParams += $"filter.FinalDate={filter.FinalDate}&";
+                    queryParams += $"filter.FinalDate={filter.FinalDate.Value:O}&";
             
                 if (filter.InitialDate.HasValue)
-                    queryParams += $"filter.InitialDate={filter.InitialDate}&";
+                    queryParams += $"filter.InitialDate={filter.InitialDate.Value:O}&";
             
                 if(filter.Status.HasValue)
                     queryParams += $"filter.Status={filter.Status}&";

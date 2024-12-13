@@ -27,10 +27,10 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 query = query.Where(x => x.Status == filter.Status);
 
             if (filter.InitialDate.HasValue)
-                query = query.Where(x => x.InitialDate >= filter.InitialDate.Value.FormatDateToBrazilianPattern());
+                query = query.Where(x => x.InitialDate >= filter.InitialDate.Value);
 
             if (filter.FinalDate.HasValue)
-                query = query.Where(x => x.FinalDate <= filter.FinalDate.Value.FormatDateToBrazilianPattern());
+                query = query.Where(x => x.FinalDate <= filter.FinalDate.Value);
 
             if (filter.UserId.HasValue)
                 query = query.Where(x => x.UserId == filter.UserId);

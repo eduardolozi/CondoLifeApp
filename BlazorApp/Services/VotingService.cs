@@ -58,6 +58,28 @@ public class VotingService(HttpClient httpClient, ILocalStorageService localStor
             throw new Exception(ex.Message, ex);
         }
     }
+    
+    public async Task<Voting> GetVotingDetails(int id)
+    {
+        try
+        {
+            var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetAsync($"{id}/details");
+            
+            if (!response.IsSuccessStatusCode)
+                await response.HandleResponseError();
+            if (response.StatusCode is HttpStatusCode.NoContent)
+                throw new ApplicationException("Esta votação não foi encontrada");
+            
+            return await response.Content.ReadFromJsonAsync<Voting>()
+                ?? throw new ApplicationException("Esta votação não foi encontrada");
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message, ex);
+        }
+    }
 
     public async Task CreateVoting(Voting voting)
     {

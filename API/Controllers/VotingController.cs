@@ -26,6 +26,13 @@ public class VotingController(VotingService votingService) : ControllerBase
         var voting = votingService.GetVotingById(id);
         return voting is null ? NoContent() : Ok(voting);
     }
+    
+    [HttpGet("{id}/details")]
+    public IActionResult GetVotingDetails(int id)
+    {
+        var voting = votingService.GetVotingDetails(id);
+        return voting is null ? NoContent() : Ok(voting);
+    }
 
     [HttpPost]
     [Authorize(Policy = "AdminOrManager")]

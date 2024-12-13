@@ -133,10 +133,8 @@ else
     
     private string GetOptionContainerStyle(int optionId)
     {
-        // Estilos estáticos
         var baseStyle = "height: 4.5rem; border-width: 1px; border-radius: 8px; border-color: #83b883;";
         
-        // Condição para mudar a cor de fundo
         var backgroundColor = optionId == _selectedOptionId ? "rgba(179, 246, 179, 0.51)" : "";
 
         return $"{baseStyle} background-color: {backgroundColor};";
