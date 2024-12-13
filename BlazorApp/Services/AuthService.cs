@@ -2,6 +2,7 @@
 using BlazorApp.Enums;
 using BlazorApp.Models;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Authentication;
 
 namespace BlazorApp.Services {
     public class AuthService {
@@ -24,8 +25,8 @@ namespace BlazorApp.Services {
         public async Task<User?> GetUserByClaims()
         {
             var accessToken = await _localStorage.GetItemAsStringAsync("accessToken");
-            if (accessToken is null) return null;
-            
+            if(string.IsNullOrEmpty(accessToken)) throw new AuthenticationFailureException("Usuário não autenticado. Por favor faça login para continuar!");
+
             var handler = new JwtSecurityTokenHandler();
             var decodedToken = handler.ReadJwtToken(accessToken);
             var claims = decodedToken.Claims.ToDictionary(c => c.Type, c => c.Value);

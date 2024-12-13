@@ -43,7 +43,8 @@
             _user = await AuthService.GetUserByClaims();
             _users = await UserService.GetAll(new UserFilter
             {
-                CondominiumId = _user!.CondominiumId
+                CondominiumId = _user!.CondominiumId,
+                OnlyEmailVerified = true
             });
             StateHasChanged();
         }
@@ -74,7 +75,8 @@
             {
                 _users = await UserService.GetAll(new UserFilter
                 {
-                    CondominiumId = user.CondominiumId
+                    CondominiumId = user.CondominiumId,
+                    OnlyEmailVerified = true
                 });
             });
             StateHasChanged();

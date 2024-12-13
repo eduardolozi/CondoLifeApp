@@ -1,11 +1,11 @@
 ﻿@page "/espacos"
+@using Microsoft.AspNetCore.Authentication
 @layout Layout.MainLayout
 @inject SpaceService SpaceService
 @inject AuthService AuthService
 @inject IDialogService DialogService
 @inject PageHelper PageHelper
-@inject IJSRuntime JSRuntime
-@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
 
 <style>
     .space-card {
@@ -15,6 +15,31 @@
     .card-buttons {
         display: flex;
         justify-content: end;
+    }
+
+    .fixed-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background-color: rgb(0, 115, 78);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        font-size: 24px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: background-color 0.3s, box-shadow 0.3s;
+        z-index: 1000;
+    }
+
+    .fixed-button:hover {
+        background-color: rgb(0, 115, 78);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
     }
 
     @@media (max-width: 1170px) {
@@ -39,12 +64,7 @@
 
 <PageTitle>Gerenciamento dos Espaços</PageTitle>
 <MudContainer Class="w-100 d-flex flex-row justify-content-end mt-5 me-0 pe-0">
-    <MudButton Size="Size.Small"
-               Variant="Variant.Filled"
-               StartIcon="@Icons.Material.Filled.Add"
-               Style="background-color: #019863; color: white"
-               OnClick="OpenRegisterDialog">
-        Adicionar</MudButton>
+    <MudButton Class="fixed-button" OnClick="OpenRegisterDialog"> + </MudButton>
 </MudContainer>
 @if (_isLoading)
 {
@@ -130,11 +150,10 @@ else
         }
         else
         {
-            <MudText Typo="Typo.h5"
-                     Align="Align.Center"
-                     Class="mt-5">
-                Não existe nenhum espaço cadastrado.
-            </MudText>
+            <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-20">
+                <img src="svg-not-found.svg" alt="Logo" style="width:200px; margin-top: 2rem" />
+                <MudText Class="mt-2" Typo="Typo.h6">Não existe nenhum espaço cadastrado</MudText>
+            </MudContainer>
         }
     </MudContainer>
 }
@@ -144,44 +163,26 @@ else
     List<Space> _spaces = [];
     bool _isLoading = true;
     User? _user;
-    // private HubConnection _hubConnection;
-    // string token;
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await PageHelper.ShowBusy(ref _isLoading, async () =>
+            try
             {
-                _user = await AuthService.GetUserByClaims();
-                await GetSpaces();
-            });
-            
+                await PageHelper.ShowBusy(ref _isLoading, async () =>
+                {
+                    _user = await AuthService.GetUserByClaims();
+                    await GetSpaces();
+                });
+            }
+            catch (AuthenticationFailureException ex)
+            {
+                await DialogService.ShowMessageBox("Erro!", ex.Message);
+                Navigation.NavigateTo("login");
+            }
+
             StateHasChanged();
-            
-            @* token = await JSRuntime.InvokeAsync<string>("getToken"); *@
-            @* _hubConnection = new HubConnectionBuilder() *@
-            @* .WithUrl("https://localhost:7031/notificationHub", options => *@
-            @* { *@
-            @*     options.Headers.Add("Authorization", $"Bearer {token}"); *@
-            @* }) *@
-            @* .WithAutomaticReconnect() *@
-            @* .Build(); *@
-            @* _hubConnection.On<NotificationPayload>("AdminReceiveNotification", (message) => *@
-            @* { *@
-            @*     Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight; *@
-            @*     Snackbar.Add *@
-            @*     ( *@
-            @*         @<div> *@
-            @*             <h5>@message.Header</h5> *@
-            @*             <ul> *@
-            @*                 <li>@message.Body</li> *@
-            @*             </ul> *@
-            @*         </div>, *@
-            @*         Severity.Info *@
-            @*     ); *@
-            @* }); *@
-            @* await _hubConnection.StartAsync(); *@
         }
     }
 

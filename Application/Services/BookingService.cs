@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using Application.DTOs;
-using BlazorApp.Components.Pages;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
@@ -14,11 +13,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
-public class BookingService(CondoLifeContext dbContext, AbstractValidator<Booking> bookingValidator, RabbitService rabbitService)
+public class BookingService(CondoLifeContext dbContext, AbstractValidator<Booking> bookingValidator, RabbitService rabbitService, NotificationService notificationService)
 {
     public List<Booking> GetAll(BookingFilter? filter)
     {
-        var query = dbContext.Booking.AsNoTracking().Include(x => x.User).AsQueryable();
+        var query = dbContext.Booking.AsNoTracking().Include(x => x.User).Include(x => x.Space).AsQueryable();
         if (filter != null)
         {
             if (filter.SpaceId.HasValue)
@@ -28,10 +27,10 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 query = query.Where(x => x.Status == filter.Status);
 
             if (filter.InitialDate.HasValue)
-                query = query.Where(x => x.InitialDate >= filter.InitialDate);
+                query = query.Where(x => x.InitialDate >= filter.InitialDate.Value);
 
             if (filter.FinalDate.HasValue)
-                query = query.Where(x => x.FinalDate <= filter.FinalDate);
+                query = query.Where(x => x.FinalDate <= filter.FinalDate.Value);
 
             if (filter.UserId.HasValue)
                 query = query.Where(x => x.UserId == filter.UserId);
@@ -41,12 +40,14 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
         {
             Id = x.Id,
             SpaceId = x.SpaceId,
+            SpaceName = x.Space.Name,
             Status = x.Status,
             InitialDate = x.InitialDate,
             FinalDate = x.FinalDate,
             UserId = x.UserId,
             Username = x.User.Name,
-            Description = x.Description
+            Description = x.Description,
+            
         }).OrderBy(x => x.InitialDate).ToList();
     }
 
@@ -60,7 +61,6 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
             .FirstOrDefault(x => x.Id == id)
             ?? throw new ResourceNotFoundException("Reserva não encontrada.");
 
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("pt-BR");
         return new BookingDetailsDTO
         {
             Id = booking.Id,
@@ -115,9 +115,17 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 Header = "Uma nova reserva foi solicitada!",
                 Body = $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}."
             },
-            BookingId = booking.Id
+            BookingId = booking.Id,
+            CreatedAt = DateTime.UtcNow
         };
         rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
+    }
+
+    public void Delete(int id)
+    {
+        dbContext.Booking.Where(x => x.Id == id).ExecuteDelete();
+        notificationService.DeleteBookingNotifications(id);
+        dbContext.SaveChanges();
     }
 
     public void ApproveBooking(int id, string token)
@@ -137,8 +145,6 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 .FirstOrDefault(x => x.Id == booking.SpaceId)
                 ?? throw new ResourceNotFoundException("Não foi encontrado esse espaço no condomínio.");
             
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("pt-BR");
-            
             var notification = new Notification
             {
                 CondominiumName = space.Condominium!.Name,
@@ -150,7 +156,8 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                     Header = "A sua reserva foi aprovada!",
                     Body = $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}."
                 },
-                BookingId = booking.Id
+                BookingId = booking.Id,
+                CreatedAt = DateTime.UtcNow
             };
             rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
         }

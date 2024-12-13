@@ -16,9 +16,11 @@ namespace Application {
             services.AddScoped<SpaceService>();
             services.AddScoped<BookingService>();
             services.AddScoped<NotificationService>();
+            services.AddScoped<VotingService>();
 
             services.AddScoped<AbstractValidator<Space>, SpaceValidator>();
             services.AddScoped<AbstractValidator<Booking>, BookingValidator>();
+            services.AddScoped<AbstractValidator<Voting>, VotingValidator>();
         }
     }
 }

@@ -88,6 +88,36 @@ namespace Infraestructure.Migrations
                     b.ToTable("Booking");
                 });
 
+            modelBuilder.Entity("Domain.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comment");
+                });
+
             modelBuilder.Entity("Domain.Models.Condominium", b =>
                 {
                     b.Property<int>("Id")
@@ -105,6 +135,29 @@ namespace Infraestructure.Migrations
                     b.ToTable("Condominium");
                 });
 
+            modelBuilder.Entity("Domain.Models.Like", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Like");
+                });
+
             modelBuilder.Entity("Domain.Models.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -118,6 +171,12 @@ namespace Infraestructure.Migrations
 
                     b.Property<string>("CondominiumName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
 
                     b.Property<int>("NotificationType")
                         .HasColumnType("int");
@@ -160,6 +219,56 @@ namespace Infraestructure.Migrations
                         .IsUnique();
 
                     b.ToTable("NotificationPayload");
+                });
+
+            modelBuilder.Entity("Domain.Models.Post", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Post");
+                });
+
+            modelBuilder.Entity("Domain.Models.PostMedias", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostMedias");
                 });
 
             modelBuilder.Entity("Domain.Models.RefreshToken", b =>
@@ -293,6 +402,81 @@ namespace Infraestructure.Migrations
                     b.ToTable("VerificationTokens");
                 });
 
+            modelBuilder.Entity("Domain.Models.Vote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VotingOptionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VotingOptionId");
+
+                    b.ToTable("Vote");
+                });
+
+            modelBuilder.Entity("Domain.Models.Voting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CondominiumId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FinalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("InitialDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CondominiumId");
+
+                    b.ToTable("Voting");
+                });
+
+            modelBuilder.Entity("Domain.Models.VotingOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VotingId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VotingId");
+
+                    b.ToTable("VotingOption");
+                });
+
             modelBuilder.Entity("Domain.Models.Address", b =>
                 {
                     b.HasOne("Domain.Models.Condominium", "Condominium")
@@ -323,6 +507,44 @@ namespace Infraestructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Models.Comment", b =>
+                {
+                    b.HasOne("Domain.Models.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Models.Like", b =>
+                {
+                    b.HasOne("Domain.Models.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Models.Notification", b =>
                 {
                     b.HasOne("Domain.Models.User", null)
@@ -339,6 +561,28 @@ namespace Infraestructure.Migrations
                         .HasForeignKey("Domain.Models.NotificationPayload", "NotificationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Models.Post", b =>
+                {
+                    b.HasOne("Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Models.PostMedias", b =>
+                {
+                    b.HasOne("Domain.Models.Post", "Post")
+                        .WithMany("Medias")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("Domain.Models.RefreshToken", b =>
@@ -385,18 +629,56 @@ namespace Infraestructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Models.Vote", b =>
+                {
+                    b.HasOne("Domain.Models.VotingOption", null)
+                        .WithMany("Votes")
+                        .HasForeignKey("VotingOptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Models.Voting", b =>
+                {
+                    b.HasOne("Domain.Models.Condominium", null)
+                        .WithMany("Votings")
+                        .HasForeignKey("CondominiumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Models.VotingOption", b =>
+                {
+                    b.HasOne("Domain.Models.Voting", null)
+                        .WithMany("VotingOptions")
+                        .HasForeignKey("VotingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.Models.Condominium", b =>
                 {
                     b.Navigation("Address")
                         .IsRequired();
 
                     b.Navigation("Users");
+
+                    b.Navigation("Votings");
                 });
 
             modelBuilder.Entity("Domain.Models.Notification", b =>
                 {
                     b.Navigation("Message")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Models.Post", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
+
+                    b.Navigation("Medias");
                 });
 
             modelBuilder.Entity("Domain.Models.Space", b =>
@@ -407,6 +689,16 @@ namespace Infraestructure.Migrations
             modelBuilder.Entity("Domain.Models.User", b =>
                 {
                     b.Navigation("Notifications");
+                });
+
+            modelBuilder.Entity("Domain.Models.Voting", b =>
+                {
+                    b.Navigation("VotingOptions");
+                });
+
+            modelBuilder.Entity("Domain.Models.VotingOption", b =>
+                {
+                    b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,130 @@
+﻿@page "/minhas-reservas"
+@layout Layout.MainLayout
+@inject AuthService AuthService
+@inject  IDialogService DialogService
+@inject  BookingService BookingService
+@inject PageHelper PageHelper
+@inject NavigationManager Navigation
+
+<style>
+    .booking-container {
+        background-color: rgba(189,186,186,0.16);
+        transition: background-color 0.3s ease-in;
+    }
+    
+    .booking-container:hover {
+        cursor: pointer;
+        background-color: rgba(159, 158, 158, 0.35);
+    }
+</style>
+
+<PageTitle>Minhas reservas</PageTitle>
+
+<MudContainer Class="w-100 d-flex flex-column mt-5">
+    @if (_isLoading)
+    {
+        <div class="w-100 mt-5 d-flex flex-row justify-content-center align-items-center">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
+        </div>
+    }
+    else
+    {
+        <MudText Class="fw-bolder mb-4" Typo="Typo.h4">Minhas reservas</MudText>
+        
+        <MudContainer Class="d-flex flex-row h-100 justify-content-start ps-0 mb-4 ">
+            <MudButton OnClick="SelectFutureBookings" Variant="Variant.Outlined" Class="me-5" Color="@_futureButtonColor">Futuras</MudButton>
+            <MudButton OnClick="SelectCompletedBookings" Variant="Variant.Outlined" Color="@_completedButtonColor">Concluídas</MudButton>
+        </MudContainer>
+
+        @if (_bookings.Any())
+        {
+            @foreach (var booking in _bookings)
+            {
+                <MudContainer Class="booking-container mb-4 w-100 d-flex flex-row justify-content-between align-content-center"
+                              Style="padding: 6px 6px 6px 2px; border-radius: 3px; border-width: 1px; border-color: rgba(15,15,15,0.4)"
+                              @onclick="() => OpenBookingDetails(booking.Id)">
+                    <MudContainer Class="d-flex flex-column justify-content-around align-items-start">
+                        <MudText Class="fw-bolder" Typo="Typo.body1">@booking.SpaceName</MudText>
+                        <MudText>@($"{booking.InitialDate.ToShortDateString()} - {booking.InitialDate.Hour}:00 às {booking.FinalDate.Hour}:00")</MudText>
+                    </MudContainer>
+                    <MudChip T="string"
+                             Class="mb-2"
+                             Size="Size.Small"
+                             Color="@(booking.Status is BookingStatusEnum.Confirmed ? Color.Success : Color.Warning)">
+                        @booking.Status.GetEnumDescription()
+                    </MudChip>
+                </MudContainer>
+            }
+        }
+        else
+        {
+            <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-20">
+                <img src="svg-not-found.svg" alt="Logo" style="width:200px; margin-top: 2rem" />
+                <MudText Class="mt-2" Typo="Typo.h6">Nenhuma reserva</MudText>
+            </MudContainer>
+        }
+
+    }
+
+</MudContainer>
+
+@code {
+    User _user;
+    bool _isLoading = true;
+    List<Booking> _bookings = [];
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _user = await AuthService.GetUserByClaims()
+                        ?? throw new Exception("Usuário não autenticado. Por favor, faça login.");
+
+                await PageHelper.ShowBusy(ref _isLoading, async () =>
+                {
+                    await SelectFutureBookings();
+                });
+                
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await DialogService.ShowMessageBox("Erro!", ex.Message);
+            }            
+        }
+    }
+
+    void OpenBookingDetails(int id)
+    {
+        Navigation.NavigateTo($"reserva/{id}");
+    }
+
+
+    Color _futureButtonColor = Color.Default;
+    Color _completedButtonColor = Color.Default;
+    async Task SelectFutureBookings()
+    {
+        _futureButtonColor = Color.Success;
+        _completedButtonColor = Color.Default;
+        _isLoading = true;
+        await PageHelper.ShowBusy(ref _isLoading, async () =>
+        {
+            _bookings = await BookingService.GetBookings(new BookingFilter { UserId = _user.Id, InitialDate = DateTime.UtcNow});
+        });
+        StateHasChanged();
+    }
+
+    async Task SelectCompletedBookings()
+    {
+        _futureButtonColor = Color.Default;
+        _completedButtonColor = Color.Success;
+        _isLoading = true;
+        await PageHelper.ShowBusy(ref _isLoading, async () =>
+        {
+            _bookings = await BookingService.GetBookings(new BookingFilter { UserId = _user.Id, FinalDate = DateTime.UtcNow});
+        });
+        StateHasChanged();
+    }
+}

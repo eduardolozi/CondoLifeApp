@@ -1,4 +1,8 @@
-﻿<style>
+﻿@using Microsoft.AspNetCore.Authentication
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+
+<style>
     .link-sidebar {
         font-family: 'Roboto';
     }
@@ -16,11 +20,23 @@
         background-color: #105444 !important;
     }
 
+    .mud-nav-link-expand-icon {
+        color: white !important;
+    }
+
+    .mud-nav-link:not(.mud-nav-link-disabled) .mud-nav-link-icon.mud-nav-link-icon-default {
+        color: white !important;
+    }
+    
+    .logo:hover {
+        cursor: pointer;
+    }
+
 </style>
 
 <div class="top-row ps-3 navbar navbar-dark fundo-logo pt-0 ps-0 mb-2">
     <div class="container-fluid d-flex flex-row justify-content-start pt-0">
-        <img src="/logo-condolife.png" style="width: 40px; height: 40px;" />
+        <img class="logo" src="/logo-condolife.png" style="width: 40px; height: 40px;" @onclick="NavigateToInitialPage"/>
         <p class="text-white fw-bold ms-2 pt-5 fs-4">Condolife</p>
     </div>
 </div>
@@ -28,10 +44,10 @@
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable sidebar" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
+    <MudNavMenu class="flex-column">
         <div class="nav-item ms-0 px-3">
-            <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="inicial" Match="NavLinkMatch.All">
-                <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Home"></MudIcon> Página Inicial
+            <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="feed" Match="NavLinkMatch.All">
+                <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Diversity1"></MudIcon> Comunidade
             </NavLink>
         </div>
 
@@ -41,13 +57,26 @@
             </NavLink>
         </div>
         
+        <div class="nav-item px-3">
+            <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="votacoes">
+                <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Poll"></MudIcon> Votações
+            </NavLink>
+        </div>
+        
         @if (_user.Role is UserRoleEnum.Manager || _user.Role is UserRoleEnum.Submanager)
         {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="espacos">
-                    <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.AccountBalance"></MudIcon> Espaços
-                </NavLink>
-            </div>
+            <MudNavGroup Style="color: white" class="nav-item px-3 pb-2" Title="Reservas e Espaços" Icon="@Icons.Material.Outlined.AccountBalance">
+                <div class="nav-item px-3 py-0">
+                    <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="espacos">
+                        <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.AccountBalance"></MudIcon> Espaços
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3 py-0">
+                    <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="minhas-reservas">
+                        <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Workspaces"></MudIcon> Minhas Reservas
+                    </NavLink>
+                </div>
+            </MudNavGroup>
             
             <div class="nav-item px-3">
                 <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="users">
@@ -61,7 +90,7 @@
                 <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Notifications"></MudIcon> Notificações
             </NavLink>
         </div>
-    </nav>
+    </MudNavMenu>
 </div>
 
 @code
@@ -74,9 +103,22 @@
     {
         if (firstRender)
         {
-            _user = await _authService.GetUserByClaims();
-            StateHasChanged();
+            try
+            {
+                _user = await _authService.GetUserByClaims();
+                StateHasChanged();
+            }
+            catch (AuthenticationFailureException ex)
+            {
+                var result = await DialogService.ShowMessageBox("Erro!", ex.Message);
+                Navigation.NavigateTo("login");
+            }
         }
+    }
+
+    void NavigateToInitialPage()
+    {
+        Navigation.NavigateTo("feed");
     }
 }
 

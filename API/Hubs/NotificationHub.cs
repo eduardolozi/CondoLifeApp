@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using BlazorApp.Enums;
+using Domain.Enums;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;

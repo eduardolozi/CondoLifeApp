@@ -36,6 +36,7 @@ namespace API.Handlers {
                     Title = "Server Error",
                     Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
                     Status = StatusCodes.Status500InternalServerError,
+                    Detail = $"Ocorreu um erro inesperado: {exception.Message}"
                 }
             };
 

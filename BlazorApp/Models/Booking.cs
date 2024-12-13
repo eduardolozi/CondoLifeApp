@@ -12,4 +12,6 @@ public class Booking
     public DateTime FinalDate { get; set; }
     public string? Description { get; set; }
     public BookingStatusEnum Status { get; set; }
+    public string? SpaceName { get; set; }
+    
 }

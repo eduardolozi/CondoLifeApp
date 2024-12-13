@@ -1,0 +1,98 @@
+﻿@page "/votacao/{Id:int}/detalhes"
+@layout Layout.MainLayout
+@inject PageHelper PageHelper
+@inject VotingService VotingService
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+
+<style>
+    .mud-charts-bar-series{
+        transform: scaleX(6.5);
+    }
+</style>
+
+<PageTitle>Resultados da votação</PageTitle>
+@if (_isLoading)
+{
+    <div class="w-100 vh-100 mt-5 d-flex flex-row justify-content-center align-items-center">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </div>
+}
+else
+{
+    <MudContainer Class="w-100 d-flex flex-column align-items-start justify-content-between px-0 my-5" Style="border-color: rgba(172,172,172,0.38); border-radius: 8px; border-width: 1px;">
+        <MudContainer Class="w-100 mx-0 pt-3 pb-2" Style="background-color: rgb(0,106,77); border-bottom-width: 1px; border-color: rgba(172,172,172,0.38); border-radius: 8px 8px 0 0;">
+            <MudText Typo="Typo.h5" Class="fw-bold mb-2" Style="color: white">@_voting.Title</MudText>
+            <MudText Style="color: #eaeaea" Class="mb-3">@_voting.Description</MudText>
+        </MudContainer>
+        <MudContainer Class="w-100 d-flex flex-column align-items-center justify-content-between py-3"
+                      Style="background-color: rgba(242,255,253,0.32); border-bottom-width: 1px; border-color: rgba(172,172,172,0.38)">
+            <MudText Typo="Typo.h5" Class="fw-bolder mt-5">Resultado da votação</MudText>
+            <MudChart Class="w-100"
+                      ChartType="ChartType.Donut"
+                      InputLabels="_optionNames"
+                      InputData="_voteOptions"
+                      ChartOptions="@(new ChartOptions() { ChartPalette = ["#F346FFFF", "#5136FFFF", "#ff9442", "#ffed00", "#00ff2c"] })"
+                      Style="height: 32rem">
+                <CustomGraphics>
+                    <text class="donut-inner-text" x="50%" y="37%" dominant-baseline="middle" text-anchor="middle" fill="#0A0A0A" font-size="2" font-weight="bold">Votos totais</text>
+                    <text class="donut-inner-text" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#0A0A0A" font-size="5">@(_voteOptions.Sum())</text>
+                </CustomGraphics>
+            </MudChart>
+        </MudContainer>
+        <MudContainer Style="background-color: rgba(242,255,253,0.32);"
+                      Class="w-100 d-flex flex-column align-items-center justify-content-center py-10">
+            <MudContainer Class="w-75 d-flex flex-column align-items-start justify-content-around py-3"
+                          Style="border-width: 1px; border-color: rgba(120,140,138,0.32); border-radius: 8px; background-color: white">
+                <MudText Typo="Typo.body1" Class="fw-bolder" >Informações adicionais</MudText>
+                <MudText Style="color:#808080;" Class="mt-2 px-2">
+                    <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth"></MudIcon>
+                    Votação iniciada em @_voting.InitialDate.ToShortDateString()
+                </MudText>
+                <MudText Style="color:#808080;" Class="mt-2 px-2">
+                    <MudIcon Icon="@Icons.Material.Outlined.CalendarMonth"></MudIcon>
+                    Votação encerrada em @_voting.FinalDate.ToShortDateString()
+                </MudText>
+                <MudText Style="color:#808080;" Class="mt-2 px-2">
+                    <MudIcon Icon="@Icons.Material.Outlined.Group"></MudIcon>
+                    47% dos mordadores cadastrados votaram
+                </MudText>
+            </MudContainer>
+        </MudContainer>
+        
+    </MudContainer>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private bool _isLoading = true;
+    private Voting _voting = new();
+    private string[] _optionNames = [];
+    private double[] _voteOptions = [];
+    private int _selectedOption = -1;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await PageHelper.ShowBusy(ref _isLoading, async () =>
+            {
+                try
+                {
+                    _voting = await VotingService.GetVotingDetails(Id);
+                    _optionNames = _voting.VotingOptions.Select(x => $"{x.Name} ({x.TotalVotes})").ToArray();
+                    _voteOptions = _voting.VotingOptions.Select(x => (double)x.TotalVotes).ToArray();
+                }
+                catch (Exception e)
+                {
+                    var result = await DialogService.ShowMessageBox("Erro!", e.Message);
+                    if (result.HasValue && result.Value)
+                    {
+                        NavigationManager.NavigateTo("votacoes");
+                    }
+                }
+            });
+            StateHasChanged();
+        }
+    }
+}

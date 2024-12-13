@@ -1,18 +1,19 @@
+using System.Globalization;
 using BlazorApp.Components;
 using BlazorApp.Services;
 using BlazorApp.Utils;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Localization;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
 builder.Services.AddMemoryCache();
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
-
 builder.Services.AddScoped<PageHelper>();
 builder.Services.AddHttpClient<LocationService>((client) => {
     //env
@@ -37,6 +38,9 @@ builder.Services.AddHttpClient<BookingService>(client => {
 });
 builder.Services.AddHttpClient<NotificationService>(client => {
 	client.BaseAddress = new Uri("https://localhost:7031/api/Notification/");
+});
+builder.Services.AddHttpClient<VotingService>(client => {
+	client.BaseAddress = new Uri("https://localhost:7031/api/Voting/");
 });
 
 var app = builder.Build();

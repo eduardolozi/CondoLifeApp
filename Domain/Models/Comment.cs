@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Domain.Models {
-    [NotMapped]
     public class Comment {
         public int Id { get; set; }
-        public required string Message { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public string Message { get; set; }
+        public DateTime CreatedAt { get; set; }
         public int UserId { get; set; }
-        public User User { get; set; }
         public int PostId { get; set; }
-        public Post Post { get; set; }
+        [JsonIgnore] public User User { get; set; }
+        [JsonIgnore] public Post Post { get; set; }
     }
 }

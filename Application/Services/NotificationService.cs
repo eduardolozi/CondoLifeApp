@@ -14,6 +14,21 @@ public class NotificationService(CondoLifeContext dbContext)
         dbContext.SaveChanges();
     }
 
+    public void DeleteBookingNotifications(int bookingId)
+    {
+        dbContext.Notification.Where(x => x.BookingId == bookingId).ExecuteDelete();
+    }
+
+    public void DeleteBookingsNotifications(List<Booking> bookings)
+    {
+        if (!bookings.Any()) return;
+        var bookingIds = bookings.Select(x => x.Id).ToList();
+        var notifications = dbContext
+            .Notification
+            .Where(x => x.BookingId.HasValue && bookingIds.Contains(x.BookingId.Value))
+            .ExecuteDelete();
+    }
+
     public List<Notification>? Get(NotificationFilter? filter = null)
     {
         var query = dbContext
@@ -40,5 +55,21 @@ public class NotificationService(CondoLifeContext dbContext)
             .Include(x => x.Message)
             .AsNoTracking()
             .FirstOrDefault(x => x.Id == id);
+    }
+
+    public void MarkAsReaded(int userId, int firstOpenNotificationId)
+    {
+        var notifications = dbContext.Notification
+            .Where(x => x.UserId == userId && x.Id >= firstOpenNotificationId && !x.IsRead)
+            .ToList();
+
+        if (notifications.Any())
+        {
+            foreach (var notification in notifications)
+            {
+                notification.IsRead = true;
+            }
+            dbContext.SaveChanges();
+        }
     }
 }

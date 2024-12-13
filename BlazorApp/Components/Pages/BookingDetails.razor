@@ -5,6 +5,7 @@
 @inject UserService UserService
 @inject IDialogService DialogService
 @inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Detalhes da reserva</PageTitle>
 
@@ -50,12 +51,13 @@
             <MudText Typo="Typo.body1">@_booking.Description</MudText>
         </MudContainer>
         
-        @if (_booking!.Status is BookingStatusEnum.Pending && (_user!.Role is UserRoleEnum.Manager or UserRoleEnum.Submanager))
-        {
-            <MudContainer Class="my-3 d-flex flex-row justify-content-end pe-0">
-                <MudButton Variant="Variant.Filled" Style="background-color: #18b66c; color: white" OnClick="ApproveBooking">Aprovar reserva</MudButton>
-            </MudContainer>  
-        }
+        <MudContainer Class="my-3 d-flex flex-row justify-content-end pe-0">
+            <MudButton Variant="Variant.Filled" Style="background-color: #f84d4d; color: white" OnClick="DeleteBooking">Remover reserva</MudButton>
+            @if (_booking!.Status is BookingStatusEnum.Pending && (_user!.Role is UserRoleEnum.Manager or UserRoleEnum.Submanager))
+            {
+                <MudButton Class="ms-3" Variant="Variant.Filled" Style="background-color: #18b66c; color: white" OnClick="ApproveBooking">Aprovar reserva</MudButton>
+            }
+        </MudContainer>  
     }
 </MudContainer>
 
@@ -102,11 +104,29 @@
         {
             await BookingService.ApproveBooking(_booking.Id);
             await DialogService.ShowMessageBox("Reserva aprovada com sucesso!", "A reserva foi aprovada, o morador receberá uma notificação avisando a aprovação.");
+            _statusColor = Color.Success;
+            _statusIcon = Icons.Material.Rounded.CheckCircle;
+            _booking.Status = BookingStatusEnum.Confirmed;
             StateHasChanged();
         }
         catch (Exception e)
         {
             await DialogService.ShowMessageBox("Não foi possível aprovar a reserva...", e.Message);
+
+        }
+    }
+
+    async Task DeleteBooking()
+    {
+        try
+        {
+            await BookingService.DeleteBooking(_booking.Id);
+            await DialogService.ShowMessageBox("Reserva removida!", "Você removeu a sua reserva, esperamos que possa marcar outra em breve!");
+            NavigationManager.NavigateTo("minhas-reservas");
+        }
+        catch (Exception e)
+        {
+            await DialogService.ShowMessageBox("Não foi possível remover a reserva...", e.Message);
 
         }
     }

@@ -66,7 +66,8 @@
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
     [Parameter] public int CondominiumId { get; set; }
     [Parameter] public Space Space { get; set; } = new();
-    
+    private const long MAX_ALLOWED_SIZE = 8388608;
+
     private async Task Submit()
     {
         
@@ -94,15 +95,23 @@
     
     async Task UploadImage(IBrowserFile file)
     {
-        using var memoryStream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(memoryStream);
-        var fileBytes = memoryStream.ToArray();
-        Space.Photo = new Photo
+        try
         {
-            ContentBase64 = Convert.ToBase64String(fileBytes),
-            ContentType = file.ContentType,
-            FileName = file.Name
-        };
-        StateHasChanged();
+            using var memoryStream = new MemoryStream();
+            await file.OpenReadStream(MAX_ALLOWED_SIZE).CopyToAsync(memoryStream);
+            var fileBytes = memoryStream.ToArray();
+            Space.Photo = new Photo
+            {
+                ContentBase64 = Convert.ToBase64String(fileBytes),
+                ContentType = file.ContentType,
+                FileName = file.Name
+            };
+            StateHasChanged();
+            
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBox("Erro!", "O tamanho do arquivo é maior do que o esperado. Por favor, selecione uma imagem com no máximo 1MB");
+        }
     }
 }

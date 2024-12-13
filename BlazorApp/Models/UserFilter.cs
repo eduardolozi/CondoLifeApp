@@ -7,4 +7,5 @@ public class UserFilter
     public int? CondominiumId { get; set; }
     public string? Username { get; set; }
     public UserRoleEnum? Role { get; set; }
+    public bool? OnlyEmailVerified { get; set; }
 }

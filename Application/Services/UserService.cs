@@ -1,6 +1,5 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
-using BlazorApp.Models;
 using Domain.Exceptions;
 using Domain.Models;
 using Domain.Utils;
@@ -8,10 +7,10 @@ using Infraestructure;
 using Infraestructure.Rabbit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Utilities;
 using Raven.Client.Documents;
 using Photo = Domain.Models.Photo;
 using User = Domain.Models.User;
+using UserFilter = Domain.Models.Filters.UserFilter;
 
 namespace Application.Services {
     public class UserService(
@@ -36,6 +35,9 @@ namespace Application.Services {
                 
                 if (filter.Role.HasValue)
                     query = query.Where(x => (int)x.Role == (int)filter.Role);
+
+                if (filter.OnlyEmailVerified is true)
+                    query = query.Where(x => x.IsEmailVerified == true);
             }
             
             return query.ToList();

@@ -11,7 +11,13 @@ namespace Infraestructure {
         public DbSet<Space> Space { get; set; } 
         public DbSet<Booking> Booking { get; set; } 
         public DbSet<Notification> Notification { get; set; } 
-        public DbSet<NotificationPayload> NotificationPayload { get; set; } 
+        public DbSet<NotificationPayload> NotificationPayload { get; set; }
+        public DbSet<Post> Post { get; set; }
+        public DbSet<Like> Like { get; set; }
+        public DbSet<Comment> Comment { get; set; }
+        public DbSet<Voting> Voting { get; set; }
+        public DbSet<VotingOption> VotingOption { get; set; }
+        public DbSet<Vote> Vote { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             //env

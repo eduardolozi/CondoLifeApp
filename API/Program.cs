@@ -1,7 +1,9 @@
+using System.Globalization;
 using API;
 using API.Hubs;
 using Application;
 using Infraestructure;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApiServices();

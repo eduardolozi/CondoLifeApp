@@ -1,4 +1,5 @@
 ﻿@page "/configuracoes"
+@using System.Net.Mime
 @using Blazored.LocalStorage
 @layout Layout.MainLayout
 @inject UserService userService
@@ -41,7 +42,12 @@
                     <MudText Typo="Typo.subtitle1">Gerencie suas informações pessoais e dados do apartamento.</MudText>
                 </MudCardHeader>
                 <MudCardContent Style="width: 100%" Class="d-flex flex-column align-items-center">
-                    <MudImage Elevation="5" Style="width: 150px; height: 150px; border-radius: 50%;" Src="@_base64Image"></MudImage>
+                    @if (_photoIsLoading){
+                        <MudProgressCircular Color="Color.Primary" Style="width: 50px; height: 50px" Indeterminate="true" />
+                    }
+                    else {
+                        <MudImage Elevation="5" Style="width: 150px; height: 150px; border-radius: 50%;" Src="@_base64Image"></MudImage>
+                    }
                     <MudFileUpload Class="mt-3 mb-5" T="IBrowserFile" FilesChanged="UploadImage" Accept=".png, .jpg">
                         <ActivatorContent>
                             <MudContainer Class="d-flex flex-row p-0">
@@ -105,6 +111,8 @@
     [Inject] private AuthService _authService { get; set; }
     string _base64Image = string.Empty;
     User? _user = new User();
+    bool _photoIsLoading = true;
+    private const long MAX_ALLOWED_SIZE = 8388608;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -112,11 +120,12 @@
             _user = await _authService.GetUserByClaims();
             if (_user is not null)
             {
-                var param = string.IsNullOrEmpty(_user.PhotoUrl) ? $"{_user.Id}/photo" : _user.PhotoUrl; 
+                var param = string.IsNullOrEmpty(_user.PhotoUrl) ? $"{_user.Id}/photo" : _user.PhotoUrl;
                 var photo = await userService.GetPhoto(param);
                 if (photo is not null)
                 {
                     _base64Image = string.IsNullOrEmpty(photo.ContentBase64) ? "/blank-profile-picture.png" : $"data:image/png;base64,{photo.ContentBase64}";
+                    _photoIsLoading = false;
                     StateHasChanged();
                 }
             }
@@ -125,17 +134,24 @@
 
     async Task UploadImage(IBrowserFile file)
     {
-        using var memoryStream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(memoryStream);
-        var fileBytes = memoryStream.ToArray();
-        _user!.Photo = new Photo
+        try
         {
-            ContentBase64 = Convert.ToBase64String(fileBytes),
-            FileName = file.Name,
-            ContentType = file.ContentType
-        };
-        _base64Image = $"data:image/png;base64,{_user.Photo.ContentBase64}";
-        StateHasChanged();
+            using var memoryStream = new MemoryStream();
+            await file.OpenReadStream(MAX_ALLOWED_SIZE).CopyToAsync(memoryStream);
+            var fileBytes = memoryStream.ToArray();
+            _user!.Photo = new Photo
+            {
+                ContentBase64 = Convert.ToBase64String(fileBytes),
+                FileName = file.Name,
+                ContentType = file.ContentType
+            };
+            _base64Image = $"data:image/png;base64,{_user.Photo.ContentBase64}";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await dialogService.ShowMessageBox("Erro!", "O tamanho do arquivo é maior do que o esperado. Por favor, selecione uma imagem com no máximo 1MB");
+        }
     }
 
     bool _isLoading;

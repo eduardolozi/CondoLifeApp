@@ -4,26 +4,29 @@ using BlazorApp.DTOs;
 using BlazorApp.Models;
 using BlazorApp.Utils;
 using Blazored.LocalStorage;
+using Microsoft.JSInterop;
+using MudBlazor.Extensions;
 
 namespace BlazorApp.Services;
 
 public class BookingService(HttpClient httpClient, ILocalStorageService localStorage)
 {
-    public async Task<List<Booking>?> GetBookings(BookingFilter? filter = null)
+    public async Task<List<Booking>> GetBookings(BookingFilter? filter = null)
     {
         try
         {
             var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            
             var queryParams = string.Empty;
             if (filter != null)
             {
                 queryParams += "?";
                 if (filter.FinalDate.HasValue)
-                    queryParams += $"filter.FinalDate={filter.FinalDate}&";
+                    queryParams += $"filter.FinalDate={filter.FinalDate.Value:O}&";
             
                 if (filter.InitialDate.HasValue)
-                    queryParams += $"filter.InitialDate={filter.InitialDate}&";
+                    queryParams += $"filter.InitialDate={filter.InitialDate.Value:O}&";
             
                 if(filter.Status.HasValue)
                     queryParams += $"filter.Status={filter.Status}&";
@@ -36,13 +39,14 @@ public class BookingService(HttpClient httpClient, ILocalStorageService localSto
             }
 
             var response = await httpClient.GetAsync(queryParams);
+            
             if (!response.IsSuccessStatusCode)
                 await response.HandleResponseError();
-
             if (response.StatusCode == HttpStatusCode.NoContent)
-                return null;
+                return [];
             
-            return await response.Content.ReadFromJsonAsync<List<Booking>>();
+            var result = await response.Content.ReadFromJsonAsync<List<Booking>>();
+            return result ?? [];
         }
         catch (Exception e)
         {
@@ -79,6 +83,16 @@ public class BookingService(HttpClient httpClient, ILocalStorageService localSto
         var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var response = await httpClient.PatchAsync($"{bookingId}/accept-booking", null);
+
+        if (!response.IsSuccessStatusCode)
+            await response.HandleResponseError();
+    }
+
+    public async Task DeleteBooking(int bookingId)
+    {
+        var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var response = await httpClient.DeleteAsync($"{bookingId}");
 
         if (!response.IsSuccessStatusCode)
             await response.HandleResponseError();
