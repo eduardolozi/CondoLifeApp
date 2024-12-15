@@ -151,6 +151,39 @@ namespace Application.Services {
             }
         }
 
+        public User UpdateUserData(int id, UpdateUserDataDTO userData)
+        {
+            var userDb = dbContext.Users.FirstOrDefault(x => x.Id == id)
+                         ?? throw new ResourceNotFoundException("Usuario não encontrado.");
+
+            userDb.Name = userData.Name;
+            userDb.Email = userData.Email;
+            userDb.Photo = userData.Photo;
+            userDb.Apartment = userData.Apartment;
+            userDb.Block = userData.Block; 
+            dbContext.SaveChanges();
+            
+            if (userDb.Photo.HasValue())
+            {
+                userDb.Photo = userData.Photo;
+                SavePhoto(userDb);
+            }
+
+            return userDb;
+        }
+
+        public User UpdateNotificationConfigs(int id, UpdateUserNotificationConfigsDTO configs)
+        {
+            var userDb = dbContext.Users.FirstOrDefault(x => x.Id == id)
+                         ?? throw new ResourceNotFoundException("Usuario não encontrado.");
+
+            userDb.NotificationLifetime = configs.NotificationLifetime;
+            userDb.NotifyEmail = configs.NofifyEmail;
+            userDb.NotifyPhone = configs.NofifyPhone;
+            dbContext.SaveChanges();
+            return userDb;
+        }
+
         public async Task SendRecoveryPasswordEmail(ChangePasswordDTO changePassword) {
             var user = dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == changePassword.Email!.ToLower())
                 ?? throw new ResourceNotFoundException("Email inválido");

@@ -113,11 +113,11 @@ else
                 <MudContainer Class="w-100 d-flex flex-column align-items-start justify-content-between">
                     <MudContainer Class="pt-3 pb-2 px-4 w-100" Style="border-radius: 8px; border-color: rgba(125,129,129,0.46); border-width: 1px; background-color: rgba(125,129,129,0.05)">
                         <MudText>Receber notificações no email:</MudText>
-                        <MudSwitch T="bool" Color="Color.Success"></MudSwitch>
+                        <MudSwitch @bind-Value="_user!.NotifyEmail" Color="Color.Success"></MudSwitch>
                     </MudContainer>
                     <MudContainer Class="pt-3 pb-2 px-4 w-100 mt-3" Style="border-radius: 8px; border-color: rgba(125,129,129,0.46); border-width: 1px; background-color: rgba(125,129,129,0.05)">
                         <MudText>Receber notificações no celular:</MudText>
-                        <MudSwitch T="bool" Color="Color.Success"></MudSwitch>
+                        <MudSwitch @bind-Value="_user!.NotifyPhone" Color="Color.Success"></MudSwitch>
                     </MudContainer>
                     <MudContainer Class="w-100 mt-3 px-0">
                         <MudSelect @bind-Value="_lifetimeValue" Class=" w-100" Variant="Variant.Outlined" Label="Tempo até as notificações serem removidas">
@@ -128,7 +128,7 @@ else
                         </MudSelect>
                     </MudContainer>
                     <MudButton Class="w-100 mx-0 mt-5" Style="background-color: #019863; color: white"
-                               Size="Size.Large" Variant="Variant.Filled">
+                               Size="Size.Large" Variant="Variant.Filled" OnClick="SaveUserNotificationConfigs">
                         Salvar alterações nas notificações
                     </MudButton>
                 </MudContainer>
@@ -159,7 +159,7 @@ else
                 if (_user is not null)
                 {
                     StateHasChanged();
-                    _lifetimeValue = (_user.NotificationLifetime is null ? "Não excluir as notificações" : _user.NotificationLifetime.ToString())!;
+                    _lifetimeValue = (_user.NotificationLifetime is null or 0 ? "Não excluir as notificações" : _user.NotificationLifetime.ToString())!;
                     var param = string.IsNullOrEmpty(_user.PhotoUrl) ? $"{_user.Id}/photo" : _user.PhotoUrl;
                     var photo = await userService.GetPhoto(param);
                     if (photo is not null)
@@ -206,8 +206,15 @@ else
         try
         {
             _isLoading = true;
-            _user!.NotificationLifetime = _lifetimeValue is "Não excluir as notificações" ? null : Convert.ToInt32(_lifetimeValue);
-            var result = await userService.Update(_user);
+            var result = await userService.UpdateUserData(new UpdateUserDataDTO {
+                Id = (int) _user!.Id!,
+                Apartment = (int) _user.Apartment!,
+                Name = _user.Name,
+                Block = _user.Block!,
+                Email = _user.Email,
+                Photo = _user.Photo
+            });
+            
             if (!result.IsSuccess)
             {
                 await dialogService.ShowMessageBox("Erro ao atualizar!", "Verifique os dados alterados.", "OK");
@@ -226,5 +233,37 @@ else
             _isLoading = false;
         }
 
+    }
+
+    private async Task SaveUserNotificationConfigs()
+    {
+        try
+        {
+            _isLoading = true;
+            _user!.NotificationLifetime = _lifetimeValue is "Não excluir as notificações" ? null : Convert.ToInt32(_lifetimeValue);
+            var result = await userService.UpdateNotificationConfigs(new UpdateUserNotificationConfigsDTO {
+                Id = (int) _user.Id!,
+                NotificationLifetime = _user.NotificationLifetime,
+                NofifyEmail = _user.NotifyEmail,
+                NofifyPhone = _user.NotifyPhone
+            });
+            
+            if (!result.IsSuccess)
+            {
+                await dialogService.ShowMessageBox("Erro ao atualizar!", "Verifique os dados alterados.", "OK");
+                return;
+            }
+
+            await localStorage.RemoveItemsAsync(["accessToken", "refreshToken", "userPhoto"]);
+
+            await localStorage.SetItemAsStringAsync("accessToken", result.AccessToken!);
+            await localStorage.SetItemAsStringAsync("refreshToken", result.RefreshToken!);
+            
+            await dialogService.ShowMessageBox("Perfil atualizado!", "Seus dados foram editados com sucesso!.", "OK");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 }

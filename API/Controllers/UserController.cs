@@ -69,6 +69,38 @@ namespace API.Controllers {
                 UserId = user.Id
             });
         }
+
+        [Authorize]
+        [HttpPatch("{id}/user-data")]
+        public IActionResult UpdateUserData([FromRoute] int id, [FromBody] UpdateUserDataDTO userData)
+        {
+            var user = userService.UpdateUserData(id, userData);
+            var accessToken = authService.CreateAccessToken(user);
+            var refreshToken = authService.CreateRefreshToken(user.Id).Token;
+            return Ok(new LoginResponseDTO
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                IsSuccess = true,
+                UserId = user.Id
+            });
+        }
+        
+        [Authorize]
+        [HttpPatch("{id}/user-notification-configs")]
+        public IActionResult UpdateNotificationConfigs([FromRoute] int id, [FromBody] UpdateUserNotificationConfigsDTO configs)
+        {
+            var user = userService.UpdateNotificationConfigs(id, configs);
+            var accessToken = authService.CreateAccessToken(user);
+            var refreshToken = authService.CreateRefreshToken(user.Id).Token;
+            return Ok(new LoginResponseDTO
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                IsSuccess = true,
+                UserId = user.Id
+            });
+        }
         
         [HttpPatch("recovery-password-email")]
         public async Task<NoContentResult> SendRecoveryPasswordEmail([FromBody] ChangePasswordDTO changePassword) {
