@@ -1,11 +1,12 @@
 ﻿using Domain.Models;
 using Domain.Models.Filters;
 using Infraestructure;
+using Infraestructure.Rabbit;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
-public class NotificationService(CondoLifeContext dbContext)
+public class NotificationService(CondoLifeContext dbContext, RabbitService rabbitService)
 {
     public void Insert(Notification notification)
     {
@@ -71,5 +72,13 @@ public class NotificationService(CondoLifeContext dbContext)
             }
             dbContext.SaveChanges();
         }
+    }
+
+    public void PublishNotification(Notification notification, EmailMessage? emailMessage = null)
+    {
+        rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
+
+        if (emailMessage != null)
+            rabbitService.Send(emailMessage, RabbitConstants.EMAIL_EXCHANGE, RabbitConstants.EMAIL_ROUTING_KEY);
     }
 }
