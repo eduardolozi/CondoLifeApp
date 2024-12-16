@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Domain.Enums;
 using Domain.Models;
 using Domain.Models.Filters;
 using Domain.Utils;
@@ -79,11 +80,28 @@ public class VotingService(CondoLifeContext dbContext, AbstractValidator<Voting>
             .FirstOrDefault(x => x.Id == votingId);
     }
     
-    public void CreateVoting(Voting voting)
+    public void CreateVoting(string userToken, Voting voting)
     {
         votingValidator.ValidateAndThrow(voting);
         dbContext.Voting.Add(voting);
         dbContext.SaveChanges();
+        
+        //
+        //
+        // var notification = new Notification
+        // {
+        //     CreatedAt = DateTime.UtcNow,
+        //     NotificationType = NotificationTypeEnum.VotingCreated,
+        //     UserToken = userToken,
+        //     UserId = id,
+        //     Message = new NotificationPayload
+        //     {
+        //         Header = "Temos uma nova votação!",
+        //         Body = $"Veja agora: {voting.Title}",
+        //         
+        //     },
+        //     
+        // }
     }
 
     public void ConfirmVote(Vote vote)

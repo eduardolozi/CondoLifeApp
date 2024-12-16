@@ -6,6 +6,7 @@ namespace Domain.Enums {
         PostLike,
         CommentPost,
         BookingCreated,
-        BookingApproved
+        BookingApproved,
+        VotingCreated
     }
 }

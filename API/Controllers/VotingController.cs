@@ -38,7 +38,9 @@ public class VotingController(VotingService votingService) : ControllerBase
     [Authorize(Policy = "AdminOrManager")]
     public IActionResult CreateVoting([FromBody] Voting voting)
     {
-        votingService.CreateVoting(voting);
+        var authorizationHeader = HttpContext.Request.Headers.Authorization.ToString();
+        var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+        votingService.CreateVoting(token, voting);
         return Ok();
     }
 
