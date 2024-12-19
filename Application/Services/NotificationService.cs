@@ -1,4 +1,6 @@
-﻿using Domain.Models;
+﻿using Application.DTOs;
+using Domain.Enums;
+using Domain.Models;
 using Domain.Models.Filters;
 using Infraestructure;
 using Infraestructure.Rabbit;
@@ -30,23 +32,32 @@ public class NotificationService(CondoLifeContext dbContext, RabbitService rabbi
             .ExecuteDelete();
     }
 
-    public List<Notification>? Get(NotificationFilter? filter = null)
+    public List<GetNotificationDTO>? Get(NotificationFilter filter = null)
     {
-        var query = dbContext
-            .Notification
-            .Include(x => x.Message)
+        var userNotifications = dbContext
+            .UserNotification
+            .Include(x => x.Notification)
+            .ThenInclude(y => y.Message)
+            .Where(x => x.UserId == filter.UserId)
             .AsNoTracking()
-            .AsQueryable();
-
-        if (filter != null)
-        {
-            if(filter.UserId.HasValue) 
-                query = query.Where(x => x.UserId == filter.UserId);
-            if(filter.NotificationType.HasValue) 
-                query = query.Where(x => x.NotificationType == filter.NotificationType);
-        }
+            .ToList();
         
-        return query.OrderByDescending(x => x.Id).ToList();
+        if(filter.NotificationType.HasValue) 
+            userNotifications = userNotifications.Where(x => x.Notification.NotificationType == filter.NotificationType).ToList();
+        
+        return userNotifications
+            .Select(x => new GetNotificationDTO
+            {
+                Id = x.Notification.Id,
+                NotificationType = x.Notification.NotificationType,
+                Message = x.Notification.Message,
+                UserId = x.UserId,
+                BookingId = x.Notification.BookingId,
+                IsRead = x.IsRead,
+                CreatedAt = x.Notification.CreatedAt
+            })
+            .OrderByDescending(x => x.Id)
+            .ToList();
     }
 
     public Notification? GetById(int id)
@@ -58,15 +69,22 @@ public class NotificationService(CondoLifeContext dbContext, RabbitService rabbi
             .FirstOrDefault(x => x.Id == id);
     }
 
+    public bool HasUnreadNotifications(int userId)
+    {
+        return dbContext
+            .UserNotification
+            .Any(x => x.UserId == userId && x.IsRead == false);
+    }
+
     public void MarkAsReaded(int userId, int firstOpenNotificationId)
     {
-        var notifications = dbContext.Notification
-            .Where(x => x.UserId == userId && x.Id >= firstOpenNotificationId && !x.IsRead)
+        var userNotifications = dbContext.UserNotification
+            .Where(x => x.UserId == userId && x.NotificationId >= firstOpenNotificationId && !x.IsRead)
             .ToList();
 
-        if (notifications.Any())
+        if (userNotifications.Any())
         {
-            foreach (var notification in notifications)
+            foreach (var notification in userNotifications)
             {
                 notification.IsRead = true;
             }

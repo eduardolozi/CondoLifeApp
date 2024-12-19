@@ -21,6 +21,6 @@ namespace Domain.Models {
         public int? NotificationLifetime { get; set; }
         public int CondominiumId { get; set; }
         [JsonIgnore] public Condominium? Condominium { get; set; }
-        [JsonIgnore] public List<Notification> Notifications { get; set; } = [];
+        [JsonIgnore] public List<UserNotification>? UserNotifications { get; set; }
     }
 }

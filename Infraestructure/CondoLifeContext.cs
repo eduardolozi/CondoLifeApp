@@ -11,6 +11,7 @@ namespace Infraestructure {
         public DbSet<Space> Space { get; set; } 
         public DbSet<Booking> Booking { get; set; } 
         public DbSet<Notification> Notification { get; set; } 
+        public DbSet<UserNotification> UserNotification { get; set; } 
         public DbSet<NotificationPayload> NotificationPayload { get; set; }
         public DbSet<Post> Post { get; set; }
         public DbSet<Like> Like { get; set; }

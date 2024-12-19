@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
 using Domain.Utils;
@@ -248,6 +249,11 @@ namespace Application.Services {
                 ?? throw new ResourceNotFoundException("Usuário não encontrado.");
             user.Role = changeUserRole.Role;
             dbContext.SaveChanges();
+        }
+
+        public List<int> GetAllUsersIdExceptManager(int condominiumId)
+        {
+            return dbContext.Users.Where(x => x.CondominiumId == condominiumId && x.Role != UserRoleEnum.Manager).Select(x => x.Id).ToList();
         }
     }
 }

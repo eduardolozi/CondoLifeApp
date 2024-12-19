@@ -5,11 +5,12 @@ using Domain.Models.Filters;
 using Domain.Utils;
 using FluentValidation;
 using Infraestructure;
+using Infraestructure.Rabbit;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
-public class VotingService(CondoLifeContext dbContext, AbstractValidator<Voting> votingValidator)
+public class VotingService(CondoLifeContext dbContext, AbstractValidator<Voting> votingValidator, UserService userService, RabbitService rabbitService)
 {
     public List<Voting> GetAllVotings(VotingFilter filter)
     {
@@ -85,23 +86,35 @@ public class VotingService(CondoLifeContext dbContext, AbstractValidator<Voting>
         votingValidator.ValidateAndThrow(voting);
         dbContext.Voting.Add(voting);
         dbContext.SaveChanges();
+
+        var condominiumName = dbContext.Condominium.First(x => x.Id == voting.CondominiumId).Name;
         
-        //
-        //
-        // var notification = new Notification
-        // {
-        //     CreatedAt = DateTime.UtcNow,
-        //     NotificationType = NotificationTypeEnum.VotingCreated,
-        //     UserToken = userToken,
-        //     UserId = id,
-        //     Message = new NotificationPayload
-        //     {
-        //         Header = "Temos uma nova votação!",
-        //         Body = $"Veja agora: {voting.Title}",
-        //         
-        //     },
-        //     
-        // }
+        var notification = new Notification
+        {
+            CreatedAt = DateTime.UtcNow,
+            NotificationType = NotificationTypeEnum.VotingCreated,
+            UserToken = userToken,
+            Message = new NotificationPayload
+            {
+                Header = "Temos uma nova votação!",
+                ResultCategory = NotificationResultEnum.Info,
+                Body = $"Veja agora: {voting.Title}",
+            },
+            CondominiumName = condominiumName,
+            UserNotifications = []
+        };
+
+        var usersIdToNotify = userService.GetAllUsersIdExceptManager(voting.CondominiumId);
+        foreach (var userId in usersIdToNotify)
+        {
+            notification.UserNotifications.Add(new UserNotification
+            {
+                UserId = userId,
+                IsRead = false,
+            });
+        }
+        
+        rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
     }
 
     public void ConfirmVote(Vote vote)

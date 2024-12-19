@@ -119,16 +119,21 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
         var notification = new Notification
         {
             CondominiumName = user.Condominium!.Name,
-            UserId = condoManager.Id,
             UserToken = token,
             NotificationType = NotificationTypeEnum.BookingCreated,
             Message = new NotificationPayload
             {
                 Header = "Uma nova reserva foi solicitada!",
+                ResultCategory = NotificationResultEnum.Info,
                 Body = $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}."
             },
             BookingId = booking.Id,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            UserNotifications = [new UserNotification
+            {
+                UserId = condoManager.Id,
+                IsRead = false
+            }]
         };
         
         EmailMessage? emailMessage = null;
@@ -187,16 +192,21 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
             var notification = new Notification
             {
                 CondominiumName = space.Condominium!.Name,
-                UserId = booking.UserId,
                 UserToken = token,
                 NotificationType = NotificationTypeEnum.BookingApproved,
                 Message = new NotificationPayload
                 {
                     Header = "A sua reserva foi aprovada!",
+                    ResultCategory = NotificationResultEnum.Approved,
                     Body = $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}."
                 },
                 BookingId = booking.Id,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                UserNotifications = [new UserNotification
+                {
+                    UserId = booking.UserId,
+                    IsRead = false
+                }]
             };
 
             EmailMessage? emailMessage = null;

@@ -1,5 +1,4 @@
-﻿using API.Hubs;
-using Application.DTOs;
+﻿using Application.DTOs;
 using Application.Interfaces;
 using Application.Services;
 using Domain.Utils;
@@ -14,7 +13,6 @@ namespace API.Controllers {
     [ApiController]
     public class UserController(
         UserService userService,
-        EmailNotificationHub emailNotificationHub,
         IAuthService authService)
         : ControllerBase
     {

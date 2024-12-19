@@ -33,7 +33,14 @@ public class NotificationBackgroundService(RabbitService rabbitService, IHttpCli
                     
                     if (notification.NotificationType is NotificationTypeEnum.BookingApproved)
                     {
-                        var response = await httpClient.PostAsJsonAsync("https://localhost:7031/api/Notification/notify-user", notification);
+                        var userId = notification.UserNotifications![0].UserId;
+                        var response = await httpClient.PostAsJsonAsync($"https://localhost:7031/api/Notification/notify-user?userId={userId}", notification);
+                        response.EnsureSuccessStatusCode();
+                    }
+                    
+                    if (notification.NotificationType is NotificationTypeEnum.VotingCreated)
+                    {
+                        var response = await httpClient.PostAsJsonAsync("https://localhost:7031/api/Notification/notify-all-except-manager", notification);
                         response.EnsureSuccessStatusCode();
                     }
 

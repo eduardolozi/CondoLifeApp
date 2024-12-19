@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Domain.Enums;
 
 namespace Domain.Models;
 
@@ -8,5 +8,6 @@ public class NotificationPayload
     public string Header { get; set; }
     public string Body { get; set; }
     public string? Link { get; set; }
+    public NotificationResultEnum ResultCategory { get; set; }
     public int NotificationId { get; set; }
 }

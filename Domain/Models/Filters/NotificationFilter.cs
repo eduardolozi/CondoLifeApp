@@ -4,6 +4,6 @@ namespace Domain.Models.Filters;
 
 public class NotificationFilter
 {
-    public int? UserId { get; set; }
+    public int UserId { get; set; }
     public NotificationTypeEnum? NotificationType { get; set; }
 }

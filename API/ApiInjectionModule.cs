@@ -2,13 +2,8 @@
 using System.Security.Cryptography;
 using API.Handlers;
 using API.Hubs;
-using API.Hubs.Services;
-using Domain.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API {
@@ -26,7 +21,6 @@ namespace API {
             });
             services.AddSignalR();
             services.AddExceptionHandler<ExceptionHandler>();
-            services.AddScoped<EmailNotificationHub>();
         }
 
         private static void ConfigureAuthentication(this IServiceCollection services) {

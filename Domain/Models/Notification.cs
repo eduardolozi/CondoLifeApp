@@ -9,9 +9,8 @@ namespace Domain.Models {
         public string? CondominiumName { get; set; }
         public NotificationTypeEnum NotificationType { get; set; }
         public NotificationPayload Message { get; set; }
-        public int UserId { get; set; }
         public int? BookingId { get; set; }
-        public bool IsRead { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<UserNotification>? UserNotifications { get; set; } = [];
     }
 }
