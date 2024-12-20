@@ -37,18 +37,18 @@ public class NotificationService(CondoLifeContext dbContext, RabbitService rabbi
         var userNotifications = dbContext
             .UserNotification
             .Include(x => x.Notification)
-            .ThenInclude(y => y.Message)
+            .ThenInclude(y => y!.Message)
             .Where(x => x.UserId == filter.UserId)
             .AsNoTracking()
             .ToList();
         
         if(filter.NotificationType.HasValue) 
-            userNotifications = userNotifications.Where(x => x.Notification.NotificationType == filter.NotificationType).ToList();
+            userNotifications = userNotifications.Where(x => x.Notification!.NotificationType == filter.NotificationType).ToList();
         
         return userNotifications
             .Select(x => new GetNotificationDTO
             {
-                Id = x.Notification.Id,
+                Id = x.Notification!.Id,
                 NotificationType = x.Notification.NotificationType,
                 Message = x.Notification.Message,
                 UserId = x.UserId,
@@ -98,5 +98,74 @@ public class NotificationService(CondoLifeContext dbContext, RabbitService rabbi
 
         if (emailMessage != null)
             rabbitService.Send(emailMessage, RabbitConstants.EMAIL_EXCHANGE, RabbitConstants.EMAIL_ROUTING_KEY);
+    }
+
+    public Notification SetupOneUserNotification(string condomniniumName,
+        string userToken,
+        NotificationTypeEnum notificationType,
+        string header,
+        NotificationResultEnum result,
+        string body,
+        DateTime createdAt,
+        int userId,
+        int? bookingId = null)
+    {
+        return new Notification
+        {
+            CondominiumName = condomniniumName,
+            UserToken = userToken,
+            NotificationType = notificationType,
+            Message = new NotificationPayload
+            {
+                Header = header,
+                ResultCategory = result,
+                Body = body
+            },
+            BookingId = bookingId,
+            CreatedAt = createdAt,
+            UserNotifications = [
+                new UserNotification
+                {
+                    UserId = userId,
+                    IsRead = false
+                }
+            ]
+        };
+    }
+    
+    public Notification SetupManyUsersNotification(string condomniniumName,
+        string userToken,
+        NotificationTypeEnum notificationType,
+        string header,
+        NotificationResultEnum result,
+        string body,
+        DateTime createdAt,
+        List<int> usersId)
+    {
+        var notification =  new Notification
+        {
+            CondominiumName = condomniniumName,
+            UserToken = userToken,
+            NotificationType = notificationType,
+            Message = new NotificationPayload
+            {
+                Header = header,
+                ResultCategory = result,
+                Body = body
+            },
+            CreatedAt = createdAt,
+            UserNotifications = []
+        };
+        
+        foreach (var userId in usersId)
+        {
+            notification.UserNotifications.Add(new UserNotification
+            {
+                UserId = userId,
+                IsRead = false,
+            });
+        }
+
+        return notification;
     }
 }

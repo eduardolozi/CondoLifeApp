@@ -9,7 +9,6 @@ namespace API.Hubs;
 
 public interface INotificationHub
 {
-    public Task AdminReceiveNotification(NotificationPayload message);
     public Task UserReceiveNotification(NotificationPayload message);
     public Task UserReceiveNotificationsToReadCount(string message);
 }

@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using Application.DTOs;
 using Application.Helpers;
+using Application.Interfaces;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
@@ -14,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
-public class BookingService(CondoLifeContext dbContext, AbstractValidator<Booking> bookingValidator, RabbitService rabbitService, NotificationService notificationService)
+public class BookingService(CondoLifeContext dbContext, IEmailService emailService, AbstractValidator<Booking> bookingValidator, RabbitService rabbitService, NotificationService notificationService)
 {
     public List<Booking> GetAll(BookingFilter? filter)
     {
@@ -116,48 +117,28 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                                .FirstOrDefault(x => x.Role == UserRoleEnum.Manager && x.CondominiumId == space.CondominiumId)
             ?? throw new ResourceNotFoundException("Não foi encontrado síndico no condomínio.");
         
-        var notification = new Notification
-        {
-            CondominiumName = user.Condominium!.Name,
-            UserToken = token,
-            NotificationType = NotificationTypeEnum.BookingCreated,
-            Message = new NotificationPayload
-            {
-                Header = "Uma nova reserva foi solicitada!",
-                ResultCategory = NotificationResultEnum.Info,
-                Body = $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}."
-            },
-            BookingId = booking.Id,
-            CreatedAt = DateTime.UtcNow,
-            UserNotifications = [new UserNotification
-            {
-                UserId = condoManager.Id,
-                IsRead = false
-            }]
-        };
+        var notification = notificationService.SetupOneUserNotification
+        (
+            user.Condominium!.Name,
+            token,
+            NotificationTypeEnum.BookingCreated,
+            "Uma nova reserva foi solicitada!",
+            NotificationResultEnum.Info,
+            $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}.",
+            DateTime.UtcNow,
+            condoManager.Id,
+            booking.Id
+        );
         
-        EmailMessage? emailMessage = null;
-        if (condoManager.NotifyEmail)
-        {
-            var redirectUrl = $"https://localhost:7136/reserva/{booking.Id}";
-            var placeholders = new Dictionary<string, string>
-            {
-                {"Title", "Uma nova reserva foi solicitada!"},
-                {"ToName", condoManager.Name},
-                {"BodyMessage", $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}."},
-                {"RedirectUrl", redirectUrl}
-            };
-            var htmlBody = TemplateHelper.GetTemplateContent(placeholders);
-            emailMessage = new EmailMessage
-            {
-                FromEmail = "condolifemail@gmail.com",
-                FromName = "CondoLife",
-                ToEmail = condoManager.Email,
-                ToName = condoManager.Name,
-                Subject = "Uma nova reserva foi solicitada!",
-                Body = htmlBody,
-            };
-        }
+        var emailMessage = emailService.SetupOneUserEmailMessage
+        (
+            "Uma nova reserva foi solicitada!",
+            condoManager.Name,
+            $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}.",
+            $"https://localhost:7136/reserva/{booking.Id}",
+            condoManager.Email,
+            condoManager.NotifyEmail
+        );
 
         notificationService.PublishNotification(notification, emailMessage);
     }
@@ -189,49 +170,28 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 .FirstOrDefault(x => x.Id == booking.SpaceId)
                 ?? throw new ResourceNotFoundException("Não foi encontrado esse espaço no condomínio.");
             
-            var notification = new Notification
-            {
-                CondominiumName = space.Condominium!.Name,
-                UserToken = token,
-                NotificationType = NotificationTypeEnum.BookingApproved,
-                Message = new NotificationPayload
-                {
-                    Header = "A sua reserva foi aprovada!",
-                    ResultCategory = NotificationResultEnum.Approved,
-                    Body = $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}."
-                },
-                BookingId = booking.Id,
-                CreatedAt = DateTime.UtcNow,
-                UserNotifications = [new UserNotification
-                {
-                    UserId = booking.UserId,
-                    IsRead = false
-                }]
-            };
+            var notification = notificationService.SetupOneUserNotification
+            (
+                space.Condominium!.Name,
+                token,
+                NotificationTypeEnum.BookingApproved,
+                "A sua reserva foi aprovada!",
+                NotificationResultEnum.Approved,
+                $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}.",
+                DateTime.UtcNow, 
+                booking.UserId,
+                booking.Id
+            );
 
-            EmailMessage? emailMessage = null;
-            if (booking.User!.NotifyEmail)
-            {
-                var placeholders = new Dictionary<string, string>
-                {
-                    {"Title", "A sua reserva foi aprovada!"},
-                    {"ToName", booking.User.Name},
-                    {"BodyMessage", $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}."},
-                    {"RedirectUrl", "https://localhost:7136/minhas-reservas"}
-                };
-                var htmlBody = TemplateHelper.GetTemplateContent(placeholders);
-                
-                emailMessage = new EmailMessage
-                {
-                    FromEmail = "condolifemail@gmail.com",
-                    FromName = "CondoLife",
-                    ToEmail = booking.User.Email,
-                    ToName = booking.User.Name,
-                    Subject = "A sua reserva foi aprovada!",
-                    Body = htmlBody
-                };
-
-            }
+            var emailMessage = emailService.SetupOneUserEmailMessage
+            (
+                "A sua reserva foi aprovada!",
+                booking.User!.Name,
+                $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}.",
+                "https://localhost:7136/minhas-reservas",
+                booking.User.Email,
+                booking.User.NotifyEmail
+            );
 
             notificationService.PublishNotification(notification, emailMessage);
         }

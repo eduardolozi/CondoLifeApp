@@ -251,9 +251,19 @@ namespace Application.Services {
             dbContext.SaveChanges();
         }
 
-        public List<int> GetAllUsersIdExceptManager(int condominiumId)
+        public List<UserNotificationInfoDTO> GetAllUsersInfoNotificationExceptManager(int condominiumId)
         {
-            return dbContext.Users.Where(x => x.CondominiumId == condominiumId && x.Role != UserRoleEnum.Manager).Select(x => x.Id).ToList();
+            return dbContext
+                .Users
+                .Where(x => x.CondominiumId == condominiumId && x.Role != UserRoleEnum.Manager)
+                .Select(x => new UserNotificationInfoDTO
+                {
+                    Id = x.Id,
+                    Email = x.Email,
+                    Name = x.Name,
+                    NotifyEmail = x.NotifyEmail
+                })
+                .ToList();
         }
     }
 }

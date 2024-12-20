@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Interfaces;
 using Domain.Enums;
 using Domain.Models;
 using Domain.Models.Filters;
@@ -10,7 +11,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
-public class VotingService(CondoLifeContext dbContext, AbstractValidator<Voting> votingValidator, UserService userService, RabbitService rabbitService)
+public class VotingService(CondoLifeContext dbContext,
+    AbstractValidator<Voting> votingValidator,
+    UserService userService,
+    RabbitService rabbitService,
+    NotificationService notificationService,
+    IEmailService emailService)
 {
     public List<Voting> GetAllVotings(VotingFilter filter)
     {
@@ -88,33 +94,32 @@ public class VotingService(CondoLifeContext dbContext, AbstractValidator<Voting>
         dbContext.SaveChanges();
 
         var condominiumName = dbContext.Condominium.First(x => x.Id == voting.CondominiumId).Name;
-        
-        var notification = new Notification
-        {
-            CreatedAt = DateTime.UtcNow,
-            NotificationType = NotificationTypeEnum.VotingCreated,
-            UserToken = userToken,
-            Message = new NotificationPayload
-            {
-                Header = "Temos uma nova votação!",
-                ResultCategory = NotificationResultEnum.Info,
-                Body = $"Veja agora: {voting.Title}",
-            },
-            CondominiumName = condominiumName,
-            UserNotifications = []
-        };
 
-        var usersIdToNotify = userService.GetAllUsersIdExceptManager(voting.CondominiumId);
-        foreach (var userId in usersIdToNotify)
-        {
-            notification.UserNotifications.Add(new UserNotification
-            {
-                UserId = userId,
-                IsRead = false,
-            });
-        }
+        var usersToNotify = userService.GetAllUsersInfoNotificationExceptManager(voting.CondominiumId);
+        var usersIds = usersToNotify.Select(x => x.Id).ToList();
+        var usersToEmail = usersToNotify.Select(x => (x.Name, x.Email, x.NotifyEmail)).ToList();
         
-        rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
+        var notification = notificationService.SetupManyUsersNotification
+        (
+            condominiumName,
+            userToken,
+            NotificationTypeEnum.VotingCreated,
+            "Temos uma nova votação!",
+            NotificationResultEnum.Info,
+            $"Veja agora: {voting.Title}",
+            DateTime.UtcNow,
+            usersIds
+        );
+
+        var emailMessage = emailService.SetupManyUsersEmailMessage
+        (
+            "Temos uma nova votação!",
+            $"Foi criada a votação: {voting.Title}. Veja agora: ",
+            "https://localhost:7136/votacoes",
+            usersToEmail
+        );
+        
+        notificationService.PublishNotification(notification, emailMessage);
     }
 
     public void ConfirmVote(Vote vote)
