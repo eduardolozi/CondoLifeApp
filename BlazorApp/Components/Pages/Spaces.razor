@@ -42,7 +42,7 @@
         box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
     }
 
-    @@media (max-width: 1170px) {
+    @@media (max-width: 1400px) {
         .card-buttons {
             display: flex;
             flex-direction: column;
@@ -58,6 +58,12 @@
     @@media (max-width: 950px) {
         .space-card {
             width: 100%;
+        }
+    }
+    
+    @@media (max-width: 1140px) {
+        .space-card {
+            width: 80%;
         }
     }
 </style>
@@ -115,7 +121,7 @@ else
                         </MudButton>
                         @if (_user is not null)
                         {
-                            @if (_user.Role is UserRoleEnum.Manager)
+                            @if (_user.Role is UserRoleEnum.Manager || _user.Role is UserRoleEnum.Submanager)
                             {
                                 <MudButton Size="Size.Small"
                                            Class="mx-1 phone-button"

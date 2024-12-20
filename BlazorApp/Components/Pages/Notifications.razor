@@ -40,9 +40,10 @@
 
 <PageTitle>Notificações</PageTitle>
 
-    <MudTabs SliderAnimation="true" Centered="true" ActiveTabClass="" Class="mt-5 mb-2 filters-tab">
+    <MudTabs OnPreviewInteraction="OnSelectFilter" SliderAnimation="true" Centered="true" ActiveTabClass="" Class="mt-5 mb-2 filters-tab">
         <MudTabPanel Style="background-color: #00734e; color: white" Text="Todas"/>
         <MudTabPanel Style="background-color: #00734e; color: white" Text="Reservas"/>
+        <MudTabPanel Style="background-color: #00734e; color: white" Text="Votações"/>
         <MudTabPanel Style="background-color: #00734e; color: white" Text="Publicações"/>
         <MudTabPanel Style="background-color: #00734e; color: white" Text="Comunicados Gerais"/>
         <MudTabPanel Style="background-color: #00734e; color: white" Text="Financeiro"/>
@@ -85,6 +86,7 @@
     List<Notification> _notifications = [];
     bool _isLoading = true;
     User? _user;
+    NotificationFilter filter = new();
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -95,10 +97,7 @@
                 try
                 {
                     _user = await AuthService.GetUserByClaims();
-                    _notifications = await NotificationService.GetAll(new NotificationFilter
-                    {
-                        UserId = (int) _user.Id
-                    });
+                    _notifications = await GetAllNotifications() ?? [];
                 }
                 catch (Exception e)
                 {
@@ -115,6 +114,12 @@
         }
     }
 
+    Task<List<Notification>?> GetAllNotifications()
+    {
+        filter.UserId = (int)_user!.Id!;
+        return NotificationService.GetAll(filter);
+    }
+
     void OpenNotification(Notification notification)
     {
         if (notification.NotificationType is NotificationTypeEnum.BookingCreated || notification.NotificationType is NotificationTypeEnum.BookingApproved)
@@ -126,5 +131,31 @@
         if(notification.NotificationType is NotificationTypeEnum.VotingCreated)
             NavigationManager.NavigateTo("votacoes");
     }
- 
+
+    async Task OnSelectFilter(TabInteractionEventArgs args)
+    {
+        filter = new NotificationFilter();
+
+        switch (args.PanelIndex)
+        {
+            case 1:
+                filter.IsBookings = true;
+                break;
+            case 2:
+                filter.IsVotings = true;
+                break;
+            case 3:
+                filter.IsPosts = true;
+                break;
+            case 4:
+                filter.IsGeneralAnnouncements = true;
+                break;
+            case 5:
+                filter.IsFinancial = true;
+                break;
+        }
+
+        _notifications = await GetAllNotifications() ?? [];
+        StateHasChanged();
+    }
 }

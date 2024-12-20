@@ -114,7 +114,7 @@ public class VotingService(CondoLifeContext dbContext,
         var emailMessage = emailService.SetupManyUsersEmailMessage
         (
             "Temos uma nova votação!",
-            $"Foi criada a votação: {voting.Title}. Veja agora: ",
+            $"Foi criada a votação: {voting.Title}.",
             "https://localhost:7136/votacoes",
             usersToEmail
         );

@@ -25,10 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Policies\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="messi.png" />
   </ItemGroup>
 

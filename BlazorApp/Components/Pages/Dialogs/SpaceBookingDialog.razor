@@ -17,11 +17,13 @@
 <MudDialog Class="dialog">
     <DialogContent>
         <MudContainer Class="d-flex flex-column w-100">
-            @if (_bookings is null)
+            @if (_bookings is null || _bookings.Count == 0)
             {
                 <MudContainer Class="d-flex flex-column justify-content-center align-items-center">
-                    <MudIcon Icon="@Icons.Material.Outlined.EventBusy"></MudIcon>                
-                    <MudText>Não há agendamentos para o espaço.</MudText>
+                    <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-3">
+                        <img src="svg-not-found.svg" alt="Logo" style="width:200px; margin-top: 2rem" />
+                        <MudText Class="my-2" Typo="Typo.h6">Não há reservas neste espaço</MudText>
+                    </MudContainer>
                 </MudContainer>
             }
             else

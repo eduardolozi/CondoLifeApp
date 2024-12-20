@@ -11,13 +11,17 @@ public class NotificationService(HttpClient httpClient, ILocalStorageService loc
     {
         try
         {
-            var queryParameters = string.Empty;
-            if (filter.UserId != null) {
-                queryParameters += $"?filter.UserId={filter.UserId}";
-            }
-            if (filter.NotificationType != null) {
-                queryParameters += $"&filter.NotificationType={filter.NotificationType}";
-            }
+            var queryParameters = $"?filter.UserId={filter.UserId}";
+            if (filter.IsBookings)
+                queryParameters += "&filter.IsBookings=true";
+            else if (filter.IsVotings)
+                queryParameters += "&filter.IsVotings=true";
+            else if (filter.IsPosts)
+                queryParameters += "&filter.IsPosts=true";
+            else if (filter.IsGeneralAnnouncements)
+                queryParameters += "&filter.IsGeneralAnnouncements=true";
+            else if (filter.IsFinancial)
+                queryParameters += "&filter.IsFinancial=true";
             
             var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);

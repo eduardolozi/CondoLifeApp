@@ -1,5 +1,6 @@
 using System.Globalization;
 using API;
+using API.Handlers;
 using API.Hubs;
 using Application;
 using Infraestructure;
@@ -27,11 +28,10 @@ if (app.Environment.IsDevelopment()) {
 
 app.UseHttpsRedirection();
 app.UseCors("AllowBlazorClient");
-app.UseAuthentication();
-
-app.UseAuthorization();
-
+app.UseMiddleware<AuthorizationResponseMiddleware>();
 app.UseExceptionHandler();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

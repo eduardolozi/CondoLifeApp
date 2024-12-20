@@ -1,4 +1,5 @@
-﻿using Domain.Exceptions;
+﻿using System.Net;
+using Domain.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +40,7 @@ namespace API.Handlers {
                     Detail = $"Ocorreu um erro inesperado: {exception.Message}"
                 }
             };
-
+            
             httpContext.Response.StatusCode = problemDetails.Status!.Value;
             await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 

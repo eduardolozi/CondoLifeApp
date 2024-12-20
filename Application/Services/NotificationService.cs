@@ -41,9 +41,32 @@ public class NotificationService(CondoLifeContext dbContext, RabbitService rabbi
             .Where(x => x.UserId == filter.UserId)
             .AsNoTracking()
             .ToList();
-        
-        if(filter.NotificationType.HasValue) 
-            userNotifications = userNotifications.Where(x => x.Notification!.NotificationType == filter.NotificationType).ToList();
+
+        if (filter.IsBookings)
+        {
+            userNotifications = userNotifications.Where(x =>
+                x.Notification!.NotificationType is NotificationTypeEnum.BookingApproved ||
+                x.Notification.NotificationType is NotificationTypeEnum.BookingCreated
+            ) .ToList();
+        }
+        else if (filter.IsVotings)
+        {
+            userNotifications = userNotifications
+                .Where(x => x.Notification!.NotificationType is NotificationTypeEnum.VotingCreated)
+                .ToList();
+        }
+        else if (filter.IsFinancial)
+        {
+            //todo
+        }
+        else if (filter.IsPosts)
+        {
+            //todo
+        }
+        else if (filter.IsGeneralAnnouncements)
+        {
+            //todo
+        }
         
         return userNotifications
             .Select(x => new GetNotificationDTO
