@@ -46,7 +46,8 @@ public class NotificationService(CondoLifeContext dbContext, RabbitService rabbi
         {
             userNotifications = userNotifications.Where(x =>
                 x.Notification!.NotificationType is NotificationTypeEnum.BookingApproved ||
-                x.Notification.NotificationType is NotificationTypeEnum.BookingCreated
+                x.Notification.NotificationType is NotificationTypeEnum.BookingCreated ||
+                x.Notification.NotificationType is NotificationTypeEnum.BookingRejected
             ) .ToList();
         }
         else if (filter.IsVotings)

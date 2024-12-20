@@ -120,14 +120,16 @@
     {
         try
         {
-            await BookingService.DeleteBooking(_booking.Id);
-            await DialogService.ShowMessageBox("Reserva removida!", "Você removeu a sua reserva, esperamos que possa marcar outra em breve!");
+            var isManager = _user!.Role is UserRoleEnum.Manager;
+            await BookingService.DeleteBooking(_booking!.Id, isManager);
+            var message = "Você removeu a sua reserva, esperamos que possa marcar outra em breve!";
+            if (_user!.Id != _booking.UserId) message = "A reserva foi removida com sucesso. Notificaremos o morador sobre o cancelamento.";
+            await DialogService.ShowMessageBox("Reserva removida!", message);
             NavigationManager.NavigateTo("minhas-reservas");
         }
         catch (Exception e)
         {
             await DialogService.ShowMessageBox("Não foi possível remover a reserva...", e.Message);
-
         }
     }
 }

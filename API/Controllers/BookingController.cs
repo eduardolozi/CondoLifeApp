@@ -1,4 +1,5 @@
-﻿using Application.Services;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Application.Services;
 using Domain.Models;
 using Domain.Models.Filters;
 using Microsoft.AspNetCore.Authorization;
@@ -38,9 +39,12 @@ public class BookingController(BookingService bookingService) : ControllerBase
     
     [Authorize]
     [HttpDelete("{id}")]
-    public IActionResult Delete([FromRoute] int id)
+    public IActionResult Delete([FromRoute] int id, [FromQuery] bool deletedByManager)
     {
-        bookingService.Delete(id);
+        var authorizationHeader = HttpContext.Request.Headers.Authorization.ToString();
+        var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+        
+        bookingService.Delete(id, token, deletedByManager);
         return Ok();
     }
     

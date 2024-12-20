@@ -88,11 +88,11 @@ public class BookingService(HttpClient httpClient, ILocalStorageService localSto
             await response.HandleResponseError();
     }
 
-    public async Task DeleteBooking(int bookingId)
+    public async Task DeleteBooking(int bookingId, bool isManager)
     {
         var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        var response = await httpClient.DeleteAsync($"{bookingId}");
+        var response = await httpClient.DeleteAsync($"{bookingId}?deletedByManager={isManager}");
 
         if (!response.IsSuccessStatusCode)
             await response.HandleResponseError();

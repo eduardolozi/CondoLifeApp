@@ -31,7 +31,7 @@ public class NotificationBackgroundService(RabbitService rabbitService, IHttpCli
                         response.EnsureSuccessStatusCode();
                     }
                     
-                    if (notification.NotificationType is NotificationTypeEnum.BookingApproved)
+                    if (notification.NotificationType is NotificationTypeEnum.BookingApproved || notification.NotificationType is NotificationTypeEnum.BookingRejected)
                     {
                         var userId = notification.UserNotifications![0].UserId;
                         var response = await httpClient.PostAsJsonAsync($"https://localhost:7031/api/Notification/notify-user?userId={userId}", notification);

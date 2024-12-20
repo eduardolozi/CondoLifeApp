@@ -143,11 +143,47 @@ public class BookingService(CondoLifeContext dbContext, IEmailService emailServi
         notificationService.PublishNotification(notification, emailMessage);
     }
 
-    public void Delete(int id)
+    public void Delete(int id, string userToken, bool deletedByManager)
     {
+        var booking = dbContext
+            .Booking
+            .Include(x => x.Space)
+            .Include(x => x.User)
+            .ThenInclude(y => y!.Condominium)
+            .FirstOrDefault(x => x.Id == id) 
+                    ?? throw new ResourceNotFoundException("O agendamento não foi encontrado");
+        
         dbContext.Booking.Where(x => x.Id == id).ExecuteDelete();
         notificationService.DeleteBookingNotifications(id);
         dbContext.SaveChanges();
+
+        if (deletedByManager)
+        {
+            var notification = notificationService.SetupOneUserNotification
+            (
+                booking.User!.Condominium!.Name,
+                userToken,
+                NotificationTypeEnum.BookingRejected,
+                "A sua reserva foi cancelada.",
+                NotificationResultEnum.Cancelled,
+                $"O síndico cancelou a sua reserva no espaço: {booking.Space!.Name} para o dia {booking.InitialDate.ToShortDateString()}.",
+                DateTime.UtcNow, 
+                booking.UserId,
+                booking.Id
+            );
+
+            var emailMessage = emailService.SetupOneUserEmailMessage
+            (
+                "A sua reserva foi cancelada.",
+                booking.User!.Name,
+                $"O síndico cancelou a sua reserva no espaço: {booking.Space.Name} para o dia {booking.InitialDate.ToShortDateString()}.",
+                "https://localhost:7136/minhas-reservas",
+                booking.User.Email,
+                booking.User.NotifyEmail
+            );
+
+            notificationService.PublishNotification(notification, emailMessage);
+        }
     }
 
     public void ApproveBooking(int id, string token)
