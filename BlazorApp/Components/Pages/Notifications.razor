@@ -1,4 +1,5 @@
 ﻿@page "/notificacoes"
+@using BlazorApp.Components.Layout
 @layout Layout.MainLayout
 @inject NotificationService NotificationService
 @inject PageHelper PageHelper
@@ -96,7 +97,7 @@
                     _user = await AuthService.GetUserByClaims();
                     _notifications = await NotificationService.GetAll(new NotificationFilter
                     {
-                        UserId = _user.Id
+                        UserId = (int) _user.Id
                     });
                 }
                 catch (Exception e)
@@ -121,6 +122,9 @@
             if(notification.BookingId.HasValue) 
                 NavigationManager.NavigateTo($"reserva/{notification.BookingId}");
         }
+        
+        if(notification.NotificationType is NotificationTypeEnum.VotingCreated)
+            NavigationManager.NavigateTo("votacoes");
     }
  
 }

@@ -1,5 +1,7 @@
 ﻿using System.Globalization;
 using Application.DTOs;
+using Application.Helpers;
+using Application.Interfaces;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
@@ -13,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
-public class BookingService(CondoLifeContext dbContext, AbstractValidator<Booking> bookingValidator, RabbitService rabbitService, NotificationService notificationService)
+public class BookingService(CondoLifeContext dbContext, IEmailService emailService, AbstractValidator<Booking> bookingValidator, RabbitService rabbitService, NotificationService notificationService)
 {
     public List<Booking> GetAll(BookingFilter? filter)
     {
@@ -94,31 +96,51 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
         dbContext.Booking.Add(booking);
         dbContext.SaveChanges();
 
-        var user = dbContext.Users.AsNoTracking().Include(x => x.Condominium).First(x => x.Id == booking.UserId);
+        var user = dbContext
+            .Users
+            .AsNoTracking()
+            .Include(x => x.Condominium)
+            .First(x => x.Id == booking.UserId);
+        
         var block = user.Block.HasValue() ? $"-{user.Block}" : string.Empty;
         var userApartment = $"{user.Apartment}{block}";
         
-        var condoManager = dbContext.Users.AsNoTracking().FirstOrDefault(x => x.Role == UserRoleEnum.Manager)
-            ?? throw new ResourceNotFoundException("Não foi encontrado síndico no condomínio.");
-        
-        var space = dbContext.Space.AsNoTracking().FirstOrDefault(x => x.Id == booking.SpaceId)
+        var space = dbContext
+                        .Space
+                        .AsNoTracking()
+                        .FirstOrDefault(x => x.Id == booking.SpaceId)
             ?? throw new ResourceNotFoundException("Não foi encontrado esse espaço no condomínio.");
         
-        var notification = new Notification
-        {
-            CondominiumName = user.Condominium!.Name,
-            UserId = condoManager.Id,
-            UserToken = token,
-            NotificationType = NotificationTypeEnum.BookingCreated,
-            Message = new NotificationPayload
-            {
-                Header = "Uma nova reserva foi solicitada!",
-                Body = $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}."
-            },
-            BookingId = booking.Id,
-            CreatedAt = DateTime.UtcNow
-        };
-        rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
+        var condoManager = dbContext
+                               .Users
+                               .AsNoTracking()
+                               .FirstOrDefault(x => x.Role == UserRoleEnum.Manager && x.CondominiumId == space.CondominiumId)
+            ?? throw new ResourceNotFoundException("Não foi encontrado síndico no condomínio.");
+        
+        var notification = notificationService.SetupOneUserNotification
+        (
+            user.Condominium!.Name,
+            token,
+            NotificationTypeEnum.BookingCreated,
+            "Uma nova reserva foi solicitada!",
+            NotificationResultEnum.Info,
+            $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}.",
+            DateTime.UtcNow,
+            condoManager.Id,
+            booking.Id
+        );
+        
+        var emailMessage = emailService.SetupOneUserEmailMessage
+        (
+            "Uma nova reserva foi solicitada!",
+            condoManager.Name,
+            $"{user.Name} (apto. {userApartment}) solicitou uma reserva no espaço: {space.Name}.",
+            $"https://localhost:7136/reserva/{booking.Id}",
+            condoManager.Email,
+            condoManager.NotifyEmail
+        );
+
+        notificationService.PublishNotification(notification, emailMessage);
     }
 
     public void Delete(int id)
@@ -130,8 +152,11 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
 
     public void ApproveBooking(int id, string token)
     {
-        var booking = dbContext.Booking.Find(id)
-            ?? throw new ResourceNotFoundException("A reserva não foi encontrada.");
+        var booking = dbContext
+                          .Booking
+                          .Include(x => x.User)
+                          .FirstOrDefault(x => x.Id == id)
+                        ?? throw new ResourceNotFoundException("A reserva não foi encontrada.");
 
         if (booking.Status == BookingStatusEnum.Pending)
         {
@@ -145,21 +170,30 @@ public class BookingService(CondoLifeContext dbContext, AbstractValidator<Bookin
                 .FirstOrDefault(x => x.Id == booking.SpaceId)
                 ?? throw new ResourceNotFoundException("Não foi encontrado esse espaço no condomínio.");
             
-            var notification = new Notification
-            {
-                CondominiumName = space.Condominium!.Name,
-                UserId = booking.UserId,
-                UserToken = token,
-                NotificationType = NotificationTypeEnum.BookingApproved,
-                Message = new NotificationPayload
-                {
-                    Header = "A sua reserva foi aprovada!",
-                    Body = $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}."
-                },
-                BookingId = booking.Id,
-                CreatedAt = DateTime.UtcNow
-            };
-            rabbitService.Send(notification, RabbitConstants.NOTIFICATION_EXCHANGE, RabbitConstants.NOTIFICATION_ROUTING_KEY);
+            var notification = notificationService.SetupOneUserNotification
+            (
+                space.Condominium!.Name,
+                token,
+                NotificationTypeEnum.BookingApproved,
+                "A sua reserva foi aprovada!",
+                NotificationResultEnum.Approved,
+                $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}.",
+                DateTime.UtcNow, 
+                booking.UserId,
+                booking.Id
+            );
+
+            var emailMessage = emailService.SetupOneUserEmailMessage
+            (
+                "A sua reserva foi aprovada!",
+                booking.User!.Name,
+                $"O síndico aprovou a sua reserva no espaço: {space.Name} para o dia {booking.InitialDate.ToShortDateString()}.",
+                "https://localhost:7136/minhas-reservas",
+                booking.User.Email,
+                booking.User.NotifyEmail
+            );
+
+            notificationService.PublishNotification(notification, emailMessage);
         }
     }
 }

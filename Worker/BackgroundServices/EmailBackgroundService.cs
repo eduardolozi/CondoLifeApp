@@ -24,18 +24,29 @@ namespace Worker.BackgroundServices
                 using (var scope = _serviceProvider.CreateScope()) {
                     _emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
                 }
+                
                 var consumer = _rabbitService.GetBasicConsumer(RabbitConstants.EMAIL_QUEUE, false);
+                
                 consumer.Received += async (sender, e) => {
                     try {
                         var body = Encoding.UTF8.GetString(e.Body.ToArray());
-                        var emailMessage = JsonSerializer.Deserialize<EmailMessage>(body);
-                        await _emailService.SendEmail(emailMessage);
+                        var emailMessage = JsonSerializer.Deserialize<EmailMessage>(body) 
+                                           ?? throw new ArgumentNullException();
+                        
+                        foreach (var user in emailMessage!.UsersTo)
+                        {
+                            emailMessage.ToEmail = user.Email;
+                            emailMessage.ToName = user.Name;
+                            await _emailService.SendEmail(emailMessage);
+                        }
+                        
                         _rabbitService.Ack(e.DeliveryTag);
                     }
                     catch (Exception) {
                         _rabbitService.Nack(e.DeliveryTag, false);
                     }
                 };
+                
                 await Task.Delay(1000, stoppingToken);
             }
         }

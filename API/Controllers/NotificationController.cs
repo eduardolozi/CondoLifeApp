@@ -18,23 +18,32 @@ public class NotificationController(IHubContext<NotificationHub, INotificationHu
     [HttpPost("notify-admin")]
     public async Task<IActionResult> NotifyAdmin([FromBody] Notification notification)
     {
-        await hubContext.Clients.Group($"{nameof(UserRoleEnum.Manager)}-{notification.CondominiumName}").AdminReceiveNotification(notification.Message);
+        await hubContext.Clients.Group($"{nameof(UserRoleEnum.Manager)}-{notification.CondominiumName}").UserReceiveNotification(notification.Message);
         
         return Ok();
     }
     
     [Authorize]
     [HttpPost("notify-user")]
-    public async Task<IActionResult> NotifyUser([FromBody] Notification notification)
+    public async Task<IActionResult> NotifyUser([FromBody] Notification notification, [FromQuery] string userId)
     {
-        await hubContext.Clients.User(notification.UserId.ToString()).UserReceiveNotification(notification.Message);
+        await hubContext.Clients.User(userId).UserReceiveNotification(notification.Message);
+        
+        return Ok();
+    }
+    
+    [Authorize]
+    [HttpPost("notify-all-except-manager")]
+    public async Task<IActionResult> NotifyAllExceptManager([FromBody] Notification notification)
+    {
+        await hubContext.Clients.Group($"{nameof(UserRoleEnum.Resident)}-{notification.CondominiumName}").UserReceiveNotification(notification.Message);
         
         return Ok();
     }
 
     [Authorize]
     [HttpGet]
-    public IActionResult GetAll([FromQuery] NotificationFilter? filter = null)
+    public IActionResult GetAll([FromQuery] NotificationFilter filter)
     {
         var notifications = notificationService.Get(filter);
         return notifications.HasValue() ? Ok(notifications) : NotFound();

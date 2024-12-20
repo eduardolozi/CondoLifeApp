@@ -48,25 +48,29 @@
                     })
                     .WithAutomaticReconnect()
                     .Build();
-                
-                
-                _hubConnection.On<NotificationPayload>("AdminReceiveNotification", (message) =>
+
+                _hubConnection.On<string>("UserReceiveNotificationsToReadCount", (message) =>
                 {
                     Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Configuration.SnackbarVariant = Variant.Text;
                     Snackbar.Add
                     (
-                        @<div>
-                            <h5>@message.Header</h5>
-                            <ul>
-                                <li>@message.Body</li>
-                            </ul>
-                        </div>,
+                        @<h6 class="my-0 py-0">@message</h6>,
                         Severity.Info
                     );
                 });
                 _hubConnection.On<NotificationPayload>("UserReceiveNotification", (message) =>
                 {
+                    var severity = message.ResultCategory switch
+                    {
+                        NotificationResultEnum.Approved => Severity.Success,
+                        NotificationResultEnum.Cancelled => Severity.Error,
+                        NotificationResultEnum.Info => Severity.Info,
+                        NotificationResultEnum.Warning => Severity.Warning,
+                        _ => Severity.Info
+                    };
                     Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+                    Snackbar.Configuration.SnackbarVariant = Variant.Text;
                     Snackbar.Add
                     (
                         @<div>
@@ -75,7 +79,7 @@
                                 <li>@message.Body</li>
                             </ul>
                         </div>,
-                        Severity.Info
+                        severity
                     );
                 });
                 await _hubConnection.StartAsync();

@@ -1,5 +1,4 @@
-﻿using API.Hubs;
-using Application.DTOs;
+﻿using Application.DTOs;
 using Application.Interfaces;
 using Application.Services;
 using Domain.Utils;
@@ -14,7 +13,6 @@ namespace API.Controllers {
     [ApiController]
     public class UserController(
         UserService userService,
-        EmailNotificationHub emailNotificationHub,
         IAuthService authService)
         : ControllerBase
     {
@@ -59,6 +57,38 @@ namespace API.Controllers {
         public IActionResult Update([FromRoute] int id, [FromBody] User user) { 
             userService.Update(id, user);
             
+            var accessToken = authService.CreateAccessToken(user);
+            var refreshToken = authService.CreateRefreshToken(user.Id).Token;
+            return Ok(new LoginResponseDTO
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                IsSuccess = true,
+                UserId = user.Id
+            });
+        }
+
+        [Authorize]
+        [HttpPatch("{id}/user-data")]
+        public IActionResult UpdateUserData([FromRoute] int id, [FromBody] UpdateUserDataDTO userData)
+        {
+            var user = userService.UpdateUserData(id, userData);
+            var accessToken = authService.CreateAccessToken(user);
+            var refreshToken = authService.CreateRefreshToken(user.Id).Token;
+            return Ok(new LoginResponseDTO
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                IsSuccess = true,
+                UserId = user.Id
+            });
+        }
+        
+        [Authorize]
+        [HttpPatch("{id}/user-notification-configs")]
+        public IActionResult UpdateNotificationConfigs([FromRoute] int id, [FromBody] UpdateUserNotificationConfigsDTO configs)
+        {
+            var user = userService.UpdateNotificationConfigs(id, configs);
             var accessToken = authService.CreateAccessToken(user);
             var refreshToken = authService.CreateRefreshToken(user.Id).Token;
             return Ok(new LoginResponseDTO

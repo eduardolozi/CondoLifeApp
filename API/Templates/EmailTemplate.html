@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{Title}}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background-color: #f7fafc;
+            margin: 0;
+            padding: 0;
+        }
+        a {
+            color: white !important;
+            text-decoration: none; 
+        }
+
+        a:hover, a:visited, a:active {
+            color: white !important; 
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 32px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        h2 {
+            color: #20bb55;
+            font-size: 28px;
+            margin: 0 0 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid #22cf56;
+            position: relative;
+        }
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: #2b6cb0;
+        }
+        .content {
+            background-color: #f8fafc;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #4a5568;
+        }
+        .button-container {
+            text-align: center;
+            margin: 32px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 14px 32px;
+            background-color: #39b062;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);
+        }
+        .button:hover {
+            background-color: #257741;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 14px;
+            color: #718096;
+        }
+        .highlight {
+            background-color: #ebf8ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #22cf56, transparent);
+            margin: 32px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Olá, como vai por aí?</h2>
+    <div class="content">
+        <p>{{BodyMessage}}</p>
+    </div>
+    <div class="divider"></div>
+    <div class="button-container">
+        <a href="{{RedirectUrl}}" class="button">
+            Veja aqui
+        </a>
+    </div>
+    <div class="footer">
+        <p>© Condolife. Todos os direitos reservados.</p>
+        <p>Este é um email automático. Por favor, não responda.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,9 +1,8 @@
 ﻿@page "/login"
 @layout Layout.EmptyAppBarLayout
 @inject NavigationManager Navigation
-@inject AuthService authService
+@inject AuthService AuthService
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
-@inject UserService userService
 
 <PageTitle>Login</PageTitle>
 
@@ -105,7 +104,7 @@
         try
         {
             isLoading = true;
-            var result = await authService.Login(loginRequest);
+            var result = await AuthService.Login(loginRequest);
             if (!result.IsSuccess)
             {
                 await DialogService.ShowMessageBox("Erro ao logar!", "Verifique os dados do login.", "OK");

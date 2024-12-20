@@ -7,5 +7,6 @@ public enum NotificationTypeEnum
     PostLike,
     CommentPost,
     BookingCreated,
-    BookingApproved
+    BookingApproved,
+    VotingCreated
 }

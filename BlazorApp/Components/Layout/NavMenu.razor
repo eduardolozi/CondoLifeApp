@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Authentication
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
+@inject IJSRuntime JSRuntime
 
 <style>
     .link-sidebar {
@@ -63,21 +64,21 @@
             </NavLink>
         </div>
         
+        <MudNavGroup Style="color: white" class="nav-item px-3 pb-2" Title="Reservas e Espaços" Icon="@Icons.Material.Outlined.AccountBalance">
+            <div class="nav-item px-3 py-0">
+                <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="espacos">
+                    <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.AccountBalance"></MudIcon> Espaços
+                </NavLink>
+            </div>
+            <div class="nav-item px-3 py-0">
+                <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="minhas-reservas">
+                    <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Workspaces"></MudIcon> Minhas Reservas
+                </NavLink>
+            </div>
+        </MudNavGroup>
+        
         @if (_user.Role is UserRoleEnum.Manager || _user.Role is UserRoleEnum.Submanager)
         {
-            <MudNavGroup Style="color: white" class="nav-item px-3 pb-2" Title="Reservas e Espaços" Icon="@Icons.Material.Outlined.AccountBalance">
-                <div class="nav-item px-3 py-0">
-                    <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="espacos">
-                        <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.AccountBalance"></MudIcon> Espaços
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3 py-0">
-                    <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="minhas-reservas">
-                        <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Workspaces"></MudIcon> Minhas Reservas
-                    </NavLink>
-                </div>
-            </MudNavGroup>
-            
             <div class="nav-item px-3">
                 <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="users">
                     <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Group"></MudIcon> Usuários
@@ -87,7 +88,8 @@
 
         <div class="nav-item px-3">
             <NavLink class="nav-link fw-bold d-flex flex-row align-content-center link-sidebar" href="notificacoes">
-                <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Notifications"></MudIcon> Notificações
+                <MudIcon Class="me-2" Icon="@Icons.Material.Outlined.Notifications"/>
+                Notificações
             </NavLink>
         </div>
     </MudNavMenu>
@@ -99,6 +101,8 @@
     [Inject] private UserService _userService { get; set; }
     string _base64Image = string.Empty;
     User? _user = new User();
+    HubConnection _hubConnection;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

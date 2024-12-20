@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Helpers;
+using Application.Interfaces;
 using Domain.Exceptions;
 using Domain.Models;
 using MailKit.Net.Smtp;
@@ -31,6 +32,74 @@ namespace Application.Services {
             catch (Exception ex) {
                 throw new BadRequestException(ex.Message, ex);
             }
+        }
+        
+        public EmailMessage? SetupOneUserEmailMessage(string title,
+            string toName,
+            string bodyMessage,
+            string redirectUrl,
+            string toEmail,
+            bool notifyEmail)
+        {
+            if (notifyEmail)
+            {
+                var placeholders = new Dictionary<string, string>
+                {
+                    {"Title", title},
+                    {"BodyMessage", bodyMessage},
+                    {"RedirectUrl", redirectUrl}
+                };
+                var htmlBody = TemplateHelper.GetTemplateContent(placeholders);
+                return new EmailMessage
+                {
+                    FromEmail = "condolifemail@gmail.com",
+                    FromName = "CondoLife",
+                    UsersTo = [new EmailUser
+                    {
+                        Email = toEmail,
+                        Name = toName
+                    }],
+                    Subject = title,
+                    Body = htmlBody,
+                };
+            }
+            return null;
+        }
+
+        public EmailMessage? SetupManyUsersEmailMessage(string title,
+            string bodyMessage,
+            string redirectUrl,
+            List<(string toName, string toEmail, bool toNotify)> usersTo)
+        {
+            var placeholders = new Dictionary<string, string>
+            {
+                {"Title", title},
+                {"BodyMessage", bodyMessage},
+                {"RedirectUrl", redirectUrl}
+            };
+            var htmlBody = TemplateHelper.GetTemplateContent(placeholders);
+            var emailMessage =  new EmailMessage
+            {
+                FromEmail = "condolifemail@gmail.com",
+                FromName = "CondoLife",
+                UsersTo = [],
+                Subject = title,
+                Body = htmlBody,
+            };
+            
+            for (var i = 0; i < usersTo.Count; i++)
+            {
+                if (usersTo[i].toNotify)
+                {
+                    emailMessage.UsersTo.Add(new EmailUser
+                    {
+                        Email = usersTo[i].toEmail,
+                        Name = usersTo[i].toName
+                    });
+                }
+            }
+
+            return emailMessage;
         }
     }
 }

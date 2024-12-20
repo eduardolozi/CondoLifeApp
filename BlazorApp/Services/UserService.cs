@@ -67,13 +67,30 @@ namespace BlazorApp.Services {
 			}
 		}
 
-		public async Task<LoginResponse?> Update(User user)
+		public async Task<LoginResponse?> UpdateUserData(UpdateUserDataDTO userData)
 		{
 			try
 			{
 				var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
 				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-				var response = await httpClient.PatchAsJsonAsync($"{user.Id}", user);
+				var response = await httpClient.PatchAsJsonAsync($"{userData.Id}/user-data", userData);
+				response.EnsureSuccessStatusCode();
+				var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+				return loginResponse;
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message, ex);
+			}
+		}
+		
+		public async Task<LoginResponse?> UpdateNotificationConfigs(UpdateUserNotificationConfigsDTO notificationConfigs)
+		{
+			try
+			{
+				var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+				var response = await httpClient.PatchAsJsonAsync($"{notificationConfigs.Id}/user-notification-configs", notificationConfigs);
 				response.EnsureSuccessStatusCode();
 				var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
 				return loginResponse;

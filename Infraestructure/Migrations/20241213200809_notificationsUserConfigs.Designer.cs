@@ -4,6 +4,7 @@ using Infraestructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(CondoLifeContext))]
-    partial class CondoLifeContextModelSnapshot : ModelSnapshot
+    [Migration("20241213200809_notificationsUserConfigs")]
+    partial class notificationsUserConfigs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,10 +178,18 @@ namespace Infraestructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
                     b.Property<int>("NotificationType")
                         .HasColumnType("int");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Notification");
                 });
@@ -203,9 +214,6 @@ namespace Infraestructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("NotificationId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ResultCategory")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -376,32 +384,6 @@ namespace Infraestructure.Migrations
                     b.HasIndex("CondominiumId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Domain.Models.UserNotification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("NotificationId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NotificationId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserNotification");
                 });
 
             modelBuilder.Entity("Domain.Models.VerificationToken", b =>
@@ -575,6 +557,15 @@ namespace Infraestructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Models.Notification", b =>
+                {
+                    b.HasOne("Domain.Models.User", null)
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.Models.NotificationPayload", b =>
                 {
                     b.HasOne("Domain.Models.Notification", null)
@@ -639,25 +630,6 @@ namespace Infraestructure.Migrations
                     b.Navigation("Condominium");
                 });
 
-            modelBuilder.Entity("Domain.Models.UserNotification", b =>
-                {
-                    b.HasOne("Domain.Models.Notification", "Notification")
-                        .WithMany("UserNotifications")
-                        .HasForeignKey("NotificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.User", "User")
-                        .WithMany("UserNotifications")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Notification");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Domain.Models.VerificationToken", b =>
                 {
                     b.HasOne("Domain.Models.User", "User")
@@ -710,8 +682,6 @@ namespace Infraestructure.Migrations
                 {
                     b.Navigation("Message")
                         .IsRequired();
-
-                    b.Navigation("UserNotifications");
                 });
 
             modelBuilder.Entity("Domain.Models.Post", b =>
@@ -730,7 +700,7 @@ namespace Infraestructure.Migrations
 
             modelBuilder.Entity("Domain.Models.User", b =>
                 {
-                    b.Navigation("UserNotifications");
+                    b.Navigation("Notifications");
                 });
 
             modelBuilder.Entity("Domain.Models.Voting", b =>

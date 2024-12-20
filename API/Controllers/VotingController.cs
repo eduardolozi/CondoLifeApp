@@ -20,15 +20,15 @@ public class VotingController(VotingService votingService) : ControllerBase
         return votings.Any() ? Ok(votings) : NoContent();
     }
 
-    [HttpGet("{id}")]
-    public IActionResult GetVotingById(int id)
+    [HttpGet("{votingId}")]
+    public IActionResult GetVotingById([FromRoute] int votingId, [FromQuery] int userId)
     {
-        var voting = votingService.GetVotingById(id);
+        var voting = votingService.GetVotingById(votingId, userId);
         return voting is null ? NoContent() : Ok(voting);
     }
     
     [HttpGet("{id}/details")]
-    public IActionResult GetVotingDetails(int id)
+    public IActionResult GetVotingDetails([FromRoute] int id)
     {
         var voting = votingService.GetVotingDetails(id);
         return voting is null ? NoContent() : Ok(voting);
@@ -38,7 +38,9 @@ public class VotingController(VotingService votingService) : ControllerBase
     [Authorize(Policy = "AdminOrManager")]
     public IActionResult CreateVoting([FromBody] Voting voting)
     {
-        votingService.CreateVoting(voting);
+        var authorizationHeader = HttpContext.Request.Headers.Authorization.ToString();
+        var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+        votingService.CreateVoting(token, voting);
         return Ok();
     }
 

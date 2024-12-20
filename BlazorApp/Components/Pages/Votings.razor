@@ -78,7 +78,7 @@
     {
         <MudTabs OnPreviewInteraction="SelectPanel" Class="my-5 tamanho-tab" Elevation="1" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
             <MudTabPanel Text="Em andamento" Class="titulo-tab">
-                <MudText Class="fw-bolder mx-0 px-0 mb-5" Typo="Typo.h4">Votações em andamento</MudText>
+                <MudText Class="fw-bolder mx-0 px-0 mb-5" Typo="Typo.h4">Suas votações em aberto</MudText>
                 @if (_votings.Any())
                 {
                     @foreach (var voting in _votings)
@@ -113,7 +113,7 @@
                 {
                     <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-20">
                         <img src="svg-not-found.svg" alt="Logo" style="width:200px; margin-top: 2rem" />
-                        <MudText Class="mt-2" Typo="Typo.h6">Sem votações</MudText>
+                        <MudText Class="mt-2" Typo="Typo.h6">Sem votações pendentes</MudText>
                     </MudContainer>
                 }
             </MudTabPanel>
@@ -208,7 +208,8 @@
         {
             CondominiumId = _user!.CondominiumId,
             IsOpened = isOpened,
-            BaseDate = _baseDate
+            BaseDate = _baseDate,
+            UserId = isOpened ? _user.Id : null
         });
     }
     

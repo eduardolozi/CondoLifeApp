@@ -16,6 +16,9 @@ public class VotingService(HttpClient httpClient, ILocalStorageService localStor
             if (filter.BaseDate.HasValue) {
                 queryParameters += $"&filter.BaseDate={filter.BaseDate}";
             }
+            if (filter.UserId.HasValue) {
+                queryParameters += $"&filter.UserId={filter.UserId}";
+            }
             queryParameters += $"&filter.IsOpened={filter.IsOpened}";
             
             var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
@@ -37,18 +40,18 @@ public class VotingService(HttpClient httpClient, ILocalStorageService localStor
         }
     }
 
-    public async Task<Voting> GetVotingById(int id)
+    public async Task<Voting> GetVotingById(int votingId, int userId)
     {
         try
         {
             var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await httpClient.GetAsync($"{id}");
+            var response = await httpClient.GetAsync($"{votingId}?userId={userId}");
             
             if (!response.IsSuccessStatusCode)
                 await response.HandleResponseError();
             if (response.StatusCode is HttpStatusCode.NoContent)
-                throw new ApplicationException("Esta votação não foi encontrada");
+                throw new ApplicationException("Você já participou desta votação.");
             
             return await response.Content.ReadFromJsonAsync<Voting>()
                 ?? throw new ApplicationException("Esta votação não foi encontrada");

@@ -1,4 +1,5 @@
 ﻿@page "/votacao/{Id:int}"
+@using Microsoft.AspNetCore.Authentication
 @layout Layout.MainLayout
 @inject PageHelper PageHelper
 @inject VotingService VotingService
@@ -111,18 +112,16 @@ else
                 try
                 {
                     _user = await AuthService.GetUserByClaims();
-                    _voting = await VotingService.GetVotingById(Id);
+                    if (_user is null) throw new AuthenticationFailureException("Não foi possível autenticar o usuário. Por favor, faça login.");
+                    _voting = await VotingService.GetVotingById(Id, (int) _user.Id!);
+                    StateHasChanged();
                 }
                 catch (Exception e)
                 {
                     var result = await DialogService.ShowMessageBox("Erro!", e.Message);
-                    if (result.HasValue && result.Value)
-                    {
-                        NavigationManager.NavigateTo("votacoes");
-                    }
+                    NavigationManager.NavigateTo("votacoes");
                 }
             });
-            StateHasChanged();
         }
     }
 

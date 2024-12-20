@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
 using Domain.Utils;
@@ -151,6 +152,39 @@ namespace Application.Services {
             }
         }
 
+        public User UpdateUserData(int id, UpdateUserDataDTO userData)
+        {
+            var userDb = dbContext.Users.FirstOrDefault(x => x.Id == id)
+                         ?? throw new ResourceNotFoundException("Usuario não encontrado.");
+
+            userDb.Name = userData.Name;
+            userDb.Email = userData.Email;
+            userDb.Photo = userData.Photo;
+            userDb.Apartment = userData.Apartment;
+            userDb.Block = userData.Block; 
+            dbContext.SaveChanges();
+            
+            if (userDb.Photo.HasValue())
+            {
+                userDb.Photo = userData.Photo;
+                SavePhoto(userDb);
+            }
+
+            return userDb;
+        }
+
+        public User UpdateNotificationConfigs(int id, UpdateUserNotificationConfigsDTO configs)
+        {
+            var userDb = dbContext.Users.FirstOrDefault(x => x.Id == id)
+                         ?? throw new ResourceNotFoundException("Usuario não encontrado.");
+
+            userDb.NotificationLifetime = configs.NotificationLifetime;
+            userDb.NotifyEmail = configs.NofifyEmail;
+            userDb.NotifyPhone = configs.NofifyPhone;
+            dbContext.SaveChanges();
+            return userDb;
+        }
+
         public async Task SendRecoveryPasswordEmail(ChangePasswordDTO changePassword) {
             var user = dbContext.Users.FirstOrDefault(x => x.Email.ToLower() == changePassword.Email!.ToLower())
                 ?? throw new ResourceNotFoundException("Email inválido");
@@ -215,6 +249,21 @@ namespace Application.Services {
                 ?? throw new ResourceNotFoundException("Usuário não encontrado.");
             user.Role = changeUserRole.Role;
             dbContext.SaveChanges();
+        }
+
+        public List<UserNotificationInfoDTO> GetAllUsersInfoNotificationExceptManager(int condominiumId)
+        {
+            return dbContext
+                .Users
+                .Where(x => x.CondominiumId == condominiumId && x.Role != UserRoleEnum.Manager)
+                .Select(x => new UserNotificationInfoDTO
+                {
+                    Id = x.Id,
+                    Email = x.Email,
+                    Name = x.Name,
+                    NotifyEmail = x.NotifyEmail
+                })
+                .ToList();
         }
     }
 }
