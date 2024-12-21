@@ -33,7 +33,8 @@
         
         <MudContainer Class="d-flex flex-row h-100 justify-content-start ps-0 mb-4 ">
             <MudButton OnClick="SelectFutureBookings" Variant="Variant.Outlined" Class="me-5" Color="@_futureButtonColor">Futuras</MudButton>
-            <MudButton OnClick="SelectCompletedBookings" Variant="Variant.Outlined" Color="@_completedButtonColor">Concluídas</MudButton>
+            <MudButton OnClick="SelectCompletedBookings" Variant="Variant.Outlined" Class="me-5" Color="@_completedButtonColor">Concluídas</MudButton>
+            <MudButton OnClick="SelectCanceledBookings" Variant="Variant.Outlined" Color="@_canceledButtonColor">Canceladas</MudButton>
         </MudContainer>
 
         @if (_bookings.Any())
@@ -50,7 +51,7 @@
                     <MudChip T="string"
                              Class="mb-2"
                              Size="Size.Small"
-                             Color="@(booking.Status is BookingStatusEnum.Confirmed ? Color.Success : Color.Warning)">
+                             Color="@(booking.Status switch { BookingStatusEnum.Confirmed => Color.Success, BookingStatusEnum.Pending => Color.Warning, BookingStatusEnum.AwaitingPayment => Color.Warning, BookingStatusEnum.Canceled => Color.Error, _ => Color.Default })">
                         @booking.Status.GetEnumDescription()
                     </MudChip>
                 </MudContainer>
@@ -104,10 +105,12 @@
 
     Color _futureButtonColor = Color.Default;
     Color _completedButtonColor = Color.Default;
+    Color _canceledButtonColor = Color.Default;
     async Task SelectFutureBookings()
     {
         _futureButtonColor = Color.Success;
         _completedButtonColor = Color.Default;
+        _canceledButtonColor = Color.Default;
         _isLoading = true;
         await PageHelper.ShowBusy(ref _isLoading, async () =>
         {
@@ -118,12 +121,26 @@
 
     async Task SelectCompletedBookings()
     {
+        _canceledButtonColor = Color.Default;
         _futureButtonColor = Color.Default;
         _completedButtonColor = Color.Success;
         _isLoading = true;
         await PageHelper.ShowBusy(ref _isLoading, async () =>
         {
             _bookings = await BookingService.GetBookings(new BookingFilter { UserId = _user.Id, FinalDate = DateTime.UtcNow});
+        });
+        StateHasChanged();
+    }
+
+    async Task SelectCanceledBookings()
+    {
+        _futureButtonColor = Color.Default;
+        _completedButtonColor = Color.Default;
+        _canceledButtonColor = Color.Error;
+        _isLoading = true;
+        await PageHelper.ShowBusy(ref _isLoading, async () =>
+        {
+            _bookings = await BookingService.GetBookings(new BookingFilter { UserId = _user.Id, Status = BookingStatusEnum.Canceled});
         });
         StateHasChanged();
     }

@@ -51,10 +51,22 @@
             <MudText Typo="Typo.body1">@_booking.Description</MudText>
         </MudContainer>
         
+        @if (_booking.Status is BookingStatusEnum.Canceled)
+        {
+            <MudContainer Class="mt-5 pb-5 d-flex flex-column align-items-start w-100" Style="background: rgba(255, 0, 0, 0.66); border-radius: 10px">
+                <MudText Class="fw-bold mt-5 mb-5" Style="border-bottom-width: 1px; border-color: white; color: white" Typo="Typo.h5">Motivo do cancelamento</MudText>
+                <MudText Typo="Typo.body1" Style="color: white; font-weight: bold;">@_booking.CancellationReason</MudText>
+            </MudContainer>
+        }
+        
         <MudContainer Class="my-3 d-flex flex-row justify-content-end pe-0">
-            <MudButton Variant="Variant.Filled" Style="background-color: #f84d4d; color: white" OnClick="DeleteBooking">Remover reserva</MudButton>
+            @if (_user.Id == _booking.UserId)
+            {
+                <MudButton Variant="Variant.Filled" Style="background-color: #f84d4d; color: white" OnClick="DeleteBooking">Remover reserva</MudButton>
+            }
             @if (_booking!.Status is BookingStatusEnum.Pending && (_user!.Role is UserRoleEnum.Manager or UserRoleEnum.Submanager))
             {
+                <MudButton Class="ms-3" Variant="Variant.Outlined" Color="Color.Error" Style="color: #ca2f2f" OnClick="CancelBooking">Cancelar reserva</MudButton>
                 <MudButton Class="ms-3" Variant="Variant.Filled" Style="background-color: #18b66c; color: white" OnClick="ApproveBooking">Aprovar reserva</MudButton>
             }
         </MudContainer>  
@@ -78,14 +90,13 @@
             {
                 _user = await AuthService.GetUserByClaims();
                 _booking = await BookingService.GetBooking(Id);
-                _statusColor = _booking!.Status is BookingStatusEnum.Confirmed ? Color.Success : Color.Warning;
-                _statusIcon = _booking.Status switch
+                (_statusColor, _statusIcon) = _booking!.Status switch
                 {
-                    BookingStatusEnum.Confirmed => Icons.Material.Rounded.CheckCircle,
-                    BookingStatusEnum.Pending => Icons.Material.Rounded.PendingActions,
-                    BookingStatusEnum.AwaitingPayment => Icons.Material.Rounded.Payment,
-                    BookingStatusEnum.Canceled => Icons.Material.Rounded.Cancel,
-                    _ => string.Empty
+                    BookingStatusEnum.Confirmed => (Color.Success, Icons.Material.Rounded.CheckCircle),
+                    BookingStatusEnum.Pending => (Color.Warning, Icons.Material.Rounded.PendingActions),
+                    BookingStatusEnum.AwaitingPayment => (Color.Warning, Icons.Material.Rounded.Payment),
+                    BookingStatusEnum.Canceled => (Color.Error, Icons.Material.Rounded.Cancel),
+                    _ => (Color.Default, string.Empty)
                 };
                 var param = string.IsNullOrEmpty(_booking.UserPhotoUrl) ? $"{_booking.UserId}/photo" : _booking.UserPhotoUrl; 
                 var photo = await UserService.GetPhoto(param);
@@ -120,16 +131,38 @@
     {
         try
         {
-            var isManager = _user!.Role is UserRoleEnum.Manager;
-            await BookingService.DeleteBooking(_booking!.Id, isManager);
-            var message = "Você removeu a sua reserva, esperamos que possa marcar outra em breve!";
-            if (_user!.Id != _booking.UserId) message = "A reserva foi removida com sucesso. Notificaremos o morador sobre o cancelamento.";
-            await DialogService.ShowMessageBox("Reserva removida!", message);
+            await BookingService.DeleteBooking(_booking!.Id);
+            await DialogService.ShowMessageBox("Reserva removida!", "Você removeu a sua reserva, esperamos que possa marcar outra em breve!");
             NavigationManager.NavigateTo("minhas-reservas");
         }
         catch (Exception e)
         {
             await DialogService.ShowMessageBox("Não foi possível remover a reserva...", e.Message);
+        }
+    }
+
+    async Task CancelBooking()
+    {
+        try
+        {
+            var isManager = _user!.Role is UserRoleEnum.Manager;
+            var parameters = new DialogParameters<CancellationReasonDialog>
+            {
+                { x => x.IsManager, isManager },
+                {x => x.BookingId, _booking!.Id}
+            };
+            var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium };
+            var dialog =  await DialogService.ShowAsync<CancellationReasonDialog>("Cancelamento da reserva", parameters, options);
+            var result = await dialog.Result;
+            if (result!.Data is true)
+            {
+                await DialogService.ShowMessageBox("Reserva cancelada!", "A reserva foi cancelada. Notificaremos o morador sobre o cancelamento.");
+                NavigationManager.NavigateTo("minhas-reservas");
+            }
+        }
+        catch (Exception e)
+        {
+            await DialogService.ShowMessageBox("Não foi possível cancelar a reserva...", e.Message);
         }
     }
 }

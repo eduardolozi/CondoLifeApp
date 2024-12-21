@@ -1,0 +1,44 @@
+﻿@inject IDialogService DialogService
+@inject BookingService BookingService
+
+<style>
+    .dialog {
+        width: 50%;
+    }
+    
+    @@media(max-width: 730px) {
+        .dialog {
+            width: 60%;
+        }
+    }
+</style>
+
+<MudDialog Class="dialog">
+    <DialogContent>
+        <MudTextField @bind-Value="_cancellationReason" Placeholder="Motivo do cancelamento" Variant="Variant.Outlined" Class="text-field my-3" Lines="5"></MudTextField>
+        <MudButton Class="mt-5 w-100" Variant="Variant.Filled" Size="Size.Small" Style="background-color: #ca2f2f; color: white" OnClick="Submit">Efetuar cancelamento</MudButton>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public bool IsManager { get; set; }
+    [Parameter] public int BookingId { get; set; }
+    string _cancellationReason = string.Empty;
+    
+    async Task Submit()
+    {
+        if (string.IsNullOrEmpty(_cancellationReason))
+        {
+            await DialogService.ShowMessageBox("Erro!", "Por favor, preencha o motivo do cancelamento.");
+            return;
+        }
+
+        await BookingService.CancelBooking(BookingId, new CancellationBookingDTO
+        {
+            IsManager = IsManager, CancellationReason = _cancellationReason
+        });
+        
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

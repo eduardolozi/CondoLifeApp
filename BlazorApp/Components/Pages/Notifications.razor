@@ -122,17 +122,14 @@
 
     void OpenNotification(Notification notification)
     {
-        if (notification.NotificationType is NotificationTypeEnum.BookingCreated || notification.NotificationType is NotificationTypeEnum.BookingApproved)
+        if (notification.NotificationType is NotificationTypeEnum.BookingCreated ||
+            notification.NotificationType is NotificationTypeEnum.BookingApproved ||
+            notification.NotificationType is NotificationTypeEnum.BookingRejected)
         {
             if(notification.BookingId.HasValue) 
                 NavigationManager.NavigateTo($"reserva/{notification.BookingId}");
         }
 
-        if (notification.NotificationType is NotificationTypeEnum.BookingRejected)
-        {
-            NavigationManager.NavigateTo($"minhas-reservas");
-        }
-        
         if(notification.NotificationType is NotificationTypeEnum.VotingCreated)
             NavigationManager.NavigateTo("votacoes");
     }

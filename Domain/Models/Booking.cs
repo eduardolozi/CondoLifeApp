@@ -12,6 +12,8 @@ namespace Domain.Models {
         
         public BookingStatusEnum Status { get; set; }
         
+        public string? CancellationReason { get; set; }
+        
         public string? Description { get; set; }
         
         public int UserId { get; set; }

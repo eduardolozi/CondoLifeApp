@@ -10,8 +10,8 @@ public enum BookingStatusEnum
     AwaitingPayment,
     [Description("Aprovação pendente")]
     Pending,
-    [Description("Aprovado")]
+    [Description("Aprovada")]
     Confirmed,
-    [Description("Rejeitado")]
+    [Description("Cancelada")]
     Canceled
 }

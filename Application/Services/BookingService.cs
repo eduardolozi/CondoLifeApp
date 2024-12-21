@@ -25,9 +25,10 @@ public class BookingService(CondoLifeContext dbContext, IEmailService emailServi
             if (filter.SpaceId.HasValue)
                 query = query.Where(x => x.SpaceId == filter.SpaceId);
 
-            if (filter.Status.HasValue)
-                query = query.Where(x => x.Status == filter.Status);
-
+            query = filter.Status.HasValue ? 
+                query.Where(x => x.Status == filter.Status) : 
+                query.Where(x => x.Status != BookingStatusEnum.Canceled);   
+            
             if (filter.InitialDate.HasValue)
                 query = query.Where(x => x.InitialDate >= filter.InitialDate.Value);
 
@@ -48,7 +49,7 @@ public class BookingService(CondoLifeContext dbContext, IEmailService emailServi
             FinalDate = x.FinalDate,
             UserId = x.UserId,
             Username = x.User.Name,
-            Description = x.Description,
+            Description = x.Description
             
         }).OrderBy(x => x.InitialDate).ToList();
     }
@@ -73,7 +74,8 @@ public class BookingService(CondoLifeContext dbContext, IEmailService emailServi
             Apartment = $"{booking.User.Apartment} {(booking.User.Block.HasValue() ? booking.User.Block : string.Empty)}",
             Status = booking.Status,
             Date = $"{booking.InitialDate.ToShortDateString()} - {booking.InitialDate.Hour}:00 às {booking.FinalDate.Hour}:00",
-            SpaceName = booking.Space!.Name
+            SpaceName = booking.Space!.Name,
+            CancellationReason = booking.CancellationReason
         };
     }
 
@@ -143,7 +145,14 @@ public class BookingService(CondoLifeContext dbContext, IEmailService emailServi
         notificationService.PublishNotification(notification, emailMessage);
     }
 
-    public void Delete(int id, string userToken, bool deletedByManager)
+    public void Delete(int id)
+    {
+        dbContext.Booking.Where(x => x.Id == id).ExecuteDelete();
+        notificationService.DeleteBookingNotifications(id);
+        dbContext.SaveChanges();
+    }
+
+    public void Cancel(int id, string userToken, CancellationBookingDTO cancellationBooking)
     {
         var booking = dbContext
             .Booking
@@ -152,38 +161,37 @@ public class BookingService(CondoLifeContext dbContext, IEmailService emailServi
             .ThenInclude(y => y!.Condominium)
             .FirstOrDefault(x => x.Id == id) 
                     ?? throw new ResourceNotFoundException("O agendamento não foi encontrado");
-        
-        dbContext.Booking.Where(x => x.Id == id).ExecuteDelete();
-        notificationService.DeleteBookingNotifications(id);
+
+        booking.CancellationReason = cancellationBooking.CancellationReason;
+        booking.Status = BookingStatusEnum.Canceled;
         dbContext.SaveChanges();
 
-        if (deletedByManager)
-        {
-            var notification = notificationService.SetupOneUserNotification
-            (
-                booking.User!.Condominium!.Name,
-                userToken,
-                NotificationTypeEnum.BookingRejected,
-                "A sua reserva foi cancelada.",
-                NotificationResultEnum.Cancelled,
-                $"O síndico cancelou a sua reserva no espaço: {booking.Space!.Name} para o dia {booking.InitialDate.ToShortDateString()}.",
-                DateTime.UtcNow, 
-                booking.UserId,
-                booking.Id
-            );
+        var cancellationAgent = cancellationBooking.IsManager ? "Síndico" : "Subsíndico";
+        
+        var notification = notificationService.SetupOneUserNotification
+        (
+            booking.User!.Condominium!.Name,
+            userToken,
+            NotificationTypeEnum.BookingRejected,
+            "A sua reserva foi cancelada.",
+            NotificationResultEnum.Cancelled,
+            $"O {cancellationAgent} cancelou a sua reserva no espaço: {booking.Space!.Name} para o dia {booking.InitialDate.ToShortDateString()}.",
+            DateTime.UtcNow, 
+            booking.UserId,
+            booking.Id
+        );
 
-            var emailMessage = emailService.SetupOneUserEmailMessage
-            (
-                "A sua reserva foi cancelada.",
-                booking.User!.Name,
-                $"O síndico cancelou a sua reserva no espaço: {booking.Space.Name} para o dia {booking.InitialDate.ToShortDateString()}.",
-                "https://localhost:7136/minhas-reservas",
-                booking.User.Email,
-                booking.User.NotifyEmail
-            );
+        var emailMessage = emailService.SetupOneUserEmailMessage
+        (
+            "A sua reserva foi cancelada.",
+            booking.User!.Name,
+            $"O {cancellationAgent} cancelou a sua reserva no espaço: {booking.Space!.Name} para o dia {booking.InitialDate.ToShortDateString()}.",
+            $"https://localhost:7136/reserva/{booking.Id}",
+            booking.User.Email,
+            booking.User.NotifyEmail
+        );
 
-            notificationService.PublishNotification(notification, emailMessage);
-        }
+        notificationService.PublishNotification(notification, emailMessage);
     }
 
     public void ApproveBooking(int id, string token)

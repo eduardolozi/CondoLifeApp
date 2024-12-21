@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using Application.DTOs;
 using Application.Services;
 using Domain.Models;
 using Domain.Models.Filters;
@@ -36,15 +37,23 @@ public class BookingController(BookingService bookingService) : ControllerBase
         bookingService.Create(booking, token);
         return Ok();
     }
-    
+
     [Authorize]
     [HttpDelete("{id}")]
-    public IActionResult Delete([FromRoute] int id, [FromQuery] bool deletedByManager)
+    public IActionResult Delete([FromRoute] int id)
+    {
+        bookingService.Delete(id);
+        return Ok();
+    }
+    
+    [Authorize]
+    [HttpPatch("cancel/{id}")]
+    public IActionResult Cancel([FromRoute] int id, [FromBody] CancellationBookingDTO cancellationBooking)
     {
         var authorizationHeader = HttpContext.Request.Headers.Authorization.ToString();
         var token = authorizationHeader.Substring("Bearer ".Length).Trim();
         
-        bookingService.Delete(id, token, deletedByManager);
+        bookingService.Cancel(id, token, cancellationBooking);
         return Ok();
     }
     

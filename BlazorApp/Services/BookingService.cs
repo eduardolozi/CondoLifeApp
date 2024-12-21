@@ -88,11 +88,23 @@ public class BookingService(HttpClient httpClient, ILocalStorageService localSto
             await response.HandleResponseError();
     }
 
-    public async Task DeleteBooking(int bookingId, bool isManager)
+    public async Task CancelBooking(int bookingId, CancellationBookingDTO cancellationBooking)
     {
         var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        var response = await httpClient.DeleteAsync($"{bookingId}?deletedByManager={isManager}");
+        
+        var content = JsonContent.Create(cancellationBooking);
+        var response = await httpClient.PatchAsync($"cancel/{bookingId}", content);
+
+        if (!response.IsSuccessStatusCode)
+            await response.HandleResponseError();
+    }
+    
+    public async Task DeleteBooking(int bookingId)
+    {
+        var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        var response = await httpClient.DeleteAsync($"{bookingId}");
 
         if (!response.IsSuccessStatusCode)
             await response.HandleResponseError();
