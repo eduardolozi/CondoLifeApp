@@ -114,17 +114,31 @@ namespace Application.Services {
         }
 
         private void SendVerificationEmail(User user, VerificationToken verificationToken) {
-            var verificationLink = $"https://localhost:7031/api/User/verify-email?verificationToken={verificationToken.Value}";
-            var message = new EmailMessage {
-                FromEmail = "condolifemail@gmail.com",
-                FromName = "CondoLife",
-                ToEmail = user.Email,
-                ToName = user.Name,
-                Subject = "Verificação de conta - Condolife",
-                Body = $@"<p>Olá {user.Name}, precisamos verificar a sua conta. Para isso, basta apenas clicar no link a seguir: <a href={verificationLink}>Verificar email</a></p>",
-            };
+            // var verificationLink = $"https://localhost:7031/api/User/verify-email?verificationToken={verificationToken.Value}";
+            // var message = new EmailMessage {
+            //     FromEmail = "condolifemail@gmail.com",
+            //     FromName = "CondoLife",
+            //     UsersTo = [
+            //         new EmailUser
+            //         {
+            //             Email = user.Email,
+            //             Name = user.Name,
+            //         }
+            //     ],
+            //     Subject = "Verificação de conta - Condolife",
+            //     Body = $"<p>Olá {user.Name}, precisamos verificar a sua conta. Para isso, basta apenas clicar no link a seguir: <a href={verificationLink}>Verificar email</a></p>",
+            // };
 
-            rabbitService.Send(message, RabbitConstants.EMAIL_EXCHANGE, RabbitConstants.EMAIL_ROUTING_KEY);
+            var emailMessage = emailService.SetupOneUserEmailMessage(
+                "Verificação de conta - Condolife",
+                user.Name,
+                $"<p>Olá {user.Name}, precisamos verificar a sua conta. Para isso, basta clicar no botão abaixo:</p>",
+                $"https://localhost:7136/verificacao-conta/{verificationToken.Value}",
+                user.Email,
+                true
+            );
+            
+            rabbitService.Send(emailMessage, RabbitConstants.EMAIL_EXCHANGE, RabbitConstants.EMAIL_ROUTING_KEY);
         }
 
         public int VerifyEmail(string verificationToken) {

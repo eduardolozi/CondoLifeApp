@@ -45,6 +45,7 @@ namespace BlazorApp.Services {
                 NotificationLifetime = claims.TryGetValue("NotificationLifetime", out var notificationLifetime) ? Convert.ToInt32(notificationLifetime) : null,
                 NotifyEmail = claims.TryGetValue("NotifyEmail", out var notifyEmail) && Convert.ToBoolean(notifyEmail),
                 NotifyPhone = claims.TryGetValue("NotifyPhone", out var notifyPhone) && Convert.ToBoolean(notifyPhone),
+                IsCreatedByManager = claims.TryGetValue("IsCreatedByManager", out var isCreatedByManager) && Convert.ToBoolean(isCreatedByManager),
             };
         }
     }

@@ -13,6 +13,7 @@ namespace BlazorApp.Models {
 		public string? Block { get; set; }
 		public bool NotifyEmail { get; set; }
 		public bool NotifyPhone { get; set; }
+		public bool IsCreatedByManager { get; set; }
 		public int? NotificationLifetime { get; set; }
 		public int CondominiumId { get; set; }
 		public Condominium? Condominium { get; set; }

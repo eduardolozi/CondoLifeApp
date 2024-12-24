@@ -5,18 +5,55 @@
 @inject IDialogService DialogService
 @inject PageHelper PageHelper
 
-<PageTitle>Usuários</PageTitle>
+<style>
+    .table-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+    
+    @@media(max-width: 1000px) {
+        .table-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+        }
 
-<MudTable Items="_users" Hover="true" Class="mt-10">
+        .mud-table-toolbar {
+            padding-left: 16px;
+            padding-right: 8px;
+            padding-inline-start: 16px;
+            padding-inline-end: 8px;
+            height: 7rem;
+        }
+
+        .table-title {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .table-textfield {
+            width: 75%;
+            margin-bottom: 1.5rem;
+        }
+    }
+</style>
+
+<PageTitle>Usuários</PageTitle>
+<MudTable Items="_users" Hover="true" Class="my-10">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Usuários</MudText>
-        <MudSpacer />
-        <MudTextField T="string" Placeholder="Pesquisar" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudContainer Class="w-100 m-0 table-header px-0">
+            <MudText Class="fw-bold table-title" Typo="Typo.h6">Usuários</MudText>
+            <MudSpacer/>
+            <MudTextField Style="width: 100%" T="string" Placeholder="Pesquisar" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 table-textfield"></MudTextField>
+        </MudContainer>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>Nome</MudTh>
         <MudTh>Apartamento</MudTh>
         <MudTh>Cargo</MudTh>
+        <MudTh Class="d-flex flex-row justify-content-end">Visualização</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Nome">@context.Name</MudTd>
@@ -27,7 +64,10 @@
         </MudTd>
     </RowTemplate>
     <PagerContent>
-        <MudTablePager HideRowsPerPage="true" HidePageNumber="true"/>
+        <MudContainer Class="d-flex flex-row justify-content-between px-0 m-0 border-top">
+            <MudTablePager HideRowsPerPage="true" HidePageNumber="true"/>
+            <MudButton Class="m-2" Size="Size.Small" Variant="Variant.Filled" Style="background-color: #2ca179; color: white;">Cadastrar</MudButton>
+        </MudContainer>
     </PagerContent>
 </MudTable>
 

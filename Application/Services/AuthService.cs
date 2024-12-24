@@ -62,13 +62,14 @@ namespace Application.Services {
                 new ("NotificationLifetime", user.NotificationLifetime is null ? "0" : user.NotificationLifetime.Value.ToString()),
                 new ("NotifyEmail", user.NotifyEmail.ToString()),
                 new ("NotifyPhone", user.NotifyPhone.ToString()),
+                new ("IsCreatedByManager", user.IsCreatedByManager.ToString()),
             };
 
             var tokenOptions = new SecurityTokenDescriptor {
                 //env
                 Issuer = "https://localhost:7031",
                 Audience = "https://localhost:7031",
-                Subject = new ClaimsIdentity(claims),
+                Subject = new ClaimsIdentity(claims, "CustomAuth"),
                 Expires = DateTime.UtcNow.AddDays(1),
                 SigningCredentials = signinCredentials
             };

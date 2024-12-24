@@ -10,6 +10,7 @@ namespace Domain.Models {
         [NotMapped] public string? Password { get; set; }
         [JsonIgnore] public string? PasswordHash { get; set; } = null!;
         public bool IsEmailVerified { get; set; } = false;
+        public bool IsCreatedByManager { get; set; }
         public bool IsChangePasswordConfirmed { get; set; } = false;
         public UserRoleEnum Role { get; set; }
         public required int Apartment { get; set; }

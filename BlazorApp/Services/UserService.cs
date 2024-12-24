@@ -8,6 +8,19 @@ using Blazored.LocalStorage;
 namespace BlazorApp.Services {
 	public class UserService(HttpClient httpClient, ILocalStorageService localStorage)
 	{
+		public async Task<bool> VerifyAccount(string verificationToken)
+		{
+			try
+			{
+				var response = await httpClient.GetAsync($"verify-email?verificationToken={verificationToken}");
+				return response.StatusCode == HttpStatusCode.OK;
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(ex.Message, ex);
+			}
+		}
+		
 		public async Task<List<User>?> GetAll(UserFilter? filter = null)
 		{
 			try

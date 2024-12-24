@@ -1,0 +1,49 @@
+﻿@page "/verificacao-conta/{VerificationToken}"
+@layout Layout.EmptyLayout
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Verificação da conta</PageTitle>
+<MudContainer Class="w-100 mt-10 d-flex flex-column align-items-center justify-content-center">
+    @if (_requestDone)
+    {
+        @if (_isSuccess)
+        {
+            <MudText Typo="Typo.h5" Class="fw-bold" Color="Color.Success">A verificação foi concluída com sucesso!</MudText>
+            <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-15">
+                <img src="celebration.svg" alt="Logo" style="width:200px; margin-top: 2rem"/>
+                <MudText Class="mt-4" Typo="Typo.h6">Entre agora na sua conta!</MudText>
+                <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Success" Style="color: white;" OnClick="NavigateToLogin">Ir para Login</MudButton>
+            </MudContainer>
+        }
+        else
+        {
+            <MudText Typo="Typo.h5" Class="fw-bold" Color="Color.Warning">Não foi possível verificar o seu cadastro...</MudText>
+            <MudContainer Class="d-flex flex-column justify-content-center align-items-center mt-20">
+                <img src="sad.svg" alt="Logo" style="width:200px; margin-top: 2rem"/>
+                <MudText Class="mt-2" Typo="Typo.h6">Não se preocupe, daremos um jeito! Entre em contanto com o seu síndico</MudText>
+            </MudContainer>
+        }
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public string VerificationToken { get; set; }
+    bool _isSuccess;
+    bool _requestDone;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isSuccess = await UserService.VerifyAccount(VerificationToken);
+            _requestDone = true;
+            StateHasChanged();
+        }
+    }
+
+    void NavigateToLogin()
+    {
+        NavigationManager.NavigateTo("login");
+    }
+}
