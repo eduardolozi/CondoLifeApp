@@ -1,0 +1,106 @@
+﻿@using System.Text
+@inject UserService UserService
+@inject IDialogService DialogService
+
+<style>
+    .dialog {
+        width: 50%;
+    }
+
+    @@media(max-width: 730px) {
+        .dialog {
+            width: 60%;
+        }
+    }
+</style>
+
+<MudDialog Class="dialog d-flex flex-column">
+    <DialogContent>
+        <MudTextField Class="mb-4" Error="_nameHasError" ErrorText="@_nameErrorMessage" MaxLength="35" Variant="Variant.Outlined" @bind-Value="_newUser.Name" Label="Nome"></MudTextField>
+        <MudTextField Class="mb-4" Error="_emailHasError" ErrorText="@_emailErrorMessage" Variant="Variant.Outlined" @bind-Value="_newUser.Email" Label="Email"></MudTextField>
+        <MudTextField Class="mb-4" Error="_passwordHasError" ErrorText="@_passwordErrorMessage" MaxLength="25" Variant="Variant.Outlined" @bind-Value="_newUser.Password" Label="Senha temporária"></MudTextField>
+        <MudContainer Class="mb-3 d-flex flex-row justify-content-start align-items-center px-0 w-100">
+            <MudTextField Error="_apartmentHasError" ErrorText="@_apartmentErrorMessage" Class="w-50 mx-0" Variant="Variant.Outlined" @bind-Value="_newUser.Apartment" Label="N° apto."></MudTextField>
+            <MudTextField Variant="Variant.Outlined" Class="w-25 ms-2" @bind-Value="_newUser.Block" Placeholder="Opcional" Label="Bloco"></MudTextField>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+            <MudButton Variant="Variant.Filled" Style="color: white; background-color: #146c43;" OnClick="Submit">Cadastrar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    User _newUser = new();
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int CondominiumId { get; set; }
+    bool _nameHasError;
+    bool _emailHasError;
+    bool _passwordHasError;
+    bool _apartmentHasError;
+    string _nameErrorMessage;
+    string _emailErrorMessage;
+    string _passwordErrorMessage;
+    string _apartmentErrorMessage;
+    
+    async Task Submit()
+    {
+        try
+        {
+            var invalidData = ValidateUser();
+            if(invalidData) return;
+            
+            _newUser.Id = 0;
+            _newUser.CondominiumId = CondominiumId;
+            _newUser.IsCreatedByManager = true;
+            await UserService.ManagerCreateUser(_newUser);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception e)
+        {
+            await DialogService.ShowMessageBox("Erro!", (MarkupString)e.Message);
+        }
+    }
+
+    private bool ValidateUser()
+    {
+        if (string.IsNullOrEmpty(_newUser.Name))
+        {
+            _nameHasError = true;
+            _nameErrorMessage = "O nome deve ser informado.\n";
+        }
+        else if (_newUser.Name.Length < 6)
+        {
+            _nameHasError = true;
+            _nameErrorMessage = "O nome deve ter mais de 6 caracteres.\n";
+        }
+        else _nameHasError = false;
+
+        if (string.IsNullOrEmpty(_newUser.Email))
+        {
+            _emailHasError = true;
+            _emailErrorMessage = "O email deve ser informado.\n";
+        }
+        else _emailHasError = false;
+
+        if (string.IsNullOrEmpty(_newUser.Password))
+        {
+            _passwordHasError = true;
+            _passwordErrorMessage = "A senha deve ser informada.\n";
+        }
+        else if (_newUser.Password.Length < 8)
+        {
+            _passwordHasError = true;
+            _passwordErrorMessage = "A senha deve ter mais de 8 caracteres.\n";
+        }
+        else _passwordHasError = false;
+
+        if (_newUser.Apartment is null || _newUser.Apartment == 0)
+        {
+            _apartmentHasError = true;
+            _apartmentErrorMessage = "O n° do apto. deve ser informado";
+        }
+        else _apartmentHasError = false;
+
+        return _nameHasError || _emailHasError || _passwordHasError || _apartmentHasError;
+    }
+}

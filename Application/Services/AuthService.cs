@@ -34,7 +34,8 @@ namespace Application.Services {
                     IsSuccess = true,
                     AccessToken = CreateAccessToken(user),
                     RefreshToken = CreateRefreshToken(user.Id).Token,
-                    UserId = user.Id
+                    UserId = user.Id,
+                    ChangeTemporaryPassword = user.IsCreatedByManager
                 };
             }
 

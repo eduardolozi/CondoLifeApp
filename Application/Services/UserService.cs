@@ -4,6 +4,7 @@ using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Models;
 using Domain.Utils;
+using FluentValidation;
 using Infraestructure;
 using Infraestructure.Rabbit;
 using Microsoft.AspNetCore.Identity;
@@ -19,7 +20,8 @@ namespace Application.Services {
         IEmailService emailService,
         VerificationTokenService verificationTokenService,
         RabbitService rabbitService,
-        IDocumentStore ravenStore)
+        IDocumentStore ravenStore,
+        AbstractValidator<User> userValidator)
     {
         private readonly PasswordHasher<User> _passworHasher = new();
 
@@ -113,22 +115,16 @@ namespace Application.Services {
 			SendVerificationEmail(user, verificationToken);
         }
 
-        private void SendVerificationEmail(User user, VerificationToken verificationToken) {
-            // var verificationLink = $"https://localhost:7031/api/User/verify-email?verificationToken={verificationToken.Value}";
-            // var message = new EmailMessage {
-            //     FromEmail = "condolifemail@gmail.com",
-            //     FromName = "CondoLife",
-            //     UsersTo = [
-            //         new EmailUser
-            //         {
-            //             Email = user.Email,
-            //             Name = user.Name,
-            //         }
-            //     ],
-            //     Subject = "Verificação de conta - Condolife",
-            //     Body = $"<p>Olá {user.Name}, precisamos verificar a sua conta. Para isso, basta apenas clicar no link a seguir: <a href={verificationLink}>Verificar email</a></p>",
-            // };
+        public void ManagerCreateUser(User user)
+        {
+            userValidator.ValidateAndThrow(user);
+            user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
+            user.IsEmailVerified = true;
+            dbContext.Users.Add(user);
+            dbContext.SaveChanges();
+        }
 
+        private void SendVerificationEmail(User user, VerificationToken verificationToken) {
             var emailMessage = emailService.SetupOneUserEmailMessage(
                 "Verificação de conta - Condolife",
                 user.Name,
@@ -239,6 +235,17 @@ namespace Application.Services {
             }
 
             throw new BadRequestException("Ainda não foi processada a verificação de mudança de senha no email.");
+        }
+
+        public void ChangeTemporaryPassword(int id, string newPassword)
+        {
+            var user = dbContext.Users.FirstOrDefault(x => x.Id == id)
+                ?? throw new ResourceNotFoundException("Usuário não encontrado.");
+
+            user.Password = newPassword;
+            user.PasswordHash = _passworHasher.HashPassword(user, user.Password);
+            user.IsCreatedByManager = false;
+            dbContext.SaveChanges();
         }
 
         public void Delete(int id) {

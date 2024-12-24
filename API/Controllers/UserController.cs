@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Services;
 using Domain.Utils;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Photo = Domain.Models.Photo;
 using User = Domain.Models.User;
@@ -43,6 +44,14 @@ namespace API.Controllers {
         [HttpPost]
         public ActionResult Create([FromBody] User user) {
             userService.Insert(user);
+            return Created();
+        }
+
+        [HttpPost("manager-create-user")]
+        [Authorize(Policy = "ManagerOrSubmanager")]
+        public IActionResult ManagerCreateUser([FromBody] User user)
+        {
+            userService.ManagerCreateUser(user);
             return Created();
         }
 
@@ -116,6 +125,12 @@ namespace API.Controllers {
         public NoContentResult ChangePassword([FromBody] ChangePasswordDTO changePassword) {
             userService.ChangePassword(changePassword);
             return NoContent();
+        }
+        
+        [HttpPatch("change-temporary-password/{id}")]
+        public OkResult ChangePassword([FromRoute] int id, [FromBody] string newPassword) {
+            userService.ChangeTemporaryPassword(id, newPassword);
+            return Ok();
         }
 
         [Authorize]

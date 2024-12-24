@@ -115,8 +115,9 @@
 
             await LocalStorage.SetItemAsStringAsync("accessToken", result.AccessToken!);
             await LocalStorage.SetItemAsStringAsync("refreshToken", result.RefreshToken!);
-            
-            Navigation.NavigateTo("feed");
+
+            var route = result.ChangeTemporaryPassword ? "mudar-senha" : "feed";
+            Navigation.NavigateTo(route);
         }
         catch (Exception ex)
         {

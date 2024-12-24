@@ -21,6 +21,7 @@ namespace Application {
             services.AddScoped<AbstractValidator<Space>, SpaceValidator>();
             services.AddScoped<AbstractValidator<Booking>, BookingValidator>();
             services.AddScoped<AbstractValidator<Voting>, VotingValidator>();
+            services.AddScoped<AbstractValidator<User>, UserValidator>();
         }
     }
 }

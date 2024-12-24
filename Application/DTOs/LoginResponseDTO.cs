@@ -9,5 +9,6 @@ namespace Application.DTOs {
         public string? AccessToken { get; set; }
         public string? RefreshToken { get; set; }
         public int UserId { get; set; }
+        public bool ChangeTemporaryPassword { get; set; }
     }
 }

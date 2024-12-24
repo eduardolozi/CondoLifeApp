@@ -20,6 +20,21 @@ namespace BlazorApp.Services {
 				throw new Exception(ex.Message, ex);
 			}
 		}
+
+		public async Task ManagerCreateUser(User user)
+		{
+			try {
+				var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+				var response = await httpClient.PostAsJsonAsync("manager-create-user", user);
+				
+				if (!response.IsSuccessStatusCode)
+					await response.HandleResponseError();
+			}
+			catch (Exception ex) {
+				throw new Exception(ex.Message, ex);
+			}
+		}
 		
 		public async Task<List<User>?> GetAll(UserFilter? filter = null)
 		{
@@ -66,6 +81,23 @@ namespace BlazorApp.Services {
 			}
 			catch (Exception ex) {
 				throw new Exception(ex.Message, ex);
+			}
+		}
+
+		public async Task ChangeTemporaryPassword(int id, string password)
+		{
+			try
+			{
+				var accessToken = await localStorage.GetItemAsStringAsync("accessToken");
+				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+				var response = await httpClient.PatchAsJsonAsync($"change-temporary-password/{id}", password);
+				
+				if(!response.IsSuccessStatusCode)
+					await response.HandleResponseError();
+			}
+			catch (Exception e)
+			{
+				throw new Exception(e.Message, e);
 			}
 		}
 

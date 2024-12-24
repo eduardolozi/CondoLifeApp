@@ -66,7 +66,7 @@
     <PagerContent>
         <MudContainer Class="d-flex flex-row justify-content-between px-0 m-0 border-top">
             <MudTablePager HideRowsPerPage="true" HidePageNumber="true"/>
-            <MudButton Class="m-2" Size="Size.Small" Variant="Variant.Filled" Style="background-color: #2ca179; color: white;">Cadastrar</MudButton>
+            <MudButton Class="m-2" Size="Size.Small" Variant="Variant.Filled" Style="background-color: #2ca179; color: white;" OnClick="OpenRegisterDialog">Cadastrar</MudButton>
         </MudContainer>
     </PagerContent>
 </MudTable>
@@ -80,12 +80,20 @@
     {
         if (firstRender)
         {
-            _user = await AuthService.GetUserByClaims();
-            _users = await UserService.GetAll(new UserFilter
+            try
             {
-                CondominiumId = _user!.CondominiumId,
-                OnlyEmailVerified = true
-            });
+                _user = await AuthService.GetUserByClaims();
+                _users = await UserService.GetAll(new UserFilter
+                {
+                    CondominiumId = _user!.CondominiumId,
+                    OnlyEmailVerified = true
+                });
+
+            }
+            catch (Exception ex)
+            {
+                await DialogService.ShowMessageBox("Erro!", ex.Message);
+            }
             StateHasChanged();
         }
     }
@@ -120,6 +128,25 @@
                 });
             });
             StateHasChanged();
+        }
+    }
+
+    async Task OpenRegisterDialog()
+    {
+        try
+        {
+            var parameters = new DialogParameters<ManagerRegisterUserDialog> { { x => x.CondominiumId, _user!.CondominiumId } };
+            var options = new DialogOptions { CloseButton = true };
+            var dialog = await DialogService.ShowAsync<ManagerRegisterUserDialog>("Criar usuário", parameters, options);
+            var result = await dialog.Result;
+            if (result!.Data is true)
+            {
+                await DialogService.ShowMessageBox("Sucesso!", "O usuário foi criado com sucesso");
+            }
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBox("Erro!", ex.Message);
         }
     }
 }
